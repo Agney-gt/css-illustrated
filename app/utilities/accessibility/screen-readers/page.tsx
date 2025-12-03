@@ -189,7 +189,7 @@ Form submitted successfully
                   <td className="border px-4 py-2">Visible to all users</td>
                 </tr>
                 <tr>
-                  <td className="border px-4 py-2">Use Case</td>
+                  <td className="border px-4 py-2">Use Cases</td>
                   <td className="border px-4 py-2">Hidden labels, instructions, live updates</td>
                   <td className="border px-4 py-2">Alerts, navigation, visible content</td>
                 </tr>
