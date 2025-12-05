@@ -853,6 +853,7 @@ export default function FlexDirectionPage() {
           </div>
         </div>
       </main>
+
       <Footer />
     </div>
   );
