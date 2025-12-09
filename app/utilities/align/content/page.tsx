@@ -1,6 +1,10 @@
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import UtilityPageTemplate from "../../components/utility-page-template"
+"use client";
+import {useState} from "react";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
+import UtilityPageTemplate from "../../components/utility-page-template";
+import CodeBlock from "@/app/utilities/components/code-block";
+
 
 const alignContentUtilities = {
   title: "Align Content",
