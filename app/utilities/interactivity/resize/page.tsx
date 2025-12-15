@@ -1,6 +1,6 @@
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import UtilityPageTemplate from "../../components/utility-page-template"
+import UtilityPageTemplate from "../../components/utility-page-template" 
 
 const resizeUtilities = {
   title: "Resize",
