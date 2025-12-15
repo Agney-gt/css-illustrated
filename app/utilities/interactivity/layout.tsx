@@ -19,7 +19,7 @@ const links = [
   { href: "/utilities/interactivity/field-sizing", label: "Field Sizing" },
   { href: "/utilities/interactivity/pointer-events", label: "Pointer Events" },
   { href: "/utilities/interactivity/resize", label: "Resize" },
-  { href: "/utilities/interactivity/scroll-behavior", label: "Scroll Behavior" },
+  { href: "/utilities/interactivity/scroll-behaviour", label: "Scroll Behavior" },
   { href: "/utilities/interactivity/scroll-margin", label: "Scroll Margin" },
   { href: "/utilities/interactivity/scroll-padding", label: "Scroll Padding" },
   { href: "/utilities/interactivity/scroll-snap-align", label: "Scroll Snap Align" },
