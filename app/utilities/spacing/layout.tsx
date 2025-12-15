@@ -24,12 +24,6 @@ export default function SpacingLayout({
             >
               Margin
             </Link>
-            <Link
-              href="/utilities/spacing/space-between"
-              className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
-            >
-              Space Between
-            </Link>
           </div>
         </div>
       </div>
