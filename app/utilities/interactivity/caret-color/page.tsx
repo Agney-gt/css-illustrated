@@ -1,41 +1,62 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
-import CodeBlock from "@/app/utilities/components/code-block";
+import { useState, useEffect } from "react"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
+import PageTitle from "@/components/otherComponents/pageTitle"
+import UtilityCard from "@/components/otherComponents/utilityClassCard"
+import UtilityExaButtons from "@/components/otherComponents/utilityExaBtn"
+import PreviewPanel from "@/components/otherComponents/previewPanel"
+import ExampleCard from "@/components/otherComponents/realWorldExampleCard"
+import SummaryTips from "@/components/otherComponents/summaryTips"
 
-type Caret =
-  | "caret-blue-500"
-  | "caret-green-500"
-  | "caret-rose-500"
-  | "caret-purple-500"
-  | "caret-slate-500";
+const utilities = [
+  { className: "caret-inherit", desc: "Inherit caret color from parent" },
+  { className: "caret-current", desc: "Use current text color as caret" },
+  { className: "caret-transparent", desc: "Invisible caret" },
+  { className: "caret-black", desc: "Black caret color" },
+  { className: "caret-white", desc: "White caret color" },
+
+  { className: "caret-red-500", desc: "Red caret for alerts or errors" },
+  { className: "caret-orange-500", desc: "Orange caret for warnings" },
+  { className: "caret-amber-500", desc: "Amber caret for attention states" },
+  { className: "caret-yellow-500", desc: "Yellow caret highlight" },
+  { className: "caret-lime-500", desc: "Lime caret for success hints" },
+  { className: "caret-green-500", desc: "Green caret for success states" },
+  { className: "caret-emerald-500", desc: "Emerald caret accent" },
+  { className: "caret-teal-500", desc: "Teal caret accent" },
+  { className: "caret-cyan-500", desc: "Cyan caret accent" },
+  { className: "caret-sky-500", desc: "Sky caret accent" },
+  { className: "caret-blue-500", desc: "Primary blue caret" },
+  { className: "caret-indigo-500", desc: "Indigo caret accent" },
+  { className: "caret-violet-500", desc: "Violet caret accent" },
+  { className: "caret-purple-500", desc: "Purple caret for branding" },
+  { className: "caret-fuchsia-500", desc: "Fuchsia caret accent" },
+  { className: "caret-pink-500", desc: "Pink caret accent" },
+  { className: "caret-rose-500", desc: "Rose caret for destructive actions" },
+  { className: "caret-slate-500", desc: "Neutral slate caret" },
+  { className: "caret-gray-500", desc: "Neutral gray caret" },
+  { className: "caret-zinc-500", desc: "Muted zinc caret" },
+  { className: "caret-neutral-500", desc: "Neutral system caret" },
+  { className: "caret-stone-500", desc: "Stone caret accent" },
+]
 
 export default function CaretColorPage() {
-  const [copied, setCopied] = useState<string | null>(null);
+  const utilityOptions = utilities.map((u) => u.className)
+  const [activeUtility, setActiveUtility] = useState(utilityOptions[0])
+  const [code, setCode] = useState("")
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(text);
-    setTimeout(() => setCopied(null), 2000);
-  };
-
-  const utilities = [
-    { className: "caret-blue-500", desc: "Blue text cursor" },
-    { className: "caret-green-500", desc: "Green caret for success states" },
-    { className: "caret-rose-500", desc: "Rose caret for warnings/errors" },
-    { className: "caret-purple-500", desc: "Purple caret for branded inputs" },
-    { className: "caret-slate-500", desc: "Neutral slate caret" },
-  ];
-
-  const [caret, setCaret] = useState<Caret>("caret-blue-500");
-
-  const playgroundMarkup = `<input
+  useEffect(() => {
+    setCode(
+      `
+<input
   type="text"
-  class="caret-blue-500 border rounded px-3 py-2 w-full"
-  placeholder="Start typing..."
-/>`;
+  class="${activeUtility} border rounded px-3 py-2 w-full"
+  placeholder="Click and start typing..."
+/>
+      `.trim()
+    )
+  }, [activeUtility])
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -43,172 +64,94 @@ export default function CaretColorPage() {
 
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
-          {/* Header */}
-          <div className="space-y-4">
-            <h1 className="text-5xl font-bold">Caret Color</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              Control the color of the text insertion cursor (caret) inside
-              inputs and textareas.
-            </p>
-          </div>
+          <PageTitle
+            title="Caret Color"
+            description="Control the color of the text insertion cursor inside inputs and textareas."
+          />
 
-          {/* Utilities */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Caret Color Utilities</h2>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-4 gap-4">
               {utilities.map((u) => (
-                <button
+                <UtilityCard
                   key={u.className}
-                  onClick={() => copyToClipboard(u.className)}
-                  className="border border-border rounded-lg p-4 text-left hover:bg-card/50 transition"
-                >
-                  <div className="flex justify-between items-center">
-                    <code className="font-mono text-sm font-semibold text-foreground bg-muted/40 px-2 py-0.5 rounded">
-                      {u.className}
-                    </code>
-                    <span className="text-xs text-muted-foreground">
-                      {copied === u.className ? "Copied" : "Copy"}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {u.desc}
-                  </p>
-                </button>
+                  classNameValue={u.className}
+                  description={u.desc}
+                />
               ))}
             </div>
           </div>
 
-          {/* Playground */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Interactive Playground</h2>
 
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Controls */}
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-muted-foreground">
-                  Caret color
-                </label>
-                <div className="flex gap-2 flex-wrap">
-                  {utilities.map((u) => (
-                    <button
-                      key={u.className}
-                      onClick={() => setCaret(u.className as Caret)}
-                      className={`px-3 py-1 text-sm rounded border ${
-                        caret === u.className
-                          ? "border-blue-500 bg-blue-500/10"
-                          : "border-border"
-                      }`}
-                    >
-                      {u.className.replace("caret-", "")}
-                    </button>
-                  ))}
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div className="space-y-4">
+                <UtilityExaButtons
+                  label="Caret Colors"
+                  options={utilityOptions}
+                  activeValue={activeUtility}
+                  onSelect={setActiveUtility}
+                />
               </div>
 
-              {/* Preview */}
-              <div className="md:col-span-2 space-y-4">
-                <div className="border border-border rounded-lg p-4 bg-card/30">
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="font-semibold text-sm">Live preview</div>
-                    <button
-                      onClick={() => copyToClipboard(playgroundMarkup)}
-                      className="text-xs px-3 py-1 rounded bg-muted/10"
-                    >
-                      Copy markup
-                    </button>
-                  </div>
-
-                  <input
-                    type="text"
-                    className={`${caret} border rounded px-3 py-2 w-full bg-background`}
-                    placeholder="Click here and start typing…"
-                  />
-
-                  <CodeBlock code={playgroundMarkup} language="jsx" />
-
-                  <p className="text-sm text-muted-foreground mt-3">
-                    The caret color is visible only when the input is focused.
-                  </p>
-                </div>
+              <div className="md:col-span-2">
+                <PreviewPanel
+                  title="Live Preview"
+                  code={code}
+                  onCodeChange={setCode}
+                  previewClass="p-4"
+                  description="Focus the input to see the caret color."
+                />
               </div>
             </div>
           </div>
 
-          {/* Real-world examples */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Real-world examples</h2>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Brand input */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <h3 className="font-semibold mb-3">Brand-colored input</h3>
-
-                <div className="border border-border rounded p-3 mb-3">
-                  <input
-                    className="caret-purple-500 border rounded px-3 py-2 w-full"
-                    placeholder="Brand search"
-                  />
-                </div>
-
-                <CodeBlock
-                  code={`<input
-  class="caret-purple-500 border px-3 py-2"
-  placeholder="Brand search"
-/>`}
-                  language="jsx"
+              <ExampleCard
+                title="Brand-aligned input"
+                code={`<input class="caret-purple-500 border px-3 py-2" />`}
+                description="Subtle branding detail that improves perceived polish."
+              >
+                <input
+                  className="caret-purple-500 border rounded px-3 py-2 w-full"
+                  placeholder="Search products"
                 />
+              </ExampleCard>
 
-                <p className="text-sm text-muted-foreground mt-2">
-                  Subtle branding detail that improves polish without
-                  overwhelming the UI.
-                </p>
-              </div>
-
-              {/* Error input */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <h3 className="font-semibold mb-3">Error / warning state</h3>
-
-                <div className="border border-border rounded p-3 mb-3">
-                  <input
-                    className="caret-rose-500 border border-rose-400 rounded px-3 py-2 w-full"
-                    placeholder="Invalid value"
-                  />
-                </div>
-
-                <CodeBlock
-                  code={`<input
-  class="caret-rose-500 border border-rose-400 px-3 py-2"
-/>`}
-                  language="jsx"
+              <ExampleCard
+                title="Error state reinforcement"
+                code={`<input class="caret-rose-500 border border-rose-400 px-3 py-2" />`}
+                description="Use caret color to reinforce validation states."
+              >
+                <input
+                  className="caret-rose-500 border border-rose-400 rounded px-3 py-2 w-full"
+                  placeholder="Invalid value"
                 />
-
-                <p className="text-sm text-muted-foreground mt-2">
-                  Reinforce error states with consistent visual signals.
-                </p>
-              </div>
+              </ExampleCard>
             </div>
           </div>
 
-          {/* Tips */}
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-6 space-y-3">
-            <h3 className="font-semibold">Summary tips</h3>
-            <ul className="text-sm text-muted-foreground space-y-2">
-              <li>
-                Caret color only appears when an input is focused.
-              </li>
-              <li>
-                Best used subtly for branding or state indication.
-              </li>
-              <li>
-                Avoid low-contrast caret colors for accessibility.
-              </li>
-            </ul>
-          </div>
+          <SummaryTips
+            items={[
+              "1. Caret color is visible only when the input is focused.",
+              "2. Works with inputs and textareas, not contenteditable elements.",
+              "3. Use subtle colors for better readability.",
+              "4. caret-current syncs caret with text color automatically.",
+              "5. Avoid low-contrast caret colors for accessibility.",
+              "6. Caret color does not affect selection highlight color.",
+              "7. Combine caret color with border and ring states for clarity.",
+              "8. Overusing caret colors can distract users during typing.",
+            ]}
+          />
         </div>
       </main>
 
       <Footer />
     </div>
-  );
+  )
 }

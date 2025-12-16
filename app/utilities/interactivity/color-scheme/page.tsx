@@ -1,42 +1,58 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
-import CodeBlock from "@/app/utilities/components/code-block";
+import { useState, useEffect } from "react"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
+import PageTitle from "@/components/otherComponents/pageTitle"
+import UtilityCard from "@/components/otherComponents/utilityClassCard"
+import UtilityExaButtons from "@/components/otherComponents/utilityExaBtn"
+import PreviewPanel from "@/components/otherComponents/previewPanel"
+import ExampleCard from "@/components/otherComponents/realWorldExampleCard"
+import SummaryTips from "@/components/otherComponents/summaryTips"
 
-type Scheme = "scheme-light" | "scheme-dark" | "scheme-normal";
+const utilities = [
+  {
+    className: "scheme-normal",
+    desc: "Use the browser or OS preferred color scheme",
+  },
+  {
+    className: "scheme-light",
+    desc: "Force native UI elements to render in light mode",
+  },
+  {
+    className: "scheme-dark",
+    desc: "Force native UI elements to render in dark mode",
+  },
+]
 
 export default function ColorSchemePage() {
-  const [copied, setCopied] = useState<string | null>(null);
+  const utilityOptions = utilities.map((u) => u.className)
+  const [activeUtility, setActiveUtility] = useState(utilityOptions[0])
+  const [code, setCode] = useState("")
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(text);
-    setTimeout(() => setCopied(null), 2000);
-  };
+  useEffect(() => {
+    setCode(
+      `
+<div class="${activeUtility} space-y-3 p-4 border rounded">
+  <input
+    type="text"
+    class="border rounded px-3 py-2 w-full"
+    placeholder="Text input"
+  />
 
-  const utilities = [
-    {
-      className: "scheme-light",
-      desc: "Forces light color scheme for native UI",
-    },
-    {
-      className: "scheme-dark",
-      desc: "Forces dark color scheme for native UI",
-    },
-    {
-      className: "scheme-normal",
-      desc: "Uses browser / OS default color scheme",
-    },
-  ];
+  <label class="flex items-center gap-2">
+    <input type="checkbox" checked />
+    Checkbox
+  </label>
 
-  const [scheme, setScheme] = useState<Scheme>("scheme-normal");
-
-  const playgroundMarkup = `<div class="scheme-dark p-4 border rounded">
-  <input type="text" class="border rounded px-3 py-2" placeholder="Input" />
-  <input type="checkbox" checked />
-</div>`;
+  <textarea
+    class="border rounded px-3 py-2 w-full"
+    placeholder="Textarea"
+  ></textarea>
+</div>
+      `.trim()
+    )
+  }, [activeUtility])
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -44,188 +60,106 @@ export default function ColorSchemePage() {
 
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
-          {/* Header */}
-          <div className="space-y-4">
-            <h1 className="text-5xl font-bold">Color Scheme</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              Control whether native UI elements render in light or dark mode,
-              independent of your site theme.
-            </p>
-          </div>
+          <PageTitle
+            title="Color Scheme"
+            description="Control whether native UI elements render in light or dark mode, independent of your site theme."
+          />
 
-          {/* Utilities */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Color Scheme Utilities</h2>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-3 gap-4">
               {utilities.map((u) => (
-                <button
+                <UtilityCard
                   key={u.className}
-                  onClick={() => copyToClipboard(u.className)}
-                  className="border border-border rounded-lg p-4 text-left hover:bg-card/50 transition"
-                >
-                  <div className="flex justify-between items-center">
-                    <code className="font-mono text-sm font-semibold text-foreground bg-muted/40 px-2 py-0.5 rounded">
-                      {u.className}
-                    </code>
-                    <span className="text-xs text-muted-foreground">
-                      {copied === u.className ? "Copied" : "Copy"}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {u.desc}
-                  </p>
-                </button>
+                  classNameValue={u.className}
+                  description={u.desc}
+                />
               ))}
             </div>
           </div>
 
-          {/* Playground */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Interactive Playground</h2>
-            <p className="text-muted-foreground">
-              Color scheme affects native controls like inputs, scrollbars, and
-              form UI.
-            </p>
 
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Controls */}
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-muted-foreground">
-                  Color scheme
-                </label>
-                <div className="flex gap-2 flex-wrap">
-                  {utilities.map((u) => (
-                    <button
-                      key={u.className}
-                      onClick={() =>
-                        setScheme(u.className as Scheme)
-                      }
-                      className={`px-3 py-1 text-sm rounded border ${
-                        scheme === u.className
-                          ? "border-blue-500 bg-blue-500/10"
-                          : "border-border"
-                      }`}
-                    >
-                      {u.className.replace("scheme-", "")}
-                    </button>
-                  ))}
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div className="space-y-4">
+                <UtilityExaButtons
+                  label="Color Scheme"
+                  options={utilityOptions}
+                  activeValue={activeUtility}
+                  onSelect={setActiveUtility}
+                />
               </div>
 
-              {/* Preview */}
-              <div className="md:col-span-2 space-y-4">
-                <div className="border border-border rounded-lg p-4 bg-card/30">
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="font-semibold text-sm">Live preview</div>
-                    <button
-                      onClick={() => copyToClipboard(playgroundMarkup)}
-                      className="text-xs px-3 py-1 rounded bg-muted/10"
-                    >
-                      Copy markup
-                    </button>
-                  </div>
-
-                  <div
-                    className={`${scheme} p-4 rounded border space-y-3`}
-                  >
-                    <input
-                      type="text"
-                      className="border rounded px-3 py-2 w-full"
-                      placeholder="Text input"
-                    />
-                    <label className="flex items-center gap-2">
-                      <input type="checkbox" defaultChecked />
-                      Checkbox
-                    </label>
-                  </div>
-
-                  <CodeBlock code={playgroundMarkup} language="jsx" />
-
-                  <p className="text-sm text-muted-foreground mt-3">
-                    Try switching schemes to see how native UI adapts.
-                  </p>
-                </div>
+              <div className="md:col-span-2">
+                <PreviewPanel
+                  title="Live Preview"
+                  code={code}
+                  onCodeChange={setCode}
+                  previewClass="p-4"
+                  description="Switch schemes to see how native UI elements adapt."
+                />
               </div>
             </div>
           </div>
 
-          {/* Real-world examples */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Real-world examples</h2>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Forced dark widgets */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <h3 className="font-semibold mb-3">
-                  Dark widgets inside light UI
-                </h3>
-
-                <div className="border border-border rounded p-3 mb-3 scheme-dark">
+              <ExampleCard
+                title="Dark widgets inside light UI"
+                code={`<div class="scheme-dark">
+  <input class="border px-3 py-2" />
+</div>`}
+                description="Force dark native controls inside an otherwise light interface."
+              >
+                <div className="scheme-dark p-3 border rounded space-y-2">
                   <input
                     className="border rounded px-3 py-2 w-full"
                     placeholder="Dark input"
                   />
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" />
+                    Checkbox
+                  </label>
                 </div>
+              </ExampleCard>
 
-                <CodeBlock
-                  code={`<div class="scheme-dark">
+              <ExampleCard
+                title="Respect system preference"
+                code={`<div class="scheme-normal">
   <input class="border px-3 py-2" />
 </div>`}
-                  language="jsx"
-                />
-
-                <p className="text-sm text-muted-foreground mt-2">
-                  Useful for embedding dark widgets in otherwise light pages.
-                </p>
-              </div>
-
-              {/* Respect system preference */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <h3 className="font-semibold mb-3">
-                  Respect system preference
-                </h3>
-
-                <div className="border border-border rounded p-3 mb-3 scheme-normal">
+                description="Let the operating system decide light or dark mode automatically."
+              >
+                <div className="scheme-normal p-3 border rounded">
                   <input
                     className="border rounded px-3 py-2 w-full"
                     placeholder="System-based input"
                   />
                 </div>
-
-                <CodeBlock
-                  code={`<div class="scheme-normal">
-  <input class="border px-3 py-2" />
-</div>`}
-                  language="jsx"
-                />
-
-                <p className="text-sm text-muted-foreground mt-2">
-                  Let the OS decide light or dark mode automatically.
-                </p>
-              </div>
+              </ExampleCard>
             </div>
           </div>
 
-          {/* Tips */}
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-6 space-y-3">
-            <h3 className="font-semibold">Summary tips</h3>
-            <ul className="text-sm text-muted-foreground space-y-2">
-              <li>
-                Color scheme affects only native UI, not custom components.
-              </li>
-              <li>
-                Use sparingly — forcing schemes can surprise users.
-              </li>
-              <li>
-                Test on multiple browsers and OS themes.
-              </li>
-            </ul>
-          </div>
+          <SummaryTips
+            items={[
+              "1. Color scheme affects only native browser UI elements.",
+              "2. Custom components are not affected by scheme utilities.",
+              "3. scheme-dark and scheme-light override OS preferences.",
+              "4. Use scheme-normal to respect system color settings.",
+              "5. Forcing schemes can surprise users if overused.",
+              "6. Useful for embedding widgets with fixed color requirements.",
+              "7. Test across browsers and operating systems.",
+              "8. Color scheme does not control Tailwind dark mode.",
+            ]}
+          />
         </div>
       </main>
 
       <Footer />
     </div>
-  );
+  )
 }
