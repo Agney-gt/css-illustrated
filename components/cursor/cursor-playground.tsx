@@ -2,7 +2,10 @@
 
 import React, { useState } from "react";
 import CodeBlock from "@/app/utilities/components/code-block";
-import { CursorClass, CURSOR_UTILITIES } from "@/app/utilities/interactivity/cursor/data";
+import {
+  CursorClass,
+  CURSOR_UTILITIES,
+} from "@/app/utilities/interactivity/cursor/data";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
 export function CursorPlayground() {
@@ -47,10 +50,14 @@ export function CursorPlayground() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-2">
+            <label
+              htmlFor="playground-label"
+              className="block text-sm font-medium text-muted-foreground mb-2"
+            >
               Label
             </label>
             <input
+              id="playground-label"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               className="w-full px-3 py-2 rounded border border-border bg-slate-700 text-white"

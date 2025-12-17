@@ -8,9 +8,14 @@ export function CursorUtilities() {
   const { copiedText, copy } = useCopyToClipboard();
 
   return (
-    <section className="space-y-6 border-t border-border pt-8">
+    <section
+      aria-labelledby="cursor-utilities-heading"
+      className="space-y-6 border-t border-border pt-8"
+    >
       <div className="space-y-2">
-        <h2 className="text-3xl font-bold">Cursor utilities</h2>
+        <h2 id="cursor-utilities-heading" className="text-3xl font-bold">
+          Cursor utilities
+        </h2>
         <p className="text-muted-foreground">Click a class to copy it.</p>
       </div>
 
