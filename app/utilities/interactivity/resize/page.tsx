@@ -89,55 +89,51 @@ export default function ResizePage() {
             <div className="grid md:grid-cols-2 gap-6">
               <ExampleCard
                 title="Chat message input"
-                code={`<textarea class="resize-y h-24 w-full rounded-lg border px-3 py-2"></textarea>`}
+                code={`<div class="rounded-xl bg-slate-900 p-4">
+  <textarea
+    class="resize-y w-full h-24 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-600"
+    placeholder="Type a message…"
+  ></textarea>
+</div>`}
                 description="Supports longer messages without breaking the layout."
               >
-                <div className="rounded-xl bg-slate-900 p-4">
-                  <textarea
-                    className="resize-y w-full h-24 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-600"
-                    placeholder="Type a message…"
-                  />
-                </div>
               </ExampleCard>
 
               <ExampleCard
                 title="Structured form feedback"
-                code={`<textarea class="resize-none h-24 w-full rounded-lg border px-3 py-2"></textarea>`}
+                code={`<div class="space-y-2 rounded-xl bg-white p-4 shadow">
+  <label class="text-sm font-medium">Feedback</label>
+  <textarea
+    class="resize-none w-full h-24 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+    placeholder="Share your thoughts"
+  ></textarea>
+</div>`}
                 description="Keeps forms aligned and predictable."
               >
-                <div className="space-y-2 rounded-xl bg-white p-4 shadow">
-                  <label className="text-sm font-medium">Feedback</label>
-                  <textarea
-                    className="resize-none w-full h-24 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
-                    placeholder="Share your thoughts"
-                  />
-                </div>
               </ExampleCard>
 
               <ExampleCard
                 title="Resizable notes panel"
-                code={`<textarea class="resize h-32 w-full rounded-lg border px-3 py-2"></textarea>`}
+                code={`<div class="rounded-xl bg-yellow-50 p-4">
+  <textarea
+    class="resize w-full h-32 rounded-lg border border-yellow-300 bg-yellow-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+    placeholder="Write your notes…"
+  ></textarea>
+</div>`}
                 description="Ideal for note-taking or draft writing."
               >
-                <div className="rounded-xl bg-yellow-50 p-4">
-                  <textarea
-                    className="resize w-full h-32 rounded-lg border border-yellow-300 bg-yellow-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                    placeholder="Write your notes…"
-                  />
-                </div>
               </ExampleCard>
 
               <ExampleCard
                 title="Horizontal-only editor"
-                code={`<textarea class="resize-x h-20 w-full rounded-lg border px-3 py-2"></textarea>`}
+                code={`<div class="rounded-xl bg-slate-950 p-4">
+  <textarea
+    class="resize-x w-full h-20 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 font-mono text-xs text-green-400 focus:outline-none focus:ring-2 focus:ring-slate-600"
+    placeholder="const message = 'Hello world'"
+  ></textarea>
+</div>`}
                 description="Useful for code or single-line style editors."
               >
-                <div className="rounded-xl bg-slate-950 p-4">
-                  <textarea
-                    className="resize-x w-full h-20 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 font-mono text-xs text-green-400 focus:outline-none focus:ring-2 focus:ring-slate-600"
-                    placeholder="const message = 'Hello world'"
-                  />
-                </div>
               </ExampleCard>
             </div>
           </div>

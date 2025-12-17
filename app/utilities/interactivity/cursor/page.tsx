@@ -109,7 +109,7 @@ export default function CursorPage() {
 
               <ExampleCard
                 title="Draggable content"
-                code={`<div class="cursor-grab bg-zinc-700 px-4 py-2 border rounded w-fit">Drag me</div>`}
+                code={`<div class="cursor-grab bg-zinc-700 px-4 py-2 border rounded w-fit" draggable="true">Drag me</div>`}
                 description="Indicate draggable or movable UI elements."
               >
               </ExampleCard>
@@ -130,12 +130,9 @@ export default function CursorPage() {
 
               <ExampleCard
                 title="Image zoom"
-                code={`<img class="cursor-zoom-in" />`}
+                code={`<img class="cursor-zoom-in px-2 py-3" src="https://picsum.photos/seed/picsum/200/300"/>`}
                 description="Common in galleries and product images."
               >
-                <div className="cursor-zoom-in px-4 py-6 border rounded text-center">
-                  Product image
-                </div>
               </ExampleCard>
 
               <ExampleCard

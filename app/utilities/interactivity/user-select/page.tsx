@@ -1,48 +1,36 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
-import CodeBlock from "@/app/utilities/components/code-block";
+import { useState, useEffect } from "react"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
+import PageTitle from "@/components/otherComponents/pageTitle"
+import UtilityCard from "@/components/otherComponents/utilityClassCard"
+import UtilityExaButtons from "@/components/otherComponents/utilityExaBtn"
+import PreviewPanel from "@/components/otherComponents/previewPanel"
+import ExampleCard from "@/components/otherComponents/realWorldExampleCard"
+import SummaryTips from "@/components/otherComponents/summaryTips"
 
-type UserSelect =
-  | "select-none"
-  | "select-text"
-  | "select-all"
-  | "select-auto";
+const utilities = [
+  { className: "select-none", desc: "Prevent users from selecting text" },
+  { className: "select-text", desc: "Allow normal text selection" },
+  { className: "select-all", desc: "Select all text on click" },
+  { className: "select-auto", desc: "Browser decides selection behavior" },
+]
 
 export default function UserSelectPage() {
-  const [copied, setCopied] = useState<string | null>(null);
-  const [select, setSelect] = useState<UserSelect>("select-text");
+  const options = utilities.map((u) => u.className)
+  const [select, setSelect] = useState(options[1])
+  const [code, setCode] = useState("")
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(text);
-    setTimeout(() => setCopied(null), 2000);
-  };
-
-  const utilities = [
-    {
-      className: "select-none",
-      desc: "Prevent users from selecting text",
-    },
-    {
-      className: "select-text",
-      desc: "Allow normal text selection",
-    },
-    {
-      className: "select-all",
-      desc: "Select all text on click",
-    },
-    {
-      className: "select-auto",
-      desc: "Browser decides selection behavior",
-    },
-  ];
-
-  const playgroundMarkup = `<p class="select-none">
-  This text cannot be selected
-</p>`;
+  useEffect(() => {
+    setCode(
+      `
+<p class="${select} rounded-xl border bg-slate-50 p-6 text-sm">
+  Try selecting this text using mouse, keyboard, or touch.
+</p>
+      `.trim()
+    )
+  }, [select])
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -50,171 +38,112 @@ export default function UserSelectPage() {
 
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
-          {/* Header */}
-          <div className="space-y-4">
-            <h1 className="text-5xl font-bold">User Select</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              Control whether users can select text or elements with the mouse
-              or keyboard.
-            </p>
-          </div>
+          <PageTitle
+            title="User Select"
+            description="Control whether users can select text or UI elements using mouse, touch, or keyboard."
+          />
 
-          {/* Utilities */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">User Select Utilities</h2>
 
             <div className="grid md:grid-cols-2 gap-4">
               {utilities.map((u) => (
-                <button
+                <UtilityCard
                   key={u.className}
-                  onClick={() => copyToClipboard(u.className)}
-                  className="border border-border rounded-lg p-4 text-left hover:bg-card/50 transition"
-                >
-                  <div className="flex justify-between items-center">
-                    <code className="font-mono text-sm font-semibold text-foreground bg-muted/40 px-2 py-0.5 rounded">
-                      {u.className}
-                    </code>
-                    <span className="text-xs text-muted-foreground">
-                      {copied === u.className ? "Copied" : "Copy"}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {u.desc}
-                  </p>
-                </button>
+                  classNameValue={u.className}
+                  description={u.desc}
+                />
               ))}
             </div>
           </div>
 
-          {/* Playground */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Interactive Playground</h2>
 
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Controls */}
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-muted-foreground">
-                  User select behavior
-                </label>
-                <div className="flex gap-2 flex-wrap">
-                  {utilities.map((u) => (
-                    <button
-                      key={u.className}
-                      onClick={() => setSelect(u.className as UserSelect)}
-                      className={`px-3 py-1 text-sm rounded border ${
-                        select === u.className
-                          ? "border-blue-500 bg-blue-500/10"
-                          : "border-border"
-                      }`}
-                    >
-                      {u.className.replace("select-", "")}
-                    </button>
-                  ))}
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div>
+                <UtilityExaButtons
+                  label="User select behavior"
+                  options={options}
+                  activeValue={select}
+                  onSelect={setSelect}
+                />
               </div>
 
-              {/* Preview */}
-              <div className="md:col-span-2 space-y-4">
-                <div className="border border-border rounded-lg p-4 bg-card/30">
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="font-semibold text-sm">Live preview</div>
-                    <button
-                      onClick={() => copyToClipboard(playgroundMarkup)}
-                      className="text-xs px-3 py-1 rounded bg-muted/10"
-                    >
-                      Copy markup
-                    </button>
-                  </div>
-
-                  <p
-                    className={`${select} p-3 border rounded bg-background`}
-                  >
-                    Try selecting this text with your mouse or keyboard.
-                  </p>
-
-                  <CodeBlock code={playgroundMarkup} language="jsx" />
-
-                  <p className="text-sm text-muted-foreground mt-3">
-                    User selection control is useful for UI chrome and controls,
-                    not for content.
-                  </p>
-                </div>
+              <div className="md:col-span-2">
+                <PreviewPanel
+                  title="Live Preview"
+                  code={code}
+                  onCodeChange={setCode}
+                  previewClass="p-6"
+                  description="Try selecting the content to feel the difference."
+                />
               </div>
             </div>
           </div>
 
-          {/* Real-world examples */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Real-world examples</h2>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Buttons & UI */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <h3 className="font-semibold mb-3">
-                  Buttons & UI labels
-                </h3>
+              <ExampleCard
+                title="Interactive UI controls"
+                code={`<div class="flex gap-4">
+  <button class="select-none rounded-lg bg-blue-600 px-4 py-2 text-white font-medium">
+    Primary action
+  </button>
+  <button class="select-none rounded-lg bg-slate-200 px-4 py-2 font-medium">
+    Secondary
+  </button>
+</div>`}
+                description="Avoids accidental text selection during interaction."
+              >
+              </ExampleCard>
 
-                <div className="border border-border rounded p-3 mb-3">
-                  <button className="select-none px-4 py-2 bg-blue-600 text-white rounded">
-                    Click me
-                  </button>
-                </div>
+              <ExampleCard
+                title="Copy command blocks"
+                code={`<code class="select-all block rounded-xl bg-slate-900 px-4 py-3 font-mono text-sm text-white">
+npm install tailwindcss
+</code>`}
+                description="Instantly selects content for fast copying."
+              >
+              </ExampleCard>
 
-                <CodeBlock
-                  code={`<button class="select-none">Click me</button>`}
-                  language="jsx"
-                />
+              <ExampleCard
+                title="Draggable cards"
+                code={`<div class="select-none flex items-center justify-center h-28 rounded-xl bg-slate-800 text-white font-medium cursor-grab" draggable="true">
+  Drag me
+</div>`}
+                description="Prevents selection while dragging items."
+              >
+              </ExampleCard>
 
-                <p className="text-sm text-muted-foreground mt-2">
-                  Prevent accidental text selection during interaction.
-                </p>
-              </div>
-
-              {/* Code blocks */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <h3 className="font-semibold mb-3">
-                  Copyable code snippet
-                </h3>
-
-                <div className="border border-border rounded p-3 mb-3">
-                  <code className="select-all block bg-slate-800 text-white p-2 rounded">
-                    npm install tailwindcss
-                  </code>
-                </div>
-
-                <CodeBlock
-                  code={`<code class="select-all">npm install tailwindcss</code>`}
-                  language="jsx"
-                />
-
-                <p className="text-sm text-muted-foreground mt-2">
-                  One-click full selection improves copy UX.
-                </p>
-              </div>
+              <ExampleCard
+                title="Readable article text"
+                code={`<article class="select-text rounded-xl border bg-white p-4 text-sm leading-relaxed">
+Users can highlight and copy any part of this paragraph without
+restriction, improving readability and accessibility.        
+</article>`}
+                description="Keeps long-form content selectable and accessible."
+              >
+              </ExampleCard>
             </div>
           </div>
 
-          {/* Tips */}
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-6 space-y-3">
-            <h3 className="font-semibold">Summary tips</h3>
-            <ul className="text-sm text-muted-foreground space-y-2">
-              <li>
-                Use <code className="bg-slate-700 px-1 rounded">select-none</code>{" "}
-                on interactive UI elements.
-              </li>
-              <li>
-                Use <code className="bg-slate-700 px-1 rounded">select-all</code>{" "}
-                for copy-focused content.
-              </li>
-              <li>
-                Never disable selection on long-form text.
-              </li>
-            </ul>
-          </div>
+          <SummaryTips
+            items={[
+              "1. Use select-none on buttons, icons, and draggable UI.",
+              "2. Use select-text for normal content and reading areas.",
+              "3. select-all improves copy usability for code snippets.",
+              "4. Avoid disabling selection on long-form text.",
+              "5. Works with mouse, keyboard, and touch selection.",
+              "6. Often combined with cursor and pointer utilities.",
+            ]}
+          />
         </div>
       </main>
 
       <Footer />
     </div>
-  );
+  )
 }

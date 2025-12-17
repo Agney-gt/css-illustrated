@@ -106,59 +106,55 @@ export default function ScrollBehaviorPage() {
             <div className="grid md:grid-cols-2 gap-6">
               <ExampleCard
                 title="Documentation navigation"
-                code={`<html class="scroll-smooth">...</html>`}
+                code={`<div class="scroll-smooth h-40 overflow-y-auto rounded-xl border bg-white p-4 space-y-4">
+  <a href="#section" class="text-blue-600 underline font-medium">
+    Jump to API section
+  </a>
+  <div class="h-40 bg-slate-300 rounded"></div>
+  <div id="section" class="font-semibold text-lg">
+    API Reference
+  </div>
+</div>`}
                 description="Creates a polished navigation experience for long-form content."
               >
-                <div className="scroll-smooth h-40 overflow-y-auto rounded-xl border bg-white p-4 space-y-4">
-                  <a href="#section" className="text-blue-600 underline font-medium">
-                    Jump to API section
-                  </a>
-                  <div className="h-40 bg-slate-100 rounded"></div>
-                  <div id="section" className="font-semibold text-lg">
-                    API Reference
-                  </div>
-                </div>
               </ExampleCard>
 
               <ExampleCard
                 title="Modal or side panel"
-                code={`<div class="scroll-auto overflow-y-auto"></div>`}
+                code={`<div class="scroll-auto h-40 overflow-y-auto rounded-xl border bg-slate-900 p-4 text-slate-200 space-y-4 text-sm">
+  <p class="font-medium text-white">Settings</p>
+  <div class="h-32 bg-slate-600 rounded"></div>
+  <div class="h-32 bg-slate-600 rounded"></div>
+</div>`}
                 description="Keeps interactions responsive in constrained layouts."
               >
-                <div className="scroll-auto h-40 overflow-y-auto rounded-xl border bg-slate-900 p-4 text-slate-200 space-y-4 text-sm">
-                  <p className="font-medium text-white">Settings</p>
-                  <div className="h-32 bg-slate-800 rounded"></div>
-                  <div className="h-32 bg-slate-800 rounded"></div>
-                </div>
               </ExampleCard>
 
               <ExampleCard
                 title="Table of contents jump"
-                code={`<div class="scroll-smooth overflow-y-auto"></div>`}
+                code={`<div class="scroll-smooth h-40 overflow-y-auto rounded-xl border bg-slate-50 p-4 space-y-6">
+  <a href="#chapter3" class="font-medium text-indigo-600 underline">
+    Go to chapter 3
+  </a>
+  <div class="h-48 bg-slate-200 rounded"></div>
+  <div id="chapter3" class="text-lg font-semibold">
+    Chapter 3
+  </div>
+</div>`}
                 description="Helps users orient themselves when jumping between sections."
               >
-                <div className="scroll-smooth h-40 overflow-y-auto rounded-xl border bg-slate-50 p-4 space-y-6">
-                  <a href="#chapter" className="font-medium text-indigo-600 underline">
-                    Go to chapter 3
-                  </a>
-                  <div className="h-48 bg-slate-200 rounded"></div>
-                  <div id="chapter" className="text-lg font-semibold">
-                    Chapter 3
-                  </div>
-                </div>
               </ExampleCard>
 
               <ExampleCard
                 title="Activity feed"
-                code={`<div class="scroll-auto overflow-y-auto"></div>`}
+                code={`<div class="scroll-auto h-40 overflow-y-auto rounded-xl border bg-white p-4 space-y-3 text-sm">
+  <div class="rounded bg-slate-300 px-3 py-2">User signed in</div>
+  <div class="rounded bg-slate-300 px-3 py-2">Profile updated</div>
+  <div class="rounded bg-slate-300 px-3 py-2">New message received</div>
+  <div class="rounded bg-slate-300 px-3 py-2">Settings saved</div>
+</div>`}
                 description="Immediate scrolling feels faster for live or frequently updating feeds."
               >
-                <div className="scroll-auto h-40 overflow-y-auto rounded-xl border bg-white p-4 space-y-3 text-sm">
-                  <div className="rounded bg-slate-100 px-3 py-2">User signed in</div>
-                  <div className="rounded bg-slate-100 px-3 py-2">Profile updated</div>
-                  <div className="rounded bg-slate-100 px-3 py-2">New message received</div>
-                  <div className="rounded bg-slate-100 px-3 py-2">Settings saved</div>
-                </div>
               </ExampleCard>
             </div>
           </div>

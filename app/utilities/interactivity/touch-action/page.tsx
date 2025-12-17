@@ -1,56 +1,50 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
-import CodeBlock from "@/app/utilities/components/code-block";
+import { useState, useEffect } from "react"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
+import PageTitle from "@/components/otherComponents/pageTitle"
+import UtilityCard from "@/components/otherComponents/utilityClassCard"
+import UtilityExaButtons from "@/components/otherComponents/utilityExaBtn"
+import PreviewPanel from "@/components/otherComponents/previewPanel"
+import ExampleCard from "@/components/otherComponents/realWorldExampleCard"
+import SummaryTips from "@/components/otherComponents/summaryTips"
 
-type TouchAction =
-  | "touch-auto"
-  | "touch-none"
-  | "touch-pan-x"
-  | "touch-pan-y"
-  | "touch-pinch-zoom";
+const utilities = [
+  { className: "touch-auto", desc: "Browser handles all default touch behaviors" },
+  { className: "touch-none", desc: "Disable all touch interactions" },
+  { className: "touch-pan-x", desc: "Allow horizontal panning only" },
+  { className: "touch-pan-y", desc: "Allow vertical panning only" },
+  { className: "touch-pinch-zoom", desc: "Allow pinch zoom gestures" },
+]
 
 export default function TouchActionPage() {
-  const [copied, setCopied] = useState<string | null>(null);
-  const [action, setAction] =
-    useState<TouchAction>("touch-auto");
+  const options = utilities.map((u) => u.className)
+  const [action, setAction] = useState(options[0])
+  const [code, setCode] = useState("")
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(text);
-    setTimeout(() => setCopied(null), 2000);
-  };
-
-  const utilities = [
-    {
-      className: "touch-auto",
-      desc: "Browser handles all default touch behaviors",
-    },
-    {
-      className: "touch-none",
-      desc: "Disable all touch interactions",
-    },
-    {
-      className: "touch-pan-x",
-      desc: "Allow horizontal panning only",
-    },
-    {
-      className: "touch-pan-y",
-      desc: "Allow vertical panning only",
-    },
-    {
-      className: "touch-pinch-zoom",
-      desc: "Allow pinch zoom gestures",
-    },
-  ];
-
-  const playgroundMarkup = `<div class="touch-pan-x overflow-x-auto">
-  <div class="flex gap-4">
-    <div class="w-64 h-32">Card</div>
+  useEffect(() => {
+    setCode(
+      `
+<div class="${action} overflow-x-auto rounded-xl border bg-slate-50 p-6">
+  <div class="flex gap-6 w-max">
+    <div class="w-64 h-36 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-medium">
+      Card 1
+    </div>
+    <div class="w-64 h-36 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 text-white flex items-center justify-center font-medium">
+      Card 2
+    </div>
+    <div class="w-64 h-36 rounded-xl bg-gradient-to-br from-blue-700 to-blue-800 text-white flex items-center justify-center font-medium">
+      Card 3
+    </div>
+    <div class="w-64 h-36 rounded-xl bg-gradient-to-br from-blue-800 to-blue-900 text-white flex items-center justify-center font-medium">
+      Card 4
+    </div>
   </div>
-</div>`;
+</div>
+      `.trim()
+    )
+  }, [action])
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -58,183 +52,130 @@ export default function TouchActionPage() {
 
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
-          {/* Header */}
-          <div className="space-y-4">
-            <h1 className="text-5xl font-bold">Touch Action</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              Control how touch input behaves on touch-enabled devices, such as
-              scrolling, panning, and zooming.
-            </p>
-          </div>
+          <PageTitle
+            title="Touch Action"
+            description="Control how touch input behaves on touch-enabled devices, including scrolling, panning, and zooming."
+          />
 
-          {/* Utilities */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Touch Action Utilities</h2>
 
             <div className="grid md:grid-cols-2 gap-4">
               {utilities.map((u) => (
-                <button
+                <UtilityCard
                   key={u.className}
-                  onClick={() => copyToClipboard(u.className)}
-                  className="border border-border rounded-lg p-4 text-left hover:bg-card/50 transition"
-                >
-                  <div className="flex justify-between items-center">
-                    <code className="font-mono text-sm font-semibold text-foreground bg-muted/40 px-2 py-0.5 rounded">
-                      {u.className}
-                    </code>
-                    <span className="text-xs text-muted-foreground">
-                      {copied === u.className ? "Copied" : "Copy"}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {u.desc}
-                  </p>
-                </button>
+                  classNameValue={u.className}
+                  description={u.desc}
+                />
               ))}
             </div>
           </div>
 
-          {/* Playground */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Interactive Playground</h2>
 
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Controls */}
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-muted-foreground">
-                  Touch action
-                </label>
-                <div className="flex gap-2 flex-wrap">
-                  {utilities.map((u) => (
-                    <button
-                      key={u.className}
-                      onClick={() =>
-                        setAction(u.className as TouchAction)
-                      }
-                      className={`px-3 py-1 text-sm rounded border ${
-                        action === u.className
-                          ? "border-blue-500 bg-blue-500/10"
-                          : "border-border"
-                      }`}
-                    >
-                      {u.className.replace("touch-", "")}
-                    </button>
-                  ))}
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div>
+                <UtilityExaButtons
+                  label="Touch action"
+                  options={options}
+                  activeValue={action}
+                  onSelect={setAction}
+                />
               </div>
 
-              {/* Preview */}
-              <div className="md:col-span-2 space-y-4">
-                <div
-                  className={`border border-border rounded-lg p-4 bg-card/30 ${action}`}
-                >
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="font-semibold text-sm">Live preview</div>
-                    <button
-                      onClick={() => copyToClipboard(playgroundMarkup)}
-                      className="text-xs px-3 py-1 rounded bg-muted/10"
-                    >
-                      Copy markup
-                    </button>
-                  </div>
-
-                  <div className="overflow-x-auto flex gap-4">
-                    {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className="w-64 h-32 bg-blue-600 rounded flex-shrink-0 text-white flex items-center justify-center"
-                      >
-                        Card {i}
-                      </div>
-                    ))}
-                  </div>
-
-                  <CodeBlock code={playgroundMarkup} language="jsx" />
-
-                  <p className="text-sm text-muted-foreground mt-3">
-                    Touch actions mainly affect mobile and tablet interactions.
-                  </p>
-                </div>
+              <div className="md:col-span-2">
+                <PreviewPanel
+                  title="Live Preview"
+                  code={code}
+                  onCodeChange={setCode}
+                  previewClass="p-6"
+                  description="Try swiping horizontally, vertically, or pinching on touch devices."
+                />
               </div>
             </div>
           </div>
 
-          {/* Real-world examples */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Real-world examples</h2>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Horizontal carousel */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <h3 className="font-semibold mb-3">
-                  Swipeable carousel
-                </h3>
+              <ExampleCard
+                title="Swipeable carousel"
+                code={`<div class="touch-pan-x overflow-x-auto flex p-4 rounded-xl border bg-slate-900">
+  <div class="flex gap-6">
+  <div class="w-56 h-32 rounded-lg bg-slate-700 flex items-center justify-center text-white font-medium">
+    Slide 1
+  </div>
+  <div class="w-56 h-32 rounded-lg bg-slate-600 flex items-center justify-center text-white font-medium">
+    Slide 2
+  </div>
+  <div class="w-56 h-32 rounded-lg bg-slate-500 flex items-center justify-center text-white font-medium">
+    Slide 3
+  </div>
+  <div class="w-56 h-32 rounded-lg bg-slate-500 flex items-center justify-center text-white font-medium">
+    Slide 4
+  </div>
+  </div>
+</div>`}
+                description="Allows horizontal swiping without triggering page scroll."
+              >
+                
+              </ExampleCard>
 
-                <div className="border border-border rounded p-3 mb-3 touch-pan-x overflow-x-auto flex gap-4">
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="w-56 h-28 bg-slate-700 rounded flex-shrink-0"
-                    />
-                  ))}
+              <ExampleCard
+                title="Vertical gesture panel"
+                code={`<div class="touch-pan-y h-40 overflow-x-auto rounded-xl border bg-white p-4 space-y-3">
+  <div class="h-16 rounded bg-slate-100 flex items-center justify-center">
+    Top
+  </div>
+    <div class="h-16 rounded bg-slate-200 flex items-center justify-center">
+    Middle
+  </div>
+  <div class="h-16 rounded bg-slate-300 flex items-center justify-center">
+    Bottom
+  </div>
+</div>`}
+                description="Preserves vertical interactions while blocking horizontal drift."
+              >
+              </ExampleCard>
+
+              <ExampleCard
+                title="Custom drawing canvas"
+                code={`<canvas class="touch-none rounded-xl bg-slate-800"></canvas>`}
+                description="Gives full control over pointer events."
+              >
+                <div className="touch-none h-36 rounded-xl bg-slate-800 flex items-center justify-center text-white font-medium">
+                  Draw here
                 </div>
+              </ExampleCard>
 
-                <CodeBlock
-                  code={`<div class="touch-pan-x overflow-x-auto">...</div>`}
-                  language="jsx"
-                />
-
-                <p className="text-sm text-muted-foreground mt-2">
-                  Prevents vertical scrolling while swiping horizontally.
-                </p>
-              </div>
-
-              {/* Drawing canvas */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <h3 className="font-semibold mb-3">
-                  Custom gesture surface
-                </h3>
-
-                <div className="border border-border rounded p-3 mb-3">
-                  <div className="touch-none h-28 bg-slate-800 rounded flex items-center justify-center text-white">
-                    Gesture area
-                  </div>
-                </div>
-
-                <CodeBlock
-                  code={`<div class="touch-none">Gesture area</div>`}
-                  language="jsx"
-                />
-
-                <p className="text-sm text-muted-foreground mt-2">
-                  Required when implementing custom touch or drag logic.
-                </p>
-              </div>
+              <ExampleCard
+                title="Zoomable media viewer"
+                code={`<div class="touch-pinch-zoom h-36 rounded-xl border bg-slate-50 flex items-center justify-center text-slate-700 font-medium">
+  Pinch to zoom
+</div>`}
+                description="Allows zoom gestures while preventing accidental panning."
+              >
+              </ExampleCard>
             </div>
           </div>
 
-          {/* Tips */}
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-6 space-y-3">
-            <h3 className="font-semibold">Summary tips</h3>
-            <ul className="text-sm text-muted-foreground space-y-2">
-              <li>
-                Use <code className="bg-slate-700 px-1 rounded">touch-pan-x</code>{" "}
-                or <code className="bg-slate-700 px-1 rounded">touch-pan-y</code>{" "}
-                for scrollable carousels.
-              </li>
-              <li>
-                Use <code className="bg-slate-700 px-1 rounded">touch-none</code>{" "}
-                when handling gestures in JavaScript.
-              </li>
-              <li>
-                Touch action improves performance by reducing browser guesswork.
-              </li>
-            </ul>
-          </div>
+          <SummaryTips
+            items={[
+              "1. touch-action affects touch and pointer devices only.",
+              "2. Use touch-pan-x for horizontal carousels.",
+              "3. Use touch-pan-y for vertical gesture areas.",
+              "4. touch-none is required for custom drag or drawing logic.",
+              "5. touch-pinch-zoom allows zooming while blocking panning.",
+              "6. Helps improve scroll performance by avoiding browser heuristics.",
+              "7. Has no visible effect on mouse-only devices.",
+            ]}
+          />
         </div>
       </main>
 
       <Footer />
     </div>
-  );
+  )
 }

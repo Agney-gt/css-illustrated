@@ -1,46 +1,52 @@
-"use client";
+"use client"
 
-import { useRef, useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
-import CodeBlock from "@/app/utilities/components/code-block";
+import { useState, useEffect } from "react"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
+import PageTitle from "@/components/otherComponents/pageTitle"
+import UtilityCard from "@/components/otherComponents/utilityClassCard"
+import UtilityExaButtons from "@/components/otherComponents/utilityExaBtn"
+import PreviewPanel from "@/components/otherComponents/previewPanel"
+import ExampleCard from "@/components/otherComponents/realWorldExampleCard"
+import SummaryTips from "@/components/otherComponents/summaryTips"
 
-type ScrollPadding =
-  | "scroll-pt-0"
-  | "scroll-pt-16"
-  | "scroll-pt-24"
-  | "scroll-pt-32";
+const utilities = [
+  { className: "scroll-pt-0", desc: "No scroll padding at the top" },
+  { className: "scroll-pt-16", desc: "Small internal padding offset" },
+  { className: "scroll-pt-24", desc: "Medium padding for sticky headers" },
+  { className: "scroll-pt-32", desc: "Large padding for tall toolbars" },
+]
 
 export default function ScrollPaddingPage() {
-  const [copied, setCopied] = useState<string | null>(null);
-  const [padding, setPadding] =
-    useState<ScrollPadding>("scroll-pt-0");
+  const utilityOptions = utilities.map((u) => u.className)
+  const [activeUtility, setActiveUtility] = useState(utilityOptions[0])
+  const [code, setCode] = useState("")
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    setCode(
+      `
+<div class="${activeUtility} h-52 overflow-y-auto rounded-xl border bg-slate-50 p-4 space-y-6 text-sm">
+  <div class="sticky top-0 z-10 rounded bg-slate-900 px-3 py-2 text-white font-medium">
+    Sticky header
+  </div>
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(text);
-    setTimeout(() => setCopied(null), 2000);
-  };
+  <div class="h-48 rounded bg-slate-200"></div>
 
-  const utilities = [
-    { className: "scroll-pt-0", desc: "No scroll padding at the top" },
-    { className: "scroll-pt-16", desc: "Top padding inside scroll container" },
-    { className: "scroll-pt-24", desc: "Larger padding for sticky headers" },
-    { className: "scroll-pt-32", desc: "Extra padding for tall toolbars" },
-  ];
+  <div class="rounded-lg bg-green-600 px-4 py-3 text-white font-medium">
+    First item
+  </div>
 
-  const playgroundMarkup = `<div class="scroll-pt-24 overflow-y-auto">
-  <!-- scrollable content -->
-</div>`;
+  <div class="h-48 rounded bg-slate-200"></div>
 
-  const scrollToTop = () => {
-    containerRef.current?.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
+  <div class="rounded-lg bg-purple-600 px-4 py-3 text-white font-medium">
+    Second item
+  </div>
+
+  <div class="h-48 rounded bg-slate-200"></div>
+</div>
+      `.trim()
+    )
+  }, [activeUtility])
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -48,186 +54,130 @@ export default function ScrollPaddingPage() {
 
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
-          {/* Header */}
-          <div className="space-y-4">
-            <h1 className="text-5xl font-bold">Scroll Padding</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              Control the padding inside a scroll container that offsets where
-              content appears when scrolled.
-            </p>
-          </div>
+          <PageTitle
+            title="Scroll Padding"
+            description="Control the internal offset of a scroll container when content scrolls into view."
+          />
 
-          {/* Utilities */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Scroll Padding Utilities</h2>
 
             <div className="grid md:grid-cols-2 gap-4">
               {utilities.map((u) => (
-                <button
+                <UtilityCard
                   key={u.className}
-                  onClick={() => copyToClipboard(u.className)}
-                  className="border border-border rounded-lg p-4 text-left hover:bg-card/50 transition"
-                >
-                  <div className="flex justify-between items-center">
-                    <code className="font-mono text-sm font-semibold text-foreground bg-muted/40 px-2 py-0.5 rounded">
-                      {u.className}
-                    </code>
-                    <span className="text-xs text-muted-foreground">
-                      {copied === u.className ? "Copied" : "Copy"}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {u.desc}
-                  </p>
-                </button>
+                  classNameValue={u.className}
+                  description={u.desc}
+                />
               ))}
             </div>
           </div>
 
-          {/* Playground */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Interactive Playground</h2>
 
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Controls */}
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-muted-foreground">
-                  Scroll padding (top)
-                </label>
-                <div className="flex gap-2 flex-wrap">
-                  {utilities.map((u) => (
-                    <button
-                      key={u.className}
-                      onClick={() =>
-                        setPadding(u.className as ScrollPadding)
-                      }
-                      className={`px-3 py-1 text-sm rounded border ${
-                        padding === u.className
-                          ? "border-blue-500 bg-blue-500/10"
-                          : "border-border"
-                      }`}
-                    >
-                      {u.className.replace("scroll-pt-", "")}
-                    </button>
-                  ))}
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div className="space-y-4">
+                <UtilityExaButtons
+                  label="Scroll Padding (Top)"
+                  options={utilityOptions}
+                  activeValue={activeUtility}
+                  onSelect={setActiveUtility}
+                />
               </div>
 
-              {/* Preview */}
-              <div className="md:col-span-2 space-y-4">
-                <div
-                  className={`border border-border rounded-lg p-4 bg-card/30 ${padding}`}
-                >
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="font-semibold text-sm">Live preview</div>
-                    <button
-                      onClick={() => copyToClipboard(playgroundMarkup)}
-                      className="text-xs px-3 py-1 rounded bg-muted/10"
-                    >
-                      Copy markup
-                    </button>
-                  </div>
-
-                  <div
-                    ref={containerRef}
-                    className="h-48 overflow-y-auto border rounded p-2 space-y-6"
-                  >
-                    <button
-                      onClick={scrollToTop}
-                      className="px-3 py-1 bg-blue-600 text-white rounded"
-                    >
-                      Scroll to top
-                    </button>
-                    <div className="h-40" />
-                    <div className="p-3 bg-green-500 text-white rounded">
-                      First item
-                    </div>
-                    <div className="h-40" />
-                    <div className="p-3 bg-purple-500 text-white rounded">
-                      Second item
-                    </div>
-                    <div className="h-40" />
-                  </div>
-
-                  <CodeBlock code={playgroundMarkup} language="jsx" />
-
-                  <p className="text-sm text-muted-foreground mt-3">
-                    Scroll padding creates internal breathing room when content
-                    scrolls into view.
-                  </p>
-                </div>
+              <div className="md:col-span-2">
+                <PreviewPanel
+                  title="Live Preview"
+                  code={code}
+                  onCodeChange={setCode}
+                  previewClass="p-6"
+                  description="Scroll to see how content clears the sticky header."
+                />
               </div>
             </div>
           </div>
 
-          {/* Real-world examples */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Real-world examples</h2>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Sticky header container */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <h3 className="font-semibold mb-3">
-                  Scroll container with sticky header
-                </h3>
-
-                <div className="border border-border rounded p-3 mb-3 scroll-pt-24 h-32 overflow-y-auto">
-                  <div className="sticky top-0 bg-slate-800 text-white p-2">
-                    Sticky header
+              <ExampleCard
+                title="Sticky header containers"
+                code={`<div class="scroll-pt-24 overflow-y-auto"></div>`}
+                description="Keeps scrollable content readable under pinned headers."
+              >
+                <div className="scroll-pt-24 h-40 overflow-y-auto rounded-xl border bg-white">
+                  <div className="sticky top-0 z-10 bg-slate-800 px-3 py-2 text-white font-medium">
+                    Messages
                   </div>
-                  <div className="h-40" />
-                  <p>Scrollable content</p>
+                  <div className="h-40 bg-slate-100 rounded"></div>
+                  <p className="px-3 py-2 text-sm">Conversation content</p>
                 </div>
+              </ExampleCard>
 
-                <CodeBlock
-                  code={`<div class="scroll-pt-24 overflow-y-auto">
-  <div class="sticky top-0">Header</div>
-</div>`}
-                  language="jsx"
-                />
-
-                <p className="text-sm text-muted-foreground mt-2">
-                  Prevents content from hiding behind sticky headers.
-                </p>
-              </div>
-
-              {/* Horizontal scroll snapping */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <h3 className="font-semibold mb-3">
-                  Carousel / snap container
-                </h3>
-
-                <div className="border border-border rounded p-3 mb-3 scroll-pt-16 overflow-x-auto whitespace-nowrap">
-                  <div className="inline-block w-48 h-20 bg-blue-500 mr-4" />
-                  <div className="inline-block w-48 h-20 bg-green-500 mr-4" />
-                  <div className="inline-block w-48 h-20 bg-purple-500 mr-4" />
+              <ExampleCard
+                title="Scrollable data panels"
+                code={`<div class="scroll-pt-32 overflow-y-auto"></div>`}
+                description="Adds breathing room for dense dashboards."
+              >
+                <div className="scroll-pt-32 h-40 overflow-y-auto rounded-xl border bg-slate-900 p-3 text-slate-200 space-y-3 text-sm">
+                  <div className="sticky top-0 bg-slate-950 px-2 py-1 font-medium">
+                    Filters
+                  </div>
+                  <div className="h-48 bg-slate-800 rounded"></div>
+                  <div className="rounded bg-slate-800 px-2 py-1">
+                    Chart content
+                  </div>
                 </div>
+              </ExampleCard>
 
-                <CodeBlock
-                  code={`<div class="scroll-pt-16 overflow-x-auto"></div>`}
-                  language="jsx"
-                />
+              <ExampleCard
+                title="Carousel & snap scrolling"
+                code={`<div class="scroll-pt-16 overflow-x-auto"></div>`}
+                description="Maintains consistent spacing when snapping items."
+              >
+                <div className="scroll-pt-16 overflow-x-auto whitespace-nowrap rounded-xl border bg-slate-50 p-4">
+                  <div className="inline-block h-24 w-56 rounded-lg bg-blue-500 mr-4" />
+                  <div className="inline-block h-24 w-56 rounded-lg bg-green-500 mr-4" />
+                  <div className="inline-block h-24 w-56 rounded-lg bg-purple-500 mr-4" />
+                </div>
+              </ExampleCard>
 
-                <p className="text-sm text-muted-foreground mt-2">
-                  Useful when combining with scroll snap utilities.
-                </p>
-              </div>
+              <ExampleCard
+                title="Command palette results"
+                code={`<div class="scroll-pt-16 overflow-y-auto"></div>`}
+                description="Ensures highlighted results are never hidden."
+              >
+                <div className="scroll-pt-16 h-40 overflow-y-auto rounded-xl border bg-white p-3 space-y-2 text-sm">
+                  <div className="sticky top-0 bg-white font-medium">
+                    Search results
+                  </div>
+                  <div className="h-32 bg-slate-100 rounded"></div>
+                  <div className="rounded bg-indigo-600 px-3 py-2 text-white">
+                    Selected item
+                  </div>
+                </div>
+              </ExampleCard>
             </div>
           </div>
 
-          {/* Tips */}
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-6 space-y-3">
-            <h3 className="font-semibold">Summary tips</h3>
-            <ul className="text-sm text-muted-foreground space-y-2">
-              <li>Scroll padding applies to the scroll container.</li>
-              <li>Different from scroll margin, which applies to the target.</li>
-              <li>Commonly used with sticky headers and snap layouts.</li>
-            </ul>
-          </div>
+          <SummaryTips
+            items={[
+              "1. Scroll padding applies to the scroll container itself.",
+              "2. Different from scroll margin, which applies to target elements.",
+              "3. Commonly used with sticky headers.",
+              "4. Useful for scroll snap and carousel layouts.",
+              "5. Does not affect layout spacing outside the container.",
+              "6. Combine with scroll-smooth for polished UX.",
+              "7. Padding values should reflect header height.",
+              "8. Works with both vertical and horizontal scrolling.",
+            ]}
+          />
         </div>
       </main>
 
       <Footer />
     </div>
-  );
+  )
 }
