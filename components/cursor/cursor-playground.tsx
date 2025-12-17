@@ -122,10 +122,14 @@ export function CursorPlayground() {
               </div>
 
               <div className="mb-4">
-                <div className="mb-2 text-sm text-muted-foreground">
+                <label
+                  htmlFor="playground-textarea"
+                  className="mb-2 text-sm text-muted-foreground"
+                >
                   Text area (text)
-                </div>
+                </label>
                 <textarea
+                  id="playground-textarea"
                   className={`w-full px-3 py-2 rounded bg-slate-700 text-white ${
                     hoverOnly ? `hover:cursor-text` : "cursor-text"
                   }`}
