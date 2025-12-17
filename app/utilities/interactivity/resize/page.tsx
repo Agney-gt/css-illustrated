@@ -1,38 +1,37 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
-import CodeBlock from "@/app/utilities/components/code-block";
+import { useState, useEffect } from "react"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
+import PageTitle from "@/components/otherComponents/pageTitle"
+import UtilityCard from "@/components/otherComponents/utilityClassCard"
+import UtilityExaButtons from "@/components/otherComponents/utilityExaBtn"
+import PreviewPanel from "@/components/otherComponents/previewPanel"
+import ExampleCard from "@/components/otherComponents/realWorldExampleCard"
+import SummaryTips from "@/components/otherComponents/summaryTips"
 
-type Resize =
-  | "resize"
-  | "resize-none"
-  | "resize-x"
-  | "resize-y";
+const utilities = [
+  { className: "resize", desc: "Resize both horizontally and vertically" },
+  { className: "resize-x", desc: "Resize horizontally only" },
+  { className: "resize-y", desc: "Resize vertically only" },
+  { className: "resize-none", desc: "Disable resizing" },
+]
 
 export default function ResizePage() {
-  const [copied, setCopied] = useState<string | null>(null);
+  const utilityOptions = utilities.map((u) => u.className)
+  const [activeUtility, setActiveUtility] = useState(utilityOptions[0])
+  const [code, setCode] = useState("")
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(text);
-    setTimeout(() => setCopied(null), 2000);
-  };
-
-  const utilities = [
-    { className: "resize", desc: "Resize both horizontally and vertically" },
-    { className: "resize-x", desc: "Resize horizontally only" },
-    { className: "resize-y", desc: "Resize vertically only" },
-    { className: "resize-none", desc: "Disable resizing" },
-  ];
-
-  const [resize, setResize] = useState<Resize>("resize");
-
-  const playgroundMarkup = `<textarea
-  class="resize border rounded px-3 py-2 w-full h-28"
+  useEffect(() => {
+    setCode(
+      `
+<textarea
+  class="${activeUtility} w-full h-28 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
   placeholder="Try resizing me..."
-></textarea>`;
+></textarea>
+      `.trim()
+    )
+  }, [activeUtility])
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -40,158 +39,125 @@ export default function ResizePage() {
 
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
-          {/* Header */}
-          <div className="space-y-4">
-            <h1 className="text-5xl font-bold">Resize</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              Control whether and how elements like textareas can be resized by the user.
-            </p>
-          </div>
+          <PageTitle
+            title="Resize"
+            description="Control whether and how elements like textareas can be resized by the user."
+          />
 
-          {/* Utilities */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Resize Utilities</h2>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-4 gap-4">
               {utilities.map((u) => (
-                <button
+                <UtilityCard
                   key={u.className}
-                  onClick={() => copyToClipboard(u.className)}
-                  className="border border-border rounded-lg p-4 text-left hover:bg-card/50 transition"
-                >
-                  <div className="flex justify-between items-center">
-                    <code className="font-mono text-sm font-semibold text-foreground bg-muted/40 px-2 py-0.5 rounded">
-                      {u.className}
-                    </code>
-                    <span className="text-xs text-muted-foreground">
-                      {copied === u.className ? "Copied" : "Copy"}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {u.desc}
-                  </p>
-                </button>
+                  classNameValue={u.className}
+                  description={u.desc}
+                />
               ))}
             </div>
           </div>
 
-          {/* Playground */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Interactive Playground</h2>
 
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Controls */}
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-muted-foreground">
-                  Resize behavior
-                </label>
-                <div className="flex gap-2 flex-wrap">
-                  {utilities.map((u) => (
-                    <button
-                      key={u.className}
-                      onClick={() => setResize(u.className as Resize)}
-                      className={`px-3 py-1 text-sm rounded border ${
-                        resize === u.className
-                          ? "border-blue-500 bg-blue-500/10"
-                          : "border-border"
-                      }`}
-                    >
-                      {u.className.replace("resize-", "") || "both"}
-                    </button>
-                  ))}
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div className="space-y-4">
+                <UtilityExaButtons
+                  label="Resize Behavior"
+                  options={utilityOptions}
+                  activeValue={activeUtility}
+                  onSelect={setActiveUtility}
+                />
               </div>
 
-              {/* Preview */}
-              <div className="md:col-span-2 space-y-4">
-                <div className="border border-border rounded-lg p-4 bg-card/30">
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="font-semibold text-sm">Live preview</div>
-                    <button
-                      onClick={() => copyToClipboard(playgroundMarkup)}
-                      className="text-xs px-3 py-1 rounded bg-muted/10"
-                    >
-                      Copy markup
-                    </button>
-                  </div>
-
-                  <textarea
-                    className={`${resize} border rounded px-3 py-2 w-full h-28 bg-background`}
-                    placeholder="Try resizing me..."
-                  />
-
-                  <CodeBlock code={playgroundMarkup} language="jsx" />
-
-                  <p className="text-sm text-muted-foreground mt-3">
-                    Resizing is most commonly applied to textareas.
-                  </p>
-                </div>
+              <div className="md:col-span-2">
+                <PreviewPanel
+                  title="Live Preview"
+                  code={code}
+                  onCodeChange={setCode}
+                  previewClass="p-6 bg-slate-50 rounded-xl"
+                  description="Drag the resize handle to see how each utility behaves."
+                />
               </div>
             </div>
           </div>
 
-          {/* Real-world examples */}
           <div className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Real-world examples</h2>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Chat input */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <h3 className="font-semibold mb-3">Chat message input</h3>
-
-                <div className="border border-border rounded p-3 mb-3">
+              <ExampleCard
+                title="Chat message input"
+                code={`<textarea class="resize-y h-24 w-full rounded-lg border px-3 py-2"></textarea>`}
+                description="Supports longer messages without breaking the layout."
+              >
+                <div className="rounded-xl bg-slate-900 p-4">
                   <textarea
-                    className="resize-y border rounded px-3 py-2 w-full h-24"
+                    className="resize-y w-full h-24 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-600"
                     placeholder="Type a message…"
                   />
                 </div>
+              </ExampleCard>
 
-                <CodeBlock
-                  code={`<textarea class="resize-y h-24"></textarea>`}
-                  language="jsx"
-                />
-
-                <p className="text-sm text-muted-foreground mt-2">
-                  Allow vertical growth without breaking horizontal layout.
-                </p>
-              </div>
-
-              {/* Fixed form field */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <h3 className="font-semibold mb-3">Fixed form textarea</h3>
-
-                <div className="border border-border rounded p-3 mb-3">
+              <ExampleCard
+                title="Structured form feedback"
+                code={`<textarea class="resize-none h-24 w-full rounded-lg border px-3 py-2"></textarea>`}
+                description="Keeps forms aligned and predictable."
+              >
+                <div className="space-y-2 rounded-xl bg-white p-4 shadow">
+                  <label className="text-sm font-medium">Feedback</label>
                   <textarea
-                    className="resize-none border rounded px-3 py-2 w-full h-24"
-                    placeholder="Feedback"
+                    className="resize-none w-full h-24 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
+                    placeholder="Share your thoughts"
                   />
                 </div>
+              </ExampleCard>
 
-                <CodeBlock
-                  code={`<textarea class="resize-none h-24"></textarea>`}
-                  language="jsx"
-                />
+              <ExampleCard
+                title="Resizable notes panel"
+                code={`<textarea class="resize h-32 w-full rounded-lg border px-3 py-2"></textarea>`}
+                description="Ideal for note-taking or draft writing."
+              >
+                <div className="rounded-xl bg-yellow-50 p-4">
+                  <textarea
+                    className="resize w-full h-32 rounded-lg border border-yellow-300 bg-yellow-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    placeholder="Write your notes…"
+                  />
+                </div>
+              </ExampleCard>
 
-                <p className="text-sm text-muted-foreground mt-2">
-                  Prevent layout shifts in structured forms.
-                </p>
-              </div>
+              <ExampleCard
+                title="Horizontal-only editor"
+                code={`<textarea class="resize-x h-20 w-full rounded-lg border px-3 py-2"></textarea>`}
+                description="Useful for code or single-line style editors."
+              >
+                <div className="rounded-xl bg-slate-950 p-4">
+                  <textarea
+                    className="resize-x w-full h-20 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 font-mono text-xs text-green-400 focus:outline-none focus:ring-2 focus:ring-slate-600"
+                    placeholder="const message = 'Hello world'"
+                  />
+                </div>
+              </ExampleCard>
             </div>
           </div>
 
-          {/* Tips */}
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-6 space-y-3">
-            <h3 className="font-semibold">Summary tips</h3>
-            <ul className="text-sm text-muted-foreground space-y-2">
-              <li>Use vertical resizing for long-form text.</li>
-              <li>Disable resizing when layout stability matters.</li>
-              <li>Resize utilities apply mostly to textarea elements.</li>
-            </ul>
-          </div>
+          <SummaryTips
+            items={[
+              "1. resize enables both horizontal and vertical resizing.",
+              "2. resize-y is ideal for chat and comment inputs.",
+              "3. resize-none prevents layout-breaking user resizing.",
+              "4. resize-x is rarely used in form layouts.",
+              "5. Resize utilities primarily affect textarea elements.",
+              "6. Fixed resizing improves consistency in structured forms.",
+              "7. Vertical resizing balances flexibility and stability.",
+              "8. Always test resizing behavior in responsive layouts.",
+            ]}
+          />
         </div>
       </main>
 
       <Footer />
     </div>
-  );
+  )
 }
