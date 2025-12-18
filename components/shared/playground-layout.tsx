@@ -1,13 +1,15 @@
+"use client";
+
 import React from "react";
 import CodeBlock from "@/app/utilities/components/code-block";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
 interface PlaygroundLayoutProps {
   title?: string;
   description?: string;
-  controls: React.ReactNode; // Left side
-  preview: React.ReactNode; // Right side (Visual)
-  code: string; // Right side (Code)
-  onCopyCode: () => void;
+  controls: React.ReactNode;
+  preview: React.ReactNode;
+  code: string;
 }
 
 export function PlaygroundLayout({
@@ -16,8 +18,10 @@ export function PlaygroundLayout({
   controls,
   preview,
   code,
-  onCopyCode,
 }: PlaygroundLayoutProps) {
+  const { copy, copiedText } = useCopyToClipboard();
+  const isCopied = copiedText === code;
+
   return (
     <section
       aria-labelledby="playground-heading"
@@ -43,10 +47,10 @@ export function PlaygroundLayout({
                 </div>
               </div>
               <button
-                onClick={onCopyCode}
-                className="text-xs px-3 py-1 rounded bg-muted/10 hover:bg-muted/20 cursor-pointer"
+                onClick={() => copy(code)}
+                className="text-xs px-3 py-1 rounded bg-muted/10 hover:bg-muted/20 cursor-pointer min-w-[5rem] transition-all"
               >
-                Copy markup
+                {isCopied ? "Copied!" : "Copy markup"}
               </button>
             </div>
 

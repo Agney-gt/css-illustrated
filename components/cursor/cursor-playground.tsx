@@ -23,7 +23,6 @@ export function CursorPlayground() {
       title="Interactive playground"
       description="Pick a cursor utility and test it on different controls."
       code={playgroundMarkup}
-      onCopyCode={() => copy(playgroundMarkup)}
       controls={
         <>
           <div>

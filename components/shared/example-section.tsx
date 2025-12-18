@@ -20,17 +20,20 @@ export function ExampleCard({
   copyText,
   children,
 }: ExampleCardProps) {
-  const { copy } = useCopyToClipboard();
+  const { copy, copiedText } = useCopyToClipboard();
+
+  const textToCopy = copyText || code;
+  const isCopied = copiedText === textToCopy;
 
   return (
     <article className="border border-border rounded-lg p-4 bg-card/20">
       <div className="mb-3 flex items-baseline justify-between">
         <h3 className="text-lg font-semibold">{title}</h3>
         <button
-          onClick={() => copy(copyText || code)}
-          className="text-xs px-2 py-1 rounded bg-muted/10 hover:bg-muted/20 cursor-pointer"
+          onClick={() => copy(textToCopy)}
+          className="text-xs px-2 py-1 rounded bg-muted/10 hover:bg-muted/20 cursor-pointer min-w-[3rem] transition-all"
         >
-          Copy
+          {isCopied ? "Copied" : "Copy"}
         </button>
       </div>
 
