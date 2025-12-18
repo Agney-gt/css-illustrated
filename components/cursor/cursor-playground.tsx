@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import CodeBlock from "@/app/utilities/components/code-block";
 import {
   CursorClass,
   CURSOR_UTILITIES,
 } from "@/app/utilities/interactivity/cursor/data";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { PlaygroundLayout } from "@/components/shared/playground-layout";
 
 export function CursorPlayground() {
   const [cursor, setCursor] = useState<CursorClass>("cursor-pointer");
@@ -19,15 +19,13 @@ export function CursorPlayground() {
   } px-4 py-2 rounded bg-blue-600 text-white">${label}</button>`;
 
   return (
-    <section className="space-y-4 border-t border-border pt-8">
-      <h2 className="text-3xl font-bold">Interactive playground</h2>
-      <p className="text-muted-foreground">
-        Pick a cursor utility and test it on different controls.
-      </p>
-
-      <div className="grid md:grid-cols-3 gap-4">
-        {/* Controls Column */}
-        <div className="space-y-3 md:col-span-1">
+    <PlaygroundLayout
+      title="Interactive playground"
+      description="Pick a cursor utility and test it on different controls."
+      code={playgroundMarkup}
+      onCopyCode={() => copy(playgroundMarkup)}
+      controls={
+        <>
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-2">
               Cursor
@@ -88,61 +86,41 @@ export function CursorPlayground() {
               </button>
             </div>
           </div>
-        </div>
-
-        <div className="md:col-span-2 space-y-3">
-          <div className="border border-border rounded-lg p-4 bg-card/30">
-            <div className="mb-3 flex items-center justify-between">
-              <div>
-                <div className="text-sm font-semibold">Playground</div>
-                <div className="text-xs text-muted-foreground">
-                  Live preview
-                </div>
-              </div>
-              <button
-                onClick={() => copy(playgroundMarkup)}
-                className="text-xs px-3 py-1 rounded bg-muted/10 hover:bg-muted/20 cursor-pointer"
-              >
-                Copy markup
-              </button>
+        </>
+      }
+      preview={
+        <>
+          <div className="mb-4">
+            <div className="mb-2 text-sm text-muted-foreground">
+              Button / clickable
             </div>
-
-            <div className="rounded p-4 bg-slate-800">
-              <div className="mb-4">
-                <div className="mb-2 text-sm text-muted-foreground">
-                  Button / clickable
-                </div>
-                <button
-                  className={`${
-                    hoverOnly ? `hover:${cursor}` : cursor
-                  } px-4 py-2 rounded bg-blue-600 text-white`}
-                >
-                  {label}
-                </button>
-              </div>
-
-              <div className="mb-4">
-                <label
-                  htmlFor="playground-textarea"
-                  className="mb-2 text-sm text-muted-foreground"
-                >
-                  Text area (text)
-                </label>
-                <textarea
-                  id="playground-textarea"
-                  className={`w-full px-3 py-2 rounded bg-slate-700 text-white ${
-                    hoverOnly ? `hover:cursor-text` : "cursor-text"
-                  }`}
-                  rows={2}
-                  defaultValue={"Selectable text..."}
-                />
-              </div>
-
-              <CodeBlock code={playgroundMarkup} language="jsx" />
-            </div>
+            <button
+              className={`${
+                hoverOnly ? `hover:${cursor}` : cursor
+              } px-4 py-2 rounded bg-blue-600 text-white`}
+            >
+              {label}
+            </button>
           </div>
-        </div>
-      </div>
-    </section>
+
+          <div className="mb-4">
+            <label
+              htmlFor="playground-textarea"
+              className="mb-2 text-sm text-muted-foreground block"
+            >
+              Text area (text)
+            </label>
+            <textarea
+              id="playground-textarea"
+              className={`w-full px-3 py-2 rounded bg-slate-700 text-white ${
+                hoverOnly ? `hover:cursor-text` : "cursor-text"
+              }`}
+              rows={2}
+              defaultValue={"Selectable text..."}
+            />
+          </div>
+        </>
+      }
+    />
   );
 }
