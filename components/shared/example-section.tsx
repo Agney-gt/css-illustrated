@@ -31,7 +31,7 @@ export function ExampleCard({
         <h3 className="text-lg font-semibold">{title}</h3>
         <button
           onClick={() => copy(textToCopy)}
-          className="text-xs px-2 py-1 rounded bg-muted/10 hover:bg-muted/20 cursor-pointer min-w-[3rem] transition-all"
+          className="text-xs px-2 py-1 rounded bg-muted/10 hover:bg-muted/20 cursor-pointer min-w-12 transition-all"
         >
           {isCopied ? "Copied" : "Copy"}
         </button>
