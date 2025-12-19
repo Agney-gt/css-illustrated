@@ -1,3 +1,4 @@
+"use client"
 import React from "react";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
@@ -11,21 +12,12 @@ import {
   MIN_WIDTH_UTILITIES,
   MIN_WIDTH_TIPS,
   MIN_WIDTH_EXAMPLES,
+  MIN_WIDTH_PLAYGROUND,
 } from "./data";
 
-import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Min-Width",
-  description: "Control sizing with min-width utilities.",
-  openGraph: {
-    title: "Min-width",
-    description: "Control sizing with min-width utilities.",
-    type: "website",
-  },
-};
 
-import {MinWidthPlayground} from "@/app/utilities/sizing/min-width/min-width playground";
+import {UtilityPlayground} from "@/components/shared/utility_playground";
 
 export default function MinWidthPage() {
   return (
@@ -42,14 +34,13 @@ export default function MinWidthPage() {
           <UtilityGrid
             title="Min-width utilities"
             items={MIN_WIDTH_UTILITIES}
-            prefix="min-w-"
           />
 
           {/* Playground */}
-          <MinWidthPlayground />
+          <UtilityPlayground {...MIN_WIDTH_PLAYGROUND} />
 
           {/*Real world example*/}
-          <div data-testid="Examples">
+          <div data-testid="Real World Examples">
           <ExampleSection title="Real-World Examples">
           {MIN_WIDTH_EXAMPLES.map((ex) => (
           <ExampleCard

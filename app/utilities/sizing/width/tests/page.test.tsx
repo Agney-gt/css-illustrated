@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import MinWidthPage from "../page";
+import WidthPage from "../page";
 
 
 jest.mock("@/components/navbar", () => () => <nav>Navbar</nav>);
@@ -19,7 +19,7 @@ jest.mock("@/components/shared/tips-section", () => ({
 
 describe("Min Width Page Integration", () => {
   it("composes all the sections in correct order", () => {
-    render(<MinWidthPage />);
+    render(<WidthPage />);
 
     // 1. Verify Shell
     expect(screen.getByText("Navbar")).toBeInTheDocument();

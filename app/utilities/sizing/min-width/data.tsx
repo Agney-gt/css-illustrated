@@ -1,3 +1,4 @@
+
 import { TipItem } from "@/components/shared/tips-section";
 import { UtilityItem } from "@/components/shared/utility-grid";
 
@@ -60,6 +61,43 @@ export const MIN_WIDTH_TIPS: TipItem[] = [
     text: "pair `min-w-*` with responsive prefixes like `sm:` or `md:` to adapt layouts across breakpoints.",
   },
 ];
+
+export const MIN_WIDTH_PLAYGROUND = {
+  title: "Min-width playground",
+  description:
+    "Min-width prevents elements from shrinking below a certain size.",
+  options: [
+    "min-w-0",
+    "min-w-12",
+    "min-w-24",
+    "min-w-40",
+    "min-w-64",
+    "min-w-full",
+  ],
+  defaultValue: "min-w-24",
+  buildMarkup: (value: string) => `
+<div class="flex gap-2 w-64 border p-2">
+  <div class="${value} bg-blue-600 text-white p-2 rounded">
+    Min-width box
+  </div>
+  <div class="flex-1 bg-slate-600 p-2 rounded">
+    Sibling
+  </div>
+</div>`.trim(),
+  renderPreview: (value: string) => (
+    <div className="w-64 border border-border rounded p-2 bg-slate-900">
+      <div className="flex gap-2">
+        <div className={`${value} bg-blue-600 text-white p-2 rounded`}>
+          {value}
+        </div>
+        <div className="flex-1 bg-slate-600 text-white p-2 rounded">
+          Sibling
+        </div>
+      </div>
+    </div>
+  ),
+};
+
 
 import { ReactNode } from "react";
 
