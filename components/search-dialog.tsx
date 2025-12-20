@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 interface SearchResult {
   name: string
@@ -23,107 +24,152 @@ const SEARCH_DATA: SearchResult[] = [
   { name: "Align Items", href: "/utilities/align/items", category: "Alignment" },
   { name: "Padding", href: "/utilities/spacing/padding", category: "Spacing" },
   { name: "Margin", href: "/utilities/spacing/margin", category: "Spacing" },
-  { name: "Width", href: "/utilities/sizing/width", category: "Sizing" },
-  { name: "Height", href: "/utilities/sizing/height", category: "Sizing" },
-  { name: "Border Radius", href: "/utilities/border/radius", category: "Borders" },
-  { name: "Border Width", href: "/utilities/border/width", category: "Borders" },
-  { name: "Border Color", href: "/utilities/border/color", category: "Borders" },
-  { name: "Ring Width", href: "/utilities/ring/width", category: "Effects" },
-  { name: "Outline", href: "/utilities/outline/width", category: "Effects" },
-  { name: "Scale", href: "/utilities/transform/scale", category: "Transforms" },
-  { name: "Rotate", href: "/utilities/transform/rotate", category: "Transforms" },
-  { name: "Translate", href: "/utilities/transform/translate", category: "Transforms" },
-  { name: "Cursor", href: "/utilities/interactivity/cursor", category: "Interactivity" },
-  { name: "Font Size", href: "/utilities/font/size", category: "Typography" },
-  { name: "Font Weight", href: "/utilities/font/weight", category: "Typography" },
-  { name: "Screen Readers", href: "/utilities/accessibility/screen-readers", category: "Accessibility" },
 ]
 
 export default function SearchDialog() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
-  const [results, setResults] = useState<SearchResult[]>([])
+  const [activeIndex, setActiveIndex] = useState(0)
 
+  const inputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
+
+  /* ---------- OPEN WITH / ---------- */
   useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "/" && !open) {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+
+      // Don't open if typing in input/textarea
+      if (["INPUT", "TEXTAREA"].includes(target?.tagName)) return
+
+      if (e.key === "/") {
         e.preventDefault()
         setOpen(true)
       }
+
       if (e.key === "Escape") {
-        setOpen(false)
+        closeDialog()
       }
     }
 
-    document.addEventListener("keydown", down)
-    return () => document.removeEventListener("keydown", down)
+    document.addEventListener("keydown", handler)
+    return () => document.removeEventListener("keydown", handler)
+  }, [])
+
+  /* ---------- AUTO FOCUS ---------- */
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => inputRef.current?.focus(), 0)
+    }
   }, [open])
 
+  /* ---------- FILTER LOGIC (BEST PRACTICE) ---------- */
+  const results = useMemo(() => {
+    if (!query.trim()) return []
+
+    const q = query.toLowerCase()
+
+    return SEARCH_DATA.filter(
+      (item) =>
+        item.name.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q),
+    ).slice(0, 8)
+  }, [query])
+
+  /* ---------- KEYBOARD NAVIGATION ---------- */
   useEffect(() => {
-    if (query.length === 0) {
-      setResults([])
-      return
+    if (!open) return
+
+    const handler = (e: KeyboardEvent) => {
+      if (!results.length) return
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault()
+        setActiveIndex((i) => (i + 1) % results.length)
+      }
+
+      if (e.key === "ArrowUp") {
+        e.preventDefault()
+        setActiveIndex((i) => (i - 1 + results.length) % results.length)
+      }
+
+      if (e.key === "Enter") {
+        e.preventDefault()
+        router.push(results[activeIndex].href)
+        closeDialog()
+      }
     }
 
-    const filtered = SEARCH_DATA.filter(
-      (item) =>
-        item.name.toLowerCase().includes(query.toLowerCase()) ||
-        item.category.toLowerCase().includes(query.toLowerCase()),
-    ).slice(0, 8)
+    document.addEventListener("keydown", handler)
+    return () => document.removeEventListener("keydown", handler)
+  }, [open, results, activeIndex, router])
 
-    setResults(filtered)
-  }, [query])
+  const closeDialog = () => {
+    setOpen(false)
+    setQuery("")
+    setActiveIndex(0)
+  }
 
   if (!open) return null
 
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setOpen(false)} />
+      <div className="fixed inset-0 bg-black/50 z-40" onClick={closeDialog} />
 
       {/* Dialog */}
       <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 w-full max-w-md">
         <div className="bg-card border border-border rounded-lg shadow-xl overflow-hidden">
-          {/* Search Input */}
+
+          {/* Input */}
           <div className="p-4 border-b border-border">
             <input
-              autoFocus
-              type="text"
-              placeholder="Search utilities... (press / to focus)"
+              ref={inputRef}
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-full bg-background border border-border rounded px-3 py-2 text-foreground placeholder-muted-foreground focus:outline-none focus:border-accent"
+              onChange={(e) => {
+                setQuery(e.target.value)
+                setActiveIndex(0)
+              }}
+              placeholder="Search utilities..."
+              className="w-full px-3 py-2 border rounded bg-background focus:outline-none focus:border-accent"
             />
           </div>
 
           {/* Results */}
           <div className="max-h-64 overflow-y-auto">
-            {results.length === 0 && query.length > 0 ? (
-              <div className="p-4 text-center text-muted-foreground text-sm">No results found for "{query}"</div>
-            ) : results.length === 0 ? (
-              <div className="p-4 text-center text-muted-foreground text-sm">Start typing to search utilities</div>
-            ) : (
-              results.map((result) => (
-                <Link
-                  key={result.href}
-                  href={result.href}
-                  onClick={() => setOpen(false)}
-                  className="flex items-center justify-between p-3 border-b border-border hover:bg-card/80 transition last:border-0"
-                >
-                  <div>
-                    <p className="text-foreground font-medium text-sm">{result.name}</p>
-                    <p className="text-muted-foreground text-xs">{result.category}</p>
-                  </div>
-                  <span className="text-accent text-xs">→</span>
-                </Link>
-              ))
+            {!query && (
+              <div className="p-4 text-sm text-muted-foreground text-center">
+                Start typing to search
+              </div>
             )}
+
+            {query && results.length === 0 && (
+              <div className="p-4 text-sm text-muted-foreground text-center">
+                No results found
+              </div>
+            )}
+
+            {results.map((item, index) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={closeDialog}
+                className={`flex justify-between p-3 text-sm border-b last:border-0
+                  ${index === activeIndex ? "bg-accent/10" : "hover:bg-muted"}`}
+              >
+                <div>
+                  <p className="font-medium">{item.name}</p>
+                  <p className="text-xs text-muted-foreground">{item.category}</p>
+                </div>
+                <span className="text-xs">↵</span>
+              </Link>
+            ))}
           </div>
 
           {/* Footer */}
-          <div className="p-3 bg-card/50 border-t border-border text-xs text-muted-foreground flex justify-between">
-            <span>Press ESC to close</span>
-            <span>↵ to select</span>
+          <div className="flex justify-between px-3 py-2 text-xs text-muted-foreground border-t">
+            <span>ESC to close</span>
+            <span>↑ ↓ Enter</span>
           </div>
         </div>
       </div>

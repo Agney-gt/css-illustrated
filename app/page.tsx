@@ -12,18 +12,24 @@ export default function Home() {
   const categoriesRef = useRef<HTMLDivElement>(null)
 
   const categories = [
+    { title: "Core Concepts", desc: "Tailwind core concepts", href: "/", demoClass: ""},
     { title: "Layout", desc: "Columns, Display, Floats, Grid", href: "/utilities/columns", demoClass: "grid-cols-3" },
     { title: "Spacing", desc: "Padding, Margin, Gap", href: "/utilities/spacing/padding", demoClass: "p-4" },
     { title: "Sizing", desc: "Width, Height, Min/Max", href: "/utilities/sizing/width", demoClass: "w-1/3" },
     { title: "Flexbox", desc: "Basis, Direction, Wrap, Grow, Order", href: "/utilities/flex", demoClass: "flex-1" },
     { title: "Grid", desc: "Auto Flow, Rows, Columns", href: "/utilities/grid/auto-flow", demoClass: "grid-cols-3" },
     { title: "Alignment", desc: "Justify, Align, Place", href: "/utilities/justify/content", demoClass: "justify-center" },
+    { title: "Typography", desc: "Tailwind typography techniques", href: "/", demoClass: "font-family"},
     { title: "Backgrounds", desc: "Colors, Gradients, Position", href: "/utilities/background/position", demoClass: "bg-gradient-to-r" },
     { title: "Borders", desc: "Radius, Width, Color, Style", href: "/utilities/border/radius", demoClass: "rounded-lg" },
-    { title: "Effects", desc: "Shadow, Ring, Outline", href: "/utilities/ring/width", demoClass: "shadow-lg" },
+    { title: "Effects", desc: "Shadow, Opacity, Mask", href: "/utilities/ring/width", demoClass: "shadow-lg" },
+    { title: "Filters", desc: "Filter, Backdrop-filter", href: "/", demoClass: "filter-none"},
+    { title: "Tables", desc: "Table styling", href: "/", demoClass: "border-collapse"},
+    { title: "Transitions & Animation", desc: "Transitions and animation on an element", href: "/", demoClass: "transition"},
     { title: "Transforms", desc: "Scale, Rotate, Translate, Skew", href: "/utilities/transform/scale", demoClass: "scale-110" },
-    { title: "Interactivity", desc: "Cursor, Pointer, Scroll", href: "/utilities/interactivity/cursor", demoClass: "cursor-pointer" },
-    { title: "Accessibility", desc: "Screen Readers", href: "/utilities/accessibility/screen-readers", demoClass: "sr-only" },
+    { title: "Interactivity", desc: "Cursor, Pointer, Scroll", href: "/utilities/interactivity/accent-color", demoClass: "accent-color" },
+    { title: "SVG", desc: "Fill, Stroke, Stroke-width", href: "/", demoClass: "fill-none"},
+    { title: "Accessibility", desc: "Screen Readers, forced-color-adjust", href: "/utilities/accessibility/screen-readers", demoClass: "sr-only" },
   ]
 
   const copyToClipboard = (text: string) => {
@@ -81,7 +87,7 @@ export default function Home() {
                 <Link
                   key={cat.title}
                   href={cat.href}
-                  className="p-4 border border-border rounded-lg hover:bg-card/50 transition group"
+                  className="p-4 border border-border rounded-lg hover:bg-black/90 transition group"
                 >
                   <h3 className="font-semibold text-foreground group-hover:text-accent transition">{cat.title}</h3>
                   <p className="text-sm text-muted-foreground mt-1">{cat.desc}</p>

@@ -33,7 +33,8 @@ export default function RootLayout({
       <head>
         <link
           rel="icon"
-          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' fontSize='75' fill='%233b82f6'>𝕿</text></svg>"
+          type="image/svg+xml"
+          href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='75' text-anchor='middle' font-size='95' fill='%233b82f6'%3E%F0%9D%95%BF%3C/text%3E%3C/svg%3E"
         />
       </head>
       <body className={`${geistSans.className} font-sans antialiased`}>{children}</body>
