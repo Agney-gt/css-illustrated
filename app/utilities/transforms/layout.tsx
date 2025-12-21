@@ -1,7 +1,19 @@
-import type React from "react"
 import Link from "next/link"
 
-export default function TransformLayout({
+const links = [
+  { href: "/utilities/transforms/backface-visibility", label: "Backface Visibility" },
+  { href: "/utilities/transforms/perspective", label: "Perspective" },
+  { href: "/utilities/transforms/perspective-origin", label: "Perspective Origin" },
+  { href: "/utilities/transforms/rotate", label: "Rotate" },
+  { href: "/utilities/transforms/scale", label: "Scale" },
+  { href: "/utilities/transforms/skew", label: "Skew" },
+  { href: "/utilities/transforms/transform", label: "Transform" },
+  { href: "/utilities/transforms/transform-origin", label: "Transform Origin" },
+  { href: "/utilities/transforms/transform-style", label: "Transform Style" },
+  { href: "/utilities/transforms/translate", label: "Translate" },
+]
+
+export default function Layout({
   children,
 }: {
   children: React.ReactNode
@@ -10,41 +22,24 @@ export default function TransformLayout({
     <div className="min-h-screen flex flex-col bg-background">
       <div className="border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <h2 className="text-lg font-semibold text-foreground mb-3">Transform Utilities</h2>
+          <h2 className="text-lg font-semibold mb-3">
+            Transform Utilities
+          </h2>
+
           <div className="flex gap-2 flex-wrap">
-            <Link
-              href="/utilities/transform/scale"
-              className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
-            >
-              Scale
-            </Link>
-            <Link
-              href="/utilities/transform/rotate"
-              className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
-            >
-              Rotate
-            </Link>
-            <Link
-              href="/utilities/transform/translate"
-              className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
-            >
-              Translate
-            </Link>
-            <Link
-              href="/utilities/transform/skew"
-              className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
-            >
-              Skew
-            </Link>
-            <Link
-              href="/utilities/transform/origin"
-              className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
-            >
-              Origin
-            </Link>
+            {links.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="px-3 py-1 text-sm border border-border rounded hover:bg-black/20 transition"
+              >
+                {label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>
+
       <main className="flex-1">{children}</main>
     </div>
   )

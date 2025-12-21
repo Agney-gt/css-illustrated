@@ -1,69 +1,44 @@
-"use client"
-
-import type React from "react"
 import Link from "next/link"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
 
-export default function FlexLayout({
+const links = [
+  { href: "/utilities/flexbox/basis", label: "Basis" },
+  { href: "/utilities/flexbox/direction", label: "Direction" },
+  { href: "/utilities/flexbox/flex", label: "Flex" },
+  { href: "/utilities/flexbox/grow", label: "Grow" },
+  { href: "/utilities/flexbox/order", label: "Order" },
+  { href: "/utilities/flexbox/shrink", label: "Shrink" },
+  { href: "/utilities/flexbox/sizing", label: "Sizing" },
+  { href: "/utilities/flexbox/wrap", label: "Wrap" },
+]
+
+export default function Layout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
       <div className="border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <h2 className="text-lg font-semibold text-foreground mb-3">Flex Utilities</h2>
+          <h2 className="text-lg font-semibold mb-3">
+            Flexbox Utilities
+          </h2>
+
           <div className="flex gap-2 flex-wrap">
-            <Link
-              href="/utilities/flex"
-              className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
-            >
-              Overview
-            </Link>
-            <Link
-              href="/utilities/flex/direction"
-              className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
-            >
-              Direction
-            </Link>
-            <Link
-              href="/utilities/flex/basis"
-              className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
-            >
-              Basis
-            </Link>
-            <Link
-              href="/utilities/flex/grow"
-              className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
-            >
-              Grow
-            </Link>
-            <Link
-              href="/utilities/flex/wrap"
-              className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
-            >
-              Wrap
-            </Link>
-            <Link
-              href="/utilities/flex/sizing"
-              className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
-            >
-              Sizing
-            </Link>
-            <Link
-              href="/utilities/flex/order"
-              className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
-            >
-              Order
-            </Link>
+            {links.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="px-3 py-1 text-sm border border-border rounded hover:bg-black/20 transition"
+              >
+                {label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>
+
       <main className="flex-1">{children}</main>
-      <Footer />
     </div>
   )
 }

@@ -25,7 +25,7 @@ export default function Home() {
     { title: "Effects", desc: "Shadow, Opacity, Mask", href: "/utilities/effects/background-blend-mode", demoClass: "shadow-lg" },
     { title: "Filters", desc: "Filter, Backdrop-filter", href: "/utilities/filters/filter", demoClass: "filter-none"},
     { title: "Tables", desc: "Table styling", href: "/utilities/tables/border-collapse", demoClass: "border-collapse"},
-    { title: "Transitions & Animation", desc: "Transitions and animation on an element", href: "/utilities/transition-behavior", demoClass: "transition"},
+    { title: "Transitions & Animation", desc: "Transitions and animation on an element", href: "/utilities/transitions-and-animation/animation", demoClass: "transition"},
     { title: "Transforms", desc: "Scale, Rotate, Translate, Skew", href: "/utilities/transforms/backface-visibility", demoClass: "scale-110" },
     { title: "Interactivity", desc: "Cursor, Pointer, Scroll", href: "/utilities/interactivity/accent-color", demoClass: "accent-color" },
     { title: "SVG", desc: "Fill, Stroke, Stroke-width", href: "/utilities/SVG/fill", demoClass: "fill-none"},
