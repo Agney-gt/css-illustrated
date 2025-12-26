@@ -70,6 +70,9 @@ export default function Home() {
               >
                 Explore Categories
               </button>
+              <Link href="/test">
+              <button  className="px-6 py-3 border border-border rounded-lg font-semibold hover:bg-card transition">Take a Test</button></Link>
+
             </div>
           </div>
 
