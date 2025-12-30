@@ -79,26 +79,11 @@ export const alignItems: Record<string, UtilityContent> = {
     },
 
     benefits: {
-      "items-start": [
-        "Aligns items consistently at the top",
-        "Useful for predictable layouts",
-      ],
-      "items-center": [
-        "Creates visually balanced layouts",
-        "Common for UI components and cards",
-      ],
-      "items-end": [
-        "Aligns items at the bottom",
-        "Helpful for footer or baseline layouts",
-      ],
-      "items-baseline": [
-        "Aligns text naturally across items",
-        "Ideal for typography-heavy rows",
-      ],
-      "items-stretch": [
-        "Fills available vertical space",
-        "Good for equal-height layouts",
-      ],
+      "items-start": ["Aligns items consistently at the top", "Useful for predictable layouts"],
+      "items-center": ["Creates visually balanced layouts", "Common for UI components and cards"],
+      "items-end": ["Aligns items at the bottom", "Helpful for footer or baseline layouts"],
+      "items-baseline": ["Aligns text naturally across items", "Ideal for typography-heavy rows"],
+      "items-stretch": ["Fills available vertical space", "Good for equal-height layouts"],
     },
 
     commonUseCases: {
@@ -176,8 +161,7 @@ export const alignItems: Record<string, UtilityContent> = {
       "items-center": [
         {
           title: "Confusing align-items with justify-content",
-          reason:
-            "Align-items works on the cross axis, while justify-content works on the main axis.",
+          reason: "Align-items works on the cross axis, while justify-content works on the main axis.",
           example: `<div class="flex items-center"> // Vertical alignment, not horizontal
   <div>Item</div>
 </div>`,
@@ -187,8 +171,7 @@ export const alignItems: Record<string, UtilityContent> = {
       "items-baseline": [
         {
           title: "Using baseline without text",
-          reason:
-            "Baseline alignment only makes sense when items contain text.",
+          reason: "Baseline alignment only makes sense when items contain text.",
           example: `<div class="flex items-baseline">
   <div class="h-8 w-8 bg-slate-600"></div>
   <div class="h-12 w-12 bg-slate-600"></div>
@@ -198,6 +181,87 @@ export const alignItems: Record<string, UtilityContent> = {
       ],
     },
 
-    additionalSections: [],
+    additionalSections: [
+      {
+        title: "✅ Do’s",
+        content: {
+          "items-start": [
+            "Use `items-start` for top alignment in single-line flex/grid containers.",
+            "Apply it in headers, nav bars, or any UI where consistent top alignment is needed.",
+            "Use when items have varying heights to maintain order.",
+            "Ideal for multi-row single-line layouts where cross-axis alignment matters.",
+            "Helps make layouts predictable across devices and screen sizes."
+          ],
+          "items-center": [
+            "Use `items-center` to vertically center items in a container.",
+            "Ideal for cards, buttons, and modals where visual balance is important.",
+            "Use with items of varying heights to align them centrally.",
+            "Works well with responsive layouts.",
+            "Ensures a neat, balanced appearance in UI components."
+          ],
+          "items-end": [
+            "Use `items-end` to align items to the bottom of a container.",
+            "Useful for footers, bottom-aligned toolbars, and consistent vertical spacing.",
+            "Works with items of variable heights.",
+            "Maintains uniform bottom alignment across multiple items.",
+            "Helps in stacked or layered layouts where bottom alignment is needed."
+          ],
+          "items-baseline": [
+            "Use `items-baseline` for aligning text-heavy items.",
+            "Great when items have different font sizes.",
+            "Ensures text lines up neatly across items.",
+            "Useful in forms, labels, and typography-focused layouts.",
+            "Maintains readability and a professional appearance."
+          ],
+          "items-stretch": [
+            "Use `items-stretch` to make items fill the cross-axis of the container.",
+            "Great for equal-height cards, columns, and grids.",
+            "Simplifies dashboard and layout consistency.",
+            "Ensures uniform vertical spacing in complex layouts.",
+            "Ideal for visual consistency in UI components."
+          ],
+        },
+      },
+      {
+        title: "❌ Don’ts",
+        content: {
+          "items-start": [
+            "Don’t use to center items vertically.",
+            "Avoid for baseline-dependent text alignment.",
+            "Not suitable for bottom-aligned controls or toolbars.",
+            "Doesn’t affect spacing along the main axis.",
+            "Unnecessary for single-item containers."
+          ],
+          "items-center": [
+            "Don’t expect horizontal centering (use `justify-center` instead).",
+            "Not effective without flex or grid container.",
+            "Avoid using on multi-line wrapping unless intended.",
+            "Not suitable for baseline alignment of text.",
+            "Not recommended when precise top/bottom alignment is needed."
+          ],
+          "items-end": [
+            "Don’t use for top alignment scenarios.",
+            "Avoid for vertical centering.",
+            "Not suitable for baseline-aligned text.",
+            "Doesn’t control spacing along the main axis.",
+            "Ineffective for single-item containers."
+          ],
+          "items-baseline": [
+            "Don’t use with non-text elements.",
+            "Avoid for general vertical centering.",
+            "Not suitable for multi-line flex containers unless needed.",
+            "Doesn’t stretch items to fill container height.",
+            "Unnecessary for single-item layouts."
+          ],
+          "items-stretch": [
+            "Don’t use if intrinsic height is required.",
+            "Avoid when top/bottom alignment is important.",
+            "Not for vertical centering purposes.",
+            "Doesn’t affect main-axis spacing.",
+            "Unnecessary for single-item containers."
+          ],
+        },
+      },
+    ],
   },
 };

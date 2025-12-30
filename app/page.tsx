@@ -70,8 +70,19 @@ export default function Home() {
               >
                 Explore Categories
               </button>
-              <Link href="/test">
-              <button  className="px-6 py-3 border border-border rounded-lg font-semibold hover:bg-card transition">Take a Test</button></Link>
+              <Link
+                href="/challenge"
+                className="px-6 py-3 bg-accent text-accent-foreground rounded-lg font-semibold hover:opacity-90 transition"
+              >
+                Take challenge
+              </Link>
+              <Link
+                href="/visualeditor"
+                className="px-6 py-3 bg-accent text-accent-foreground rounded-lg font-semibold hover:opacity-90 transition"
+              >
+                Create your own UI
+              </Link>
+              
 
             </div>
           </div>
