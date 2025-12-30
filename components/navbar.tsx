@@ -15,7 +15,7 @@ export default function Navbar() {
             <div className="w-8 h-8 bg-accent rounded flex items-center justify-center text-accent-foreground font-bold group-hover:scale-110 transition">
               𝕿
             </div>
-            <span className="font-bold text-foreground hidden sm:inline">Tailwind Utilities</span>
+            <span className="font-bold text-foreground hidden sm:inline">CSS Illustrated</span>
           </Link>
 
           <div className="flex items-center gap-4">
@@ -23,8 +23,9 @@ export default function Navbar() {
               onClick={() => setSearchOpen(true)}
               className="hidden md:flex items-center gap-2 px-3 py-2 border border-border rounded-lg text-muted-foreground hover:text-foreground transition"
             >
-              <span className="text-sm">Search</span>
+              <span className="text-sm">Type</span>
               <kbd className="text-xs bg-card px-2 py-1 rounded">/</kbd>
+              <span className="text-sm">to search</span>
             </button>
 
             <Link href="/utilities" className="text-muted-foreground hover:text-foreground transition text-sm">
