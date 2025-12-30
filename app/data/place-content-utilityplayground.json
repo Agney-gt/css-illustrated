@@ -1,0 +1,22 @@
+{
+  "title": "Place Content",
+  "description": "Shorthand utilities that control both align-content and justify-content in grid and flex layouts. Use the playground to experiment and see live behavior.",
+  "options": [
+    "place-content-center",
+    "place-content-start",
+    "place-content-end",
+    "place-content-between",
+    "place-content-around",
+    "place-content-evenly"
+  ],
+  "defaultValue": "place-content-center",
+  "preview": {
+    "layout": "grid",
+    "height": "h-40",
+    "items": [
+      "Item 1",
+      "Item 2",
+      "Item 3"
+    ]
+  }
+}

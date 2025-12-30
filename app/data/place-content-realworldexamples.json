@@ -1,0 +1,86 @@
+[
+  {
+    "title": "Center Content Vertically & Horizontally",
+    "description": "Use place-content-center to center all child elements along both axes in a full-page loader or hero section.",
+    "code": "<div class=\"grid place-content-center h-64 bg-gray-100\">\n  <div class=\"text-center\">Loading Spinner</div>\n</div>",
+    "category": "Layout",
+    "difficulty": "beginner"
+  },
+  {
+    "title": "Login Form Centering",
+    "description": "Align a login form perfectly in the middle of the viewport using place-content-center.",
+    "code": "<div class=\"grid place-content-center min-h-screen\">\n  <form class=\"p-6 bg-white rounded shadow\">Login Form</form>\n</div>",
+    "category": "Layout",
+    "difficulty": "beginner"
+  },
+  {
+    "title": "Modal Content Alignment",
+    "description": "Use place-content-center to align modal content within its container.",
+    "code": "<div class=\"grid place-content-center h-96 bg-gray-200\">\n  <div class=\"p-4 bg-white rounded\">Modal Content</div>\n</div>",
+    "category": "Layout",
+    "difficulty": "intermediate"
+  },
+  {
+    "title": "Start Alignment of Items",
+    "description": "Use place-content-start to align content to the start of both axes, like chat messages at the top of a container.",
+    "code": "<div class=\"grid place-content-start h-64 bg-gray-100\">\n  <div>Message 1</div>\n  <div>Message 2</div>\n</div>",
+    "category": "Layout",
+    "difficulty": "beginner"
+  },
+  {
+    "title": "Top-aligned Dashboard Widgets",
+    "description": "Align dashboard cards at the top of the grid container using place-content-start.",
+    "code": "<div class=\"grid place-content-start gap-4 h-64\">\n  <div class=\"p-4 bg-blue-100\">Widget 1</div>\n  <div class=\"p-4 bg-blue-100\">Widget 2</div>\n</div>",
+    "category": "Layout",
+    "difficulty": "beginner"
+  },
+  {
+    "title": "Bottom-aligned CTA Section",
+    "description": "Use place-content-end to stick call-to-action blocks to the bottom of a container.",
+    "code": "<div class=\"grid place-content-end h-64 bg-gray-100\">\n  <button class=\"px-4 py-2 bg-blue-500 text-white rounded\">Call to Action</button>\n</div>",
+    "category": "Layout",
+    "difficulty": "beginner"
+  },
+  {
+    "title": "Sticky Footer Example",
+    "description": "Keep a footer at the bottom using place-content-end within a grid container.",
+    "code": "<div class=\"grid place-content-end h-64\">\n  <footer class=\"bg-gray-300 p-4\">Footer Content</footer>\n</div>",
+    "category": "Layout",
+    "difficulty": "beginner"
+  },
+  {
+    "title": "Distribute Header Logo & Actions",
+    "description": "Use place-content-between to distribute space between items, e.g., logo on the left and actions on the right.",
+    "code": "<div class=\"grid place-content-between h-16 bg-gray-100 px-4\">\n  <div>Logo</div>\n  <div>Actions</div>\n</div>",
+    "category": "Layout",
+    "difficulty": "intermediate"
+  },
+  {
+    "title": "Dashboard Metric Cards",
+    "description": "Place-content-between distributes the metric cards evenly with space between them.",
+    "code": "<div class=\"grid place-content-between h-64 gap-4\">\n  <div class=\"bg-blue-100 p-4\">Card 1</div>\n  <div class=\"bg-blue-100 p-4\">Card 2</div>\n  <div class=\"bg-blue-100 p-4\">Card 3</div>\n</div>",
+    "category": "Layout",
+    "difficulty": "intermediate"
+  },
+  {
+    "title": "Feature Highlight Section",
+    "description": "Use place-content-around to create balanced spacing around features in a landing page.",
+    "code": "<div class=\"grid place-content-around h-64 gap-4\">\n  <div class=\"bg-green-100 p-4\">Feature 1</div>\n  <div class=\"bg-green-100 p-4\">Feature 2</div>\n  <div class=\"bg-green-100 p-4\">Feature 3</div>\n</div>",
+    "category": "Layout",
+    "difficulty": "intermediate"
+  },
+  {
+    "title": "Navigation Menu with Even Spacing",
+    "description": "Use place-content-evenly to distribute navigation items with equal spacing across the container.",
+    "code": "<div class=\"grid place-content-evenly h-16 bg-gray-100 px-4\">\n  <div>Home</div>\n  <div>About</div>\n  <div>Services</div>\n  <div>Contact</div>\n</div>",
+    "category": "Layout",
+    "difficulty": "beginner"
+  },
+  {
+    "title": "Product Feature Grid",
+    "description": "Evenly space product feature blocks using place-content-evenly for a clean layout.",
+    "code": "<div class=\"grid place-content-evenly h-64 gap-4\">\n  <div class=\"bg-purple-100 p-4\">Feature 1</div>\n  <div class=\"bg-purple-100 p-4\">Feature 2</div>\n  <div class=\"bg-purple-100 p-4\">Feature 3</div>\n</div>",
+    "category": "Layout",
+    "difficulty": "intermediate"
+  }
+]

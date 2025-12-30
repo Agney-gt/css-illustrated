@@ -1,0 +1,29 @@
+{
+  "title": "Place Content",
+  "items": [
+    {
+      "cls": "place-content-center",
+      "desc": "Centers content along both axes. Commonly used for full-page loaders, hero sections, empty states, login forms, modal content, and maintenance screens."
+    },
+    {
+      "cls": "place-content-start",
+      "desc": "Aligns content to the start of both axes. Useful for chat message layouts, top-aligned dashboard widgets, feeds, sidebars, and notification panels."
+    },
+    {
+      "cls": "place-content-end",
+      "desc": "Aligns content to the end of both axes. Often used for sticky footer content, bottom-aligned CTA sections, chat input bars, and mobile action menus."
+    },
+    {
+      "cls": "place-content-between",
+      "desc": "Distributes content with space between items. Common in headers with logos and actions, dashboard metric cards, pricing comparison grids, and calendar layouts."
+    },
+    {
+      "cls": "place-content-around",
+      "desc": "Distributes content with space around items. Suitable for feature highlight sections, icon grids, marketing banners, and gallery previews."
+    },
+    {
+      "cls": "place-content-evenly",
+      "desc": "Distributes content evenly with equal spacing. Frequently used in navigation menus, stats dashboards, mobile tab bars, and product feature grids."
+    }
+  ]
+}

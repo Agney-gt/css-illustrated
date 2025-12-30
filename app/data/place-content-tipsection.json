@@ -1,0 +1,25 @@
+{
+  "title": "Tips & best practices",
+  "tips": [
+    {
+      "bold": "Works with grid layouts:",
+      "text": "The place-content utilities are most effective when used with CSS Grid. Ensure the container has display set to grid for predictable results."
+    },
+    {
+      "bold": "Controls two axes at once:",
+      "text": "Place-content is a shorthand for both align-content and justify-content, so changing it affects alignment in both directions."
+    },
+    {
+      "bold": "Requires extra space:",
+      "text": "These utilities only have visible effects when there is extra space inside the container beyond the size of its content."
+    },
+    {
+      "bold": "Avoid overuse:",
+      "text": "Using place-content for simple single-axis alignment can reduce clarity. Prefer justify-content or align-content when only one axis needs control."
+    },
+    {
+      "bold": "Great for centering states:",
+      "text": "Use place-content-center for loaders, empty states, and full-page placeholders where balanced centering improves visual clarity."
+    }
+  ]
+}

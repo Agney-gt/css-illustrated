@@ -14,10 +14,31 @@ import { ComparisonTable } from "@/components/shared/comparison-table"
 import { RealWorldExamples } from "@/components/shared/real-world-examples"
 import CodeBlock from "@/app/utilities/components/code-block"
 import { backgroundColorUtilities } from "@/lib/utilities"
+import ColorSlider from "@/components/shared/color-slider"
 
 export default function BgColorPage() {
   const [selectedColor, setSelectedColor] = useState("bg-blue-600")
   const [customColors, setCustomColors] = useState("")
+
+  // Helper to parse a bg class like `bg-blue-600` into base and shade
+  const extractBaseAndShade = (cls: string) => {
+    const withoutPrefix = cls.replace(/^bg-/, "")
+    const parts = withoutPrefix.split("-")
+    const last = parts[parts.length - 1]
+    const maybeShade = Number(last)
+    if (!Number.isNaN(maybeShade)) {
+      const base = parts.slice(0, -1).join("-")
+      return { base, shade: maybeShade, hasShade: true }
+    }
+    return { base: withoutPrefix, shade: 500, hasShade: false }
+  }
+
+  // Controlled playground state: base color and numeric shade (0-900 step 100)
+  const defaultPlayground = "bg-blue-600"
+  const { base: initialBase, shade: initialShade } = extractBaseAndShade(defaultPlayground)
+  const [pgBase, setPgBase] = useState<string>(initialBase)
+  const [pgShade, setPgShade] = useState<number>(initialShade)
+  const [pgExternalValue, setPgExternalValue] = useState<string>(defaultPlayground)
   
   const utilityItems = backgroundColorUtilities.classes.map(item => ({
     cls: item.class,
@@ -27,8 +48,7 @@ export default function BgColorPage() {
   const allTailwindColors = [
     "bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-green-500", 
     "bg-teal-500", "bg-blue-500", "bg-indigo-500", "bg-purple-500", 
-    "bg-pink-500", "bg-gray-500", "bg-slate-700", "bg-zinc-700",
-    "bg-neutral-700", "bg-stone-700", "bg-white", "bg-black"
+    "bg-pink-500", "bg-gray-500"
   ]
 
   const tips = [
@@ -185,6 +205,28 @@ export default function BgColorPage() {
             description="Experiment with different background colors and text combinations."
             options={allTailwindColors}
             defaultValue="bg-blue-600"
+            externalValue={pgExternalValue}
+            onExternalValueChange={(opt) => {
+              // When a playground option is clicked, update base/shade appropriately
+              const parsed = extractBaseAndShade(opt)
+              const shadeToUse = parsed.hasShade ? parsed.shade : pgShade
+              setPgBase(parsed.base)
+              setPgShade(shadeToUse)
+              const composed = parsed.hasShade ? opt : `bg-${parsed.base}-${shadeToUse}`
+              setPgExternalValue(composed)
+              // Also keep the small 'Selected Color' preview in sync
+              setSelectedColor(composed)
+            }}
+            extraControls={<ColorSlider value={pgShade} bgClass={
+              // map shade 0 -> white, special-case white/black
+              pgShade === 0 ? "bg-white" : (pgBase === "white" || pgBase === "black" ? `bg-${pgBase}` : `bg-${pgBase}-${pgShade}`)
+            } onChange={(v) => {
+              setPgShade(v)
+              // Compose new external value respecting white/black and 0->white
+              const newClass = v === 0 ? "bg-white" : (pgBase === "white" || pgBase === "black" ? `bg-${pgBase}` : `bg-${pgBase}-${v}`)
+              setPgExternalValue(newClass)
+              setSelectedColor(newClass)
+            }} />}
             defaultCustomClasses="h-32 w-full flex items-center justify-center text-white font-bold rounded-lg"
             buildMarkup={(colorClass, customClasses = "") => {
               const classes = [colorClass, customClasses].filter(Boolean).join(" ")
@@ -195,12 +237,12 @@ export default function BgColorPage() {
             renderPreview={(colorClass, customClasses = "") => {
               const classes = [colorClass, customClasses].filter(Boolean).join(" ")
               return (
-                <div className={`text-white font-semibold rounded-lg ${classes}`}>
+                <div className={`text-white font-semibold rounded-lg transition-colors duration-300 ${classes}`}>
                   Background Color Demo
                 </div>
               )
             }}
-            optionLabel={(value) => value.replace("bg-", "").replace("-", " ")}
+            optionLabel={(value) => value.replace(/^bg-/, "").replace(/-\d+$/, "").replace(/-/g, " ")}
           />
 
           {/* Custom Color Selector */}
@@ -210,7 +252,15 @@ export default function BgColorPage() {
               {allTailwindColors.map((color) => (
                 <button
                   key={color}
-                  onClick={() => setSelectedColor(color)}
+                  onClick={() => {
+                    setSelectedColor(color)
+                    const parsed = extractBaseAndShade(color)
+                    const shadeToUse = parsed.hasShade ? parsed.shade : pgShade
+                    setPgBase(parsed.base)
+                    setPgShade(shadeToUse)
+                    const composed = parsed.hasShade ? color : `bg-${parsed.base}-${shadeToUse}`
+                    setPgExternalValue(composed)
+                  }}
                   className={`h-12 rounded border-2 transition-all ${
                     selectedColor === color
                       ? "border-blue-500 ring-2 ring-blue-300"
@@ -226,7 +276,10 @@ export default function BgColorPage() {
             
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Selected Color: {selectedColor}</h3>
-              <div className={`h-32 rounded-lg flex items-center justify-center text-white font-bold ${selectedColor}`}>
+              {/** Determine readable text color based on shade */}
+              <div className={`h-32 rounded-lg flex items-center justify-center font-bold transition-colors duration-300 ${selectedColor} ${
+                (pgShade === 0 || pgBase === "white" || pgShade <= 300) ? "text-slate-900" : "text-white"
+              }`}>
                 Live Preview
               </div>
             </div>

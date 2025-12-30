@@ -10,6 +10,8 @@ import { CommonMistakesSection } from "@/components/shared/common-mistakes-secti
 import { MentalModelSection } from "@/components/shared/mental-model-section";
 import { ComparisonTable } from "@/components/shared/comparison-table";
 import CodeBlock from "../../components/code-block";
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
 
 export default function JustifyContentPage() {
   const justifyClasses = [
@@ -428,6 +430,7 @@ export default function JustifyContentPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <Navbar/>
       <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
         <PageHero 
           title="Justify Content Utilities"
@@ -533,6 +536,7 @@ export default function JustifyContentPage() {
           }}
           renderPreview={(justifyClass) => {
             const containerClass = `flex ${justifyClass} gap-4 p-4 border border-border rounded`;
+
             return (
               <div className={containerClass}>
                 <div className="w-16 h-16 bg-blue-500 rounded"></div>
@@ -555,6 +559,9 @@ export default function JustifyContentPage() {
             </ExampleCard>
           ))}
         </ExampleSection>
+        
+
+
 
         <CommonMistakesSection
           title="Common Mistakes & Why They Happen"
@@ -571,6 +578,10 @@ export default function JustifyContentPage() {
           ]}
         />
       </div>
+      <Footer/>
     </div>
+    
   );
+        
+
 }
