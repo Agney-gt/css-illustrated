@@ -230,7 +230,7 @@ export default function UtilityPage() {
             </button>
             
             <button
-              onClick={() => router.push('/visual-editor')}
+              onClick={() => router.push('/visualeditor')}
               className="flex items-center gap-2 px-5 py-3 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
