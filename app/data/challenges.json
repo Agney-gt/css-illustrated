@@ -1,0 +1,160 @@
+{
+  "challenges": [
+    {
+      "utility": "align-items",
+      "title": "Align Items Challenge",
+      "description": "Center a navigation button vertically within a navbar using align-items.",
+      "baseContainer": "min-h-64 w-full border border-gray-600 rounded-lg bg-gray-800 p-6",
+      "boxClasses": "px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold text-sm",
+      "numberOfBoxes": 1,
+      "solution": {
+        "display": "flex",
+        "align": "items-center"
+      },
+      "controls": [
+        {
+          "title": "Display",
+          "property": "display",
+          "options": [
+            { "label": "Block", "value": "block" },
+            { "label": "Flex", "value": "flex" }
+          ]
+        },
+        {
+          "title": "Align Items",
+          "property": "align",
+          "options": [
+            { "label": "Start", "value": "items-start" },
+            { "label": "Center", "value": "items-center" },
+            { "label": "End", "value": "items-end" },
+            { "label": "Stretch", "value": "items-stretch" }
+          ]
+        }
+      ],
+      "targetDescription": "Center the button vertically in the navbar",
+      "successMessage": "🎉 Perfect! The button is vertically centered!",
+      "hintMessage": "⚡ Use flex display and align-items to center vertically."
+    },
+    {
+      "utility": "align-content",
+      "title": "Align Content Challenge",
+      "description": "Distribute product cards evenly across multiple rows with space between the rows.",
+      "baseContainer": "min-h-80 w-full border border-gray-600 rounded-lg bg-gray-800 p-4",
+      "boxClasses": "w-20 h-20 bg-purple-500 rounded-md flex-shrink-0",
+      "numberOfBoxes": 6,
+      "solution": {
+        "display": "flex",
+        "wrap": "flex-wrap",
+        "alignContent": "content-between"
+      },
+      "controls": [
+        {
+          "title": "Display",
+          "property": "display",
+          "options": [
+            { "label": "Block", "value": "block" },
+            { "label": "Flex", "value": "flex" }
+          ]
+        },
+        {
+          "title": "Flex Wrap",
+          "property": "wrap",
+          "options": [
+            { "label": "No Wrap", "value": "flex-nowrap" },
+            { "label": "Wrap", "value": "flex-wrap" }
+          ]
+        },
+        {
+          "title": "Align Content",
+          "property": "alignContent",
+          "options": [
+            { "label": "Start", "value": "content-start" },
+            { "label": "Center", "value": "content-center" },
+            { "label": "End", "value": "content-end" },
+            { "label": "Between", "value": "content-between" },
+            { "label": "Around", "value": "content-around" }
+          ]
+        }
+      ],
+      "targetDescription": "Spread the rows from top to bottom with maximum space between them",
+      "successMessage": "🎉 Perfect! The rows are distributed from top to bottom!",
+      "hintMessage": "⚡ First select Flex, then Wrap, then use content-between to push rows apart."
+    },
+    {
+      "utility": "align-self",
+      "title": "Align Self Challenge",
+      "description": "Move the notification badge to the bottom while keeping other toolbar items centered.",
+      "baseContainer": "min-h-64 w-full border border-gray-600 rounded-lg bg-gray-800 p-6 flex items-center gap-6",
+      "boxClasses": "w-16 h-16 bg-red-500 rounded-full flex-shrink-0",
+      "numberOfBoxes": 3,
+      "solution": {
+        "alignSelf": "self-end"
+      },
+      "controls": [
+        {
+          "title": "Align Self (applies to 3rd item only)",
+          "property": "alignSelf",
+          "options": [
+            { "label": "Auto", "value": "self-auto" },
+            { "label": "Start", "value": "self-start" },
+            { "label": "Center", "value": "self-center" },
+            { "label": "End", "value": "self-end" }
+          ]
+        }
+      ],
+      "targetDescription": "Move the 3rd item (red circle) to the bottom",
+      "successMessage": "🎉 Perfect! The 3rd item moved to the bottom!",
+      "hintMessage": "⚡ Use self-end to override the parent's items-center and move to bottom."
+    },
+    {
+      "utility": "screen-readers",
+      "title": "Screen Reader Only Challenge",
+      "description": "Hide text visually while keeping it accessible to screen readers using sr-only.",
+      "baseContainer": "min-h-64 w-full border border-gray-600 rounded-lg bg-gray-800 p-8 flex items-center justify-center",
+      "boxClasses": "text-2xl font-bold text-blue-400",
+      "numberOfBoxes": 1,
+      "solution": {
+        "visibility": "sr-only"
+      },
+      "controls": [
+        {
+          "title": "Visibility",
+          "property": "visibility",
+          "options": [
+            { "label": "Visible", "value": "" },
+            { "label": "SR Only", "value": "sr-only" },
+            { "label": "Hidden", "value": "hidden" },
+            { "label": "Invisible", "value": "invisible" }
+          ]
+        }
+      ],
+      "targetDescription": "Hide the text visually (should appear empty)",
+      "successMessage": "🎉 Perfect! Text is hidden but accessible to screen readers!",
+      "hintMessage": "⚡ Use sr-only to hide content visually while keeping it for assistive technology."
+    },
+    {
+      "utility": "not-sr-only",
+      "title": "Not Screen Reader Only Challenge",
+      "description": "Make previously hidden text visible again using not-sr-only.",
+      "baseContainer": "min-h-64 w-full border border-gray-600 rounded-lg bg-gray-800 p-8 flex items-center justify-center",
+      "boxClasses": "text-2xl font-bold text-green-400 sr-only",
+      "numberOfBoxes": 1,
+      "solution": {
+        "visibility": "not-sr-only"
+      },
+      "controls": [
+        {
+          "title": "Visibility",
+          "property": "visibility",
+          "options": [
+            { "label": "Keep Hidden (sr-only)", "value": "sr-only" },
+            { "label": "Not SR Only", "value": "not-sr-only" }
+          ]
+        }
+      ],
+      "targetDescription": "Make the hidden text visible",
+      "successMessage": "🎉 Perfect! The text is now visible to everyone!",
+      "hintMessage": "⚡ Use not-sr-only to undo sr-only and make content visible."
+    }
+  ]
+}
