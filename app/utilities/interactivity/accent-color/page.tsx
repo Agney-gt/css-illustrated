@@ -6,23 +6,13 @@ import Footer from "@/components/footer";
 import { PageHero } from "@/components/shared/page-hero";
 import { UtilityGrid } from "@/components/shared/utility-grid";
 import { UtilityPlayground } from "@/components/shared/utility_playground";
-import {
-  ExampleSection,
-  ExampleCard,
-} from "@/components/shared/example-section";
+import { ExampleSection, ExampleCard } from "@/components/shared/example-section";
 import { TipsSection } from "@/components/shared/tips-section";
 import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
 import { MentalModelSection } from "@/components/shared/mental-model-section";
 import { ComparisonTable } from "@/components/shared/comparison-table";
 import { RealWorldExamples } from "@/components/shared/real-world-examples";
 import CodeBlock from "@/app/utilities/components/code-block";
-import {
-  InteractiveChallenge,
-  CodeTag,
-  CodeAttr,
-  CodeComment,
-  ClassToggle,
-} from "@/components/shared/challenge/interactive-challenge";
 
 const utilities = [
   { cls: "accent-inherit", desc: "Inherit accent color from parent" },
@@ -104,7 +94,7 @@ export default function AccentColorPage() {
       <Navbar />
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
-          <PageHero
+          <PageHero 
             title="Accent Color"
             description="Control the highlight color of native form controls like checkboxes, radio buttons, and range inputs. Match your brand without custom CSS."
           />
@@ -117,7 +107,7 @@ export default function AccentColorPage() {
               "Does not work on text inputs, select elements, or custom components",
               "Inherited from parent elements unless explicitly set",
               "Respects system color schemes and accessibility preferences",
-              "Applies to the active/hover state, not the default state",
+              "Applies to the active/hover state, not the default state"
             ]}
             layerAssignment="Content Layer - Controls appearance of native form control highlights"
             browserBehavior="Browser applies accent color to control's active state when user interacts with the element"
@@ -125,61 +115,40 @@ export default function AccentColorPage() {
 
           <ComparisonTable
             title="Accent Color vs Other Color Utilities"
-            columns={[
-              "Utility",
-              "What It Controls",
-              "Applied To",
-              "Effect on Custom Components",
-            ]}
+            columns={["Utility", "What It Controls", "Applied To", "Effect on Custom Components"]}
             rows={[
               {
                 feature: "accent-color",
-                values: [
-                  "Native control highlights",
-                  "Form controls",
-                  "None - browser ignores",
-                ],
+                values: ["Native control highlights", "Form controls", "None - browser ignores"]
               },
               {
-                feature: "text-color",
-                values: [
-                  "Text content",
-                  "Text elements",
-                  "Directly sets text color",
-                ],
+                feature: "text-color", 
+                values: ["Text content", "Text elements", "Directly sets text color"]
               },
               {
-                feature: "border-color",
-                values: [
-                  "Element borders",
-                  "Any element",
-                  "Directly sets border color",
-                ],
+                feature: "border-color", 
+                values: ["Element borders", "Any element", "Directly sets border color"]
               },
               {
-                feature: "background-color",
-                values: [
-                  "Element backgrounds",
-                  "Any element",
-                  "Directly sets background",
-                ],
-              },
+                feature: "background-color", 
+                values: ["Element backgrounds", "Any element", "Directly sets background"]
+              }
             ]}
           />
 
-          <UtilityGrid title="Accent Color Utilities" items={utilities} />
+          <UtilityGrid
+            title="Accent Color Utilities"
+            items={utilities}
+          />
 
           <section className="space-y-6 border-t pt-8">
             <h2 className="text-3xl font-bold">Interactive Playground</h2>
-            <p className="text-muted-foreground">
-              Experiment with different accent colors on native form controls to
-              see how they affect user experience and brand consistency.
-            </p>
+            <p className="text-muted-foreground">Experiment with different accent colors on native form controls to see how they affect user experience and brand consistency.</p>
 
             <UtilityPlayground
               title="Accent Color Playground"
               description="Test accent colors on various form controls to understand their behavior and limitations."
-              options={utilities.map((u) => u.cls)}
+              options={utilities.map(u => u.cls)}
               defaultValue="accent-blue-500"
               buildMarkup={(accentClass, customClasses = "") => {
                 return `<div class="space-y-4 ${accentClass} ${customClasses}">
@@ -204,7 +173,7 @@ export default function AccentColorPage() {
     <input type="range" min="0" max="100" value="50" />
     <span class="text-sm text-muted-foreground">$50/month</span>
   </div>
-</div>`;
+</div>`
               }}
               renderPreview={(accentClass, customClasses = "") => {
                 return (
@@ -226,151 +195,15 @@ export default function AccentColorPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium">
-                        Price range
-                      </label>
+                      <label className="block text-sm font-medium">Price range</label>
                       <input type="range" min="0" max="100" defaultValue="50" />
-                      <span className="text-sm text-muted-foreground">
-                        $50/month
-                      </span>
+                      <span className="text-sm text-muted-foreground">$50/month</span>
                     </div>
                   </div>
-                );
+                )
               }}
             />
           </section>
-
-          <InteractiveChallenge
-            title="The Mismatched Slider"
-            description="This thermostat UI uses a warm 'Heat' theme, but the range slider is stuck on the default blue color. Change the accent color to match the orange branding."
-            initialClass="accent-blue-500"
-            correctClass="accent-orange-500"
-            // 1. Code Editor
-            renderCode={(cls, toggle) => {
-              const isCorrect = cls === "accent-orange-500";
-
-              return (
-                <div className="space-y-1 font-mono text-sm">
-                  <div>
-                    <CodeComment>&lt;!-- Thermostat Card --&gt;</CodeComment>
-                    <CodeTag>&lt;div</CodeTag>{" "}
-                    <CodeAttr name="class" value="card bg-slate-900" />{" "}
-                    <CodeTag>&gt;</CodeTag>
-                  </div>
-
-                  <div className="pl-4">
-                    <CodeTag>&lt;h3&gt;</CodeTag>
-                    <span className="text-slate-300">Heating Level</span>
-                    <CodeTag>&lt;/h3&gt;</CodeTag>
-                  </div>
-
-                  <div className="pl-4 mt-2">
-                    <CodeComment>&lt;!-- The Slider Control --&gt;</CodeComment>
-                    <CodeTag>&lt;input</CodeTag>{" "}
-                    <CodeAttr name="type" value="range" />
-                  </div>
-
-                  <div className="pl-8 flex flex-wrap gap-2 items-center">
-                    <span className="text-purple-400">className</span>
-                    <span className="text-slate-300">=</span>
-                    <span className="text-green-400">"w-full ...</span>
-
-                    <button
-                      onClick={toggle}
-                      className={`
-                          mx-1 px-1.5 rounded border text-xs font-bold transition-all font-mono align-middle
-                          ${
-                            isCorrect
-                              ? "bg-green-500/20 text-green-400 border-green-500/50" // Solved: Green & Static
-                              : "bg-red-500/20 text-red-400 border-red-500/50 animate-pulse" // Wrong: Red & Blinking
-                          }
-                        `}
-                    >
-                      {cls}
-                    </button>
-
-                    <span className="text-green-400">"</span>
-                  </div>
-
-                  <div className="pl-4">
-                    <CodeTag>/&gt;</CodeTag>
-                  </div>
-
-                  <div>
-                    <CodeTag>&lt;/div&gt;</CodeTag>
-                  </div>
-                </div>
-              );
-            }}
-            // 2. Visual Preview
-            renderPreview={(cls, onWin, isSolved) => (
-              <div className="relative w-full h-72 bg-slate-950 rounded-xl shadow-2xl border border-slate-800 flex flex-col items-center justify-center p-8 overflow-hidden">
-                {/* Atmospheric Glow */}
-                <div
-                  className={`
-                    absolute inset-0 bg-gradient-to-t from-orange-900/20 to-transparent
-                    transition-opacity duration-1000
-                    ${isSolved ? "opacity-100" : "opacity-30"}
-                  `}
-                />
-
-                {/* Card Container */}
-                <div className="relative z-10 w-full max-w-xs bg-slate-900 border border-slate-700 p-6 rounded-2xl shadow-xl space-y-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400 font-medium uppercase tracking-wider text-xs">
-                      Temperature
-                    </span>
-                    <span
-                      className={`text-xl font-bold transition-colors duration-500 ${
-                        isSolved ? "text-orange-500" : "text-slate-200"
-                      }`}
-                    >
-                      {isSolved ? "72°F" : "68°F"}
-                    </span>
-                  </div>
-
-                  {/* The Target Input */}
-                  <div className={`transition-all duration-500 ${cls}`}>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      defaultValue={isSolved ? 72 : 50}
-                      className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-700"
-                      // Win conditions
-                      onChange={() => {
-                        if (cls === "accent-orange-500") onWin();
-                      }}
-                      onClick={() => {
-                        if (cls === "accent-orange-500") onWin();
-                      }}
-                    />
-                  </div>
-
-                  <div className="flex justify-between text-xs text-slate-500 font-mono">
-                    <span>COOL</span>
-                    <span>HEAT</span>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      if (cls === "accent-orange-500") onWin();
-                    }}
-                    className={`
-                         w-full py-3 rounded-lg font-bold text-sm transition-all duration-300
-                         ${
-                           isSolved
-                             ? "bg-orange-600 hover:bg-orange-500 text-white shadow-[0_0_20px_rgba(234,88,12,0.4)]"
-                             : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                         }
-                       `}
-                  >
-                    {isSolved ? "SYSTEM ACTIVE 🔥" : "SET TEMPERATURE"}
-                  </button>
-                </div>
-              </div>
-            )}
-          />
 
           <ExampleSection title="Real-World Examples">
             <ExampleCard
@@ -400,7 +233,7 @@ export default function AccentColorPage() {
                   <input type="checkbox" defaultChecked />
                   Subscribe to newsletter
                 </label>
-
+                
                 <fieldset className="space-y-2">
                   <legend className="text-sm font-medium">Choose plan:</legend>
                   <label className="flex items-center gap-2">
@@ -511,9 +344,7 @@ export default function AccentColorPage() {
                 </div>
 
                 <div className="p-4 bg-slate-800 text-white">
-                  <h3 className="text-lg font-semibold mb-2">
-                    Dark Theme Controls
-                  </h3>
+                  <h3 className="text-lg font-semibold mb-2">Dark Theme Controls</h3>
                   <div className="accent-current">
                     <label className="flex items-center gap-2">
                       <input type="checkbox" />
@@ -530,83 +361,49 @@ export default function AccentColorPage() {
             mistakes={[
               {
                 title: "Using accent-color on custom components",
-                reason:
-                  "Accent color only affects native browser controls, not custom-styled form elements.",
+                reason: "Accent color only affects native browser controls, not custom-styled form elements.",
                 example: `<div class="accent-blue-500">
   <!-- Custom checkbox with CSS styling -->
   <div class="custom-checkbox" />
-</div>`,
+</div>`
               },
               {
                 title: "Applying to text inputs or select elements",
-                reason:
-                  "Text inputs and select elements don't use accent-color for their appearance.",
+                reason: "Text inputs and select elements don't use accent-color for their appearance.",
                 example: `<input type="text" class="accent-red-500" />
-<select class="accent-green-500">...</select>`,
+<select class="accent-green-500">...</select>`
               },
               {
                 title: "Using low-contrast accent colors",
-                reason:
-                  "Accent colors need sufficient contrast to be visible, especially on different backgrounds.",
+                reason: "Accent colors need sufficient contrast to be visible, especially on different backgrounds.",
                 example: `<form class="accent-gray-100">
   <input type="checkbox" checked />
   <!-- Barely visible checkbox -->
-</form>`,
+</form>`
               },
               {
                 title: "Relying on accent-color alone for state indication",
-                reason:
-                  "Not all users will see accent colors due to browser preferences or accessibility settings.",
+                reason: "Not all users will see accent colors due to browser preferences or accessibility settings.",
                 example: `<label class="flex items-center gap-2">
   <input type="checkbox" checked />
   <!-- No additional visual feedback -->
-</label>`,
-              },
+</label>`
+              }
             ]}
           />
 
-          <TipsSection
+          <TipsSection 
             tips={[
-              {
-                bold: "Native only:",
-                text: "Accent color works only on native checkboxes, radio buttons, and range inputs.",
-              },
-              {
-                bold: "Semantic colors:",
-                text: "Use brand colors for consistency, red for destructive actions, green for success.",
-              },
-              {
-                bold: "Theme awareness:",
-                text: "Use `accent-current` or `accent-inherit` for theme-consistent controls.",
-              },
-              {
-                bold: "Contrast matters:",
-                text: "Ensure accent colors have sufficient contrast against your background colors.",
-              },
-              {
-                bold: "Accessibility:",
-                text: "Don't rely on color alone—provide labels and additional visual feedback.",
-              },
-              {
-                bold: "Inheritance:",
-                text: "Accent color inherits from parent elements unless explicitly overridden.",
-              },
-              {
-                bold: "Custom overrides:",
-                text: "Fully custom-styled controls will ignore accent-color utilities.",
-              },
-              {
-                bold: "System respect:",
-                text: "Browsers may override accent colors based on user preferences or high contrast mode.",
-              },
-              {
-                bold: "No text input effect:",
-                text: "Text inputs use `caret-color` and `text-color`, not accent-color.",
-              },
-              {
-                bold: "No select effect:",
-                text: "Select elements use their own styling system, not accent-color.",
-              },
+              { bold: "Native only:", text: "Accent color works only on native checkboxes, radio buttons, and range inputs." },
+              { bold: "Semantic colors:", text: "Use brand colors for consistency, red for destructive actions, green for success." },
+              { bold: "Theme awareness:", text: "Use `accent-current` or `accent-inherit` for theme-consistent controls." },
+              { bold: "Contrast matters:", text: "Ensure accent colors have sufficient contrast against your background colors." },
+              { bold: "Accessibility:", text: "Don't rely on color alone—provide labels and additional visual feedback." },
+              { bold: "Inheritance:", text: "Accent color inherits from parent elements unless explicitly overridden." },
+              { bold: "Custom overrides:", text: "Fully custom-styled controls will ignore accent-color utilities." },
+              { bold: "System respect:", text: "Browsers may override accent colors based on user preferences or high contrast mode." },
+              { bold: "No text input effect:", text: "Text inputs use `caret-color` and `text-color`, not accent-color." },
+              { bold: "No select effect:", text: "Select elements use their own styling system, not accent-color." }
             ]}
           />
         </div>
