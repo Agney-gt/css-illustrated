@@ -1,375 +1,337 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import PageTitle from "@/components/otherComponents/pageTitle"
-import UtilityCard from "@/components/otherComponents/utilityClassCard"
-import UtilityExaButtons from "@/components/otherComponents/utilityExaBtn"
-import PreviewPanel from "@/components/otherComponents/previewPanel"
-import ExampleCard from "@/components/otherComponents/realWorldExampleCard"
-import SummaryTips from "@/components/otherComponents/summaryTips"
-import SrcollUtilitiesNotes from "../scrollUtilitiesNotes"
+import React, { useState } from "react";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
+import { PageHero } from "@/components/shared/page-hero";
+import { UtilityGrid } from "@/components/shared/utility-grid";
+import { UtilityPlayground } from "@/components/shared/utility_playground";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
+import { TipsSection } from "@/components/shared/tips-section";
+import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
+import { MentalModelSection } from "@/components/shared/mental-model-section";
+import { ComparisonTable } from "@/components/shared/comparison-table";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 const utilities = [
-  {
-    className: "scroll-p-<number>",
-    desc: "Set scroll padding on all sides using a spacing scale value.",
-  },
-  {
-    className: "-scroll-p-<number>",
-    desc: "Apply a negative scroll padding on all sides.",
-  },
-  {
-    className: "scroll-p-(<custom-property>)",
-    desc: "Set scroll padding on all sides using a CSS custom property.",
-  },
-  {
-    className: "scroll-p-[<value>]",
-    desc: "Set scroll padding on all sides using an arbitrary custom value.",
-  },
-
-  {
-    className: "scroll-px-<number>",
-    desc: "Set horizontal (inline) scroll padding using a spacing scale value.",
-  },
-  {
-    className: "-scroll-px-<number>",
-    desc: "Apply negative horizontal (inline) scroll padding.",
-  },
-  {
-    className: "scroll-px-(<custom-property>)",
-    desc: "Set horizontal (inline) scroll padding using a CSS custom property.",
-  },
-  {
-    className: "scroll-px-[<value>]",
-    desc: "Set horizontal (inline) scroll padding using an arbitrary custom value.",
-  },
-
-  {
-    className: "scroll-py-<number>",
-    desc: "Set vertical (block) scroll padding using a spacing scale value.",
-  },
-  {
-    className: "-scroll-py-<number>",
-    desc: "Apply negative vertical (block) scroll padding.",
-  },
-  {
-    className: "scroll-py-(<custom-property>)",
-    desc: "Set vertical (block) scroll padding using a CSS custom property.",
-  },
-  {
-    className: "scroll-py-[<value>]",
-    desc: "Set vertical (block) scroll padding using an arbitrary custom value.",
-  },
-
-  {
-    className: "scroll-ps-<number>",
-    desc: "Set scroll padding on the inline start side using a spacing scale value.",
-  },
-  {
-    className: "-scroll-ps-<number>",
-    desc: "Apply negative scroll padding to the inline start side.",
-  },
-  {
-    className: "scroll-ps-(<custom-property>)",
-    desc: "Set scroll padding on the inline start side using a CSS custom property.",
-  },
-  {
-    className: "scroll-ps-[<value>]",
-    desc: "Set scroll padding on the inline start side using an arbitrary custom value.",
-  },
-
-  {
-    className: "scroll-pe-<number>",
-    desc: "Set scroll padding on the inline end side using a spacing scale value.",
-  },
-  {
-    className: "-scroll-pe-<number>",
-    desc: "Apply negative scroll padding to the inline end side.",
-  },
-  {
-    className: "scroll-pe-(<custom-property>)",
-    desc: "Set scroll padding on the inline end side using a CSS custom property.",
-  },
-  {
-    className: "scroll-pe-[<value>]",
-    desc: "Set scroll padding on the inline end side using an arbitrary custom value.",
-  },
-
-  {
-    className: "scroll-pt-<number>",
-    desc: "Set scroll padding on the top side using a spacing scale value.",
-  },
-  {
-    className: "-scroll-pt-<number>",
-    desc: "Apply negative scroll padding to the top side.",
-  },
-  {
-    className: "scroll-pt-(<custom-property>)",
-    desc: "Set scroll padding on the top side using a CSS custom property.",
-  },
-  {
-    className: "scroll-pt-[<value>]",
-    desc: "Set scroll padding on the top side using an arbitrary custom value.",
-  },
-
-  {
-    className: "scroll-pr-<number>",
-    desc: "Set scroll padding on the right side using a spacing scale value.",
-  },
-  {
-    className: "-scroll-pr-<number>",
-    desc: "Apply negative scroll padding to the right side.",
-  },
-  {
-    className: "scroll-pr-(<custom-property>)",
-    desc: "Set scroll padding on the right side using a CSS custom property.",
-  },
-  {
-    className: "scroll-pr-[<value>]",
-    desc: "Set scroll padding on the right side using an arbitrary custom value.",
-  },
-
-  {
-    className: "scroll-pb-<number>",
-    desc: "Set scroll padding on the bottom side using a spacing scale value.",
-  },
-  {
-    className: "-scroll-pb-<number>",
-    desc: "Apply negative scroll padding to the bottom side.",
-  },
-  {
-    className: "scroll-pb-(<custom-property>)",
-    desc: "Set scroll padding on the bottom side using a CSS custom property.",
-  },
-  {
-    className: "scroll-pb-[<value>]",
-    desc: "Set scroll padding on the bottom side using an arbitrary custom value.",
-  },
-
-  {
-    className: "scroll-pl-<number>",
-    desc: "Set scroll padding on the left side using a spacing scale value.",
-  },
-  {
-    className: "-scroll-pl-<number>",
-    desc: "Apply negative scroll padding to the left side.",
-  },
-  {
-    className: "scroll-pl-(<custom-property>)",
-    desc: "Set scroll padding on the left side using a CSS custom property.",
-  },
-  {
-    className: "scroll-pl-[<value>]",
-    desc: "Set scroll padding on the left side using an arbitrary custom value.",
-  },
-]
-
-const utilitiesExamples = [
-  {exa:"scroll-p-32"},
-  {exa:"-scroll-p-40"},
-  {exa:"scroll-p-(--custom-space)"},
-  {exa:"scroll-p-[10px]"},
-  {exa:"scroll-px-32"},
-  {exa:"-scroll-px-40"},
-  {exa:"scroll-px-(--custom-space)"},
-  {exa:"scroll-px-[10px]"},
-  {exa:"scroll-py-32"},
-  {exa:"-scroll-py-40"},
-  {exa:"scroll-py-(--custom-space)"},
-  {exa:"scroll-py-[10px]"},
-  {exa:"scroll-ps-32"},
-  {exa:"-scroll-ps-40"},
-  {exa:"scroll-ps-(--custom-space)"},
-  {exa:"scroll-ps-[10px]"},
-  {exa:"scroll-pe-32"},
-  {exa:"-scroll-pe-40"},
-  {exa:"scroll-pe-(--custom-space)"},
-  {exa:"scroll-pe-[10px]"},
-  {exa:"scroll-pt-32"},
-  {exa:"-scroll-pt-40"},
-  {exa:"scroll-pt-(--custom-space)"},
-  {exa:"scroll-pt-[10px]"},
-  {exa:"scroll-pr-32"},
-  {exa:"-scroll-pr-40"},
-  {exa:"scroll-pr-(--custom-space)"},
-  {exa:"scroll-pr-[10px]"},
-  {exa:"scroll-pb-32"},
-  {exa:"-scroll-pb-40"},
-  {exa:"scroll-pb-(--custom-space)"},
-  {exa:"scroll-pb-[10px]"},
-  {exa:"scroll-pl-32"},
-  {exa:"-scroll-pl-40"},
-  {exa:"scroll-pl-(--custom-space)"},
-  {exa:"scroll-pl-[10px]"},
-]
-
+  { cls: "scroll-p-0", desc: "No scroll padding" },
+  { cls: "scroll-p-4", desc: "Scroll padding on all sides" },
+  { cls: "scroll-px-4", desc: "Horizontal scroll padding" },
+  { cls: "scroll-py-4", desc: "Vertical scroll padding" },
+  { cls: "scroll-pt-10", desc: "Scroll padding top" },
+  { cls: "scroll-pb-10", desc: "Scroll padding bottom" },
+  { cls: "scroll-pl-4", desc: "Scroll padding left" },
+  { cls: "scroll-pr-4", desc: "Scroll padding right" },
+  { cls: "scroll-ps-4", desc: "Scroll padding inline start" },
+  { cls: "scroll-pe-4", desc: "Scroll padding inline end" },
+];
 
 export default function ScrollPaddingPage() {
-  const utilityExaOptions = utilitiesExamples.map((u) => u.exa)
-  const [activeUtilityExa, setActiveUtility] = useState(utilityExaOptions[0])
-  const [code, setCode] = useState("")
-
-useEffect(() => {
-  setCode(
-    `
-<div class="${activeUtilityExa} h-64 overflow-y-auto rounded-xl border bg-slate-50 text-sm
-            scroll-smooth scroll-snap-y scroll-snap-mandatory">
-
-  <div class="sticky top-0 z-10 bg-slate-900 px-4 py-3 text-white font-medium">
-    Sticky Header (Scroll Padding Demo)
-  </div>
-
-  <section class="h-56 scroll-snap-start flex items-center justify-center bg-slate-200">
-    Section 1
-  </section>
-
-  <section class="h-56 scroll-snap-start flex items-center justify-center bg-green-600 text-white">
-    Section 2
-  </section>
-
-  <section class="h-56 scroll-snap-start flex items-center justify-center bg-purple-600 text-white">
-    Section 3
-  </section>
-
-  <section class="h-56 scroll-snap-start flex items-center justify-center bg-orange-500 text-white">
-    Section 4
-  </section>
-</div>
-    `.trim()
-  )
-}, [activeUtilityExa])
-
-
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
-
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
-          <PageTitle
+          <PageHero
             title="Scroll Padding"
-            description="Control the internal offset of a scroll container when content scrolls into view."
+            description="Control the internal offset of a scroll container when content scrolls into view or snaps. Essential for preventing content from hiding behind sticky headers."
           />
 
-          <div className="space-y-6 border-t border-border pt-8">
-            <h2 className="text-3xl font-bold">Scroll Padding Utilities</h2>
+          <MentalModelSection
+            title="Understanding Scroll Padding"
+            description="Scroll padding is like 'internal breathing room' for a scroll container. Unlike regular padding, it doesn't affect the layout of static content. It specifically tells the browser: 'When you scroll something into view inside me, stop this far away from the edge'."
+            features={[
+              "Applied to the SCROLL CONTAINER (parent), not the children",
+              "Crucial for containers with sticky headers/footers",
+              "Works perfectly with CSS Scroll Snap",
+              "Invisible during normal layout flow",
+              "Sets the 'safe area' for scrollIntoView() calls",
+            ]}
+            layerAssignment="Interactivity Layer - Defines safe zones within a scrollport"
+            browserBehavior="The browser effectively shrinks the 'snapping area' or 'viewing area' by the padding amount."
+          />
 
-            <div className="grid md:grid-cols-4 gap-4">
-              {utilities.map((u) => (
-                <UtilityCard
-                  key={u.className}
-                  classNameValue={u.className}
-                  description={u.desc}
-                />
-              ))}
-            </div>
-          </div>
+          <ComparisonTable
+            title="Scroll Padding vs Scroll Margin"
+            columns={["Feature", "scroll-p-* (Padding)", "scroll-m-* (Margin)"]}
+            rows={[
+              {
+                feature: "Applied To",
+                values: ["Parent Container", "Child Target Element"],
+              },
+              {
+                feature: "Scope",
+                values: [
+                  "Global (affects all children)",
+                  "Local (affects specific child)",
+                ],
+              },
+              {
+                feature: "Best Use Case",
+                values: [
+                  "Sticky headers, Snap containers",
+                  "Individual section offsets",
+                ],
+              },
+              {
+                feature: "Maintenance",
+                values: ["Easier (one place)", "Harder (many places)"],
+              },
+            ]}
+          />
 
-          <SrcollUtilitiesNotes />
+          <UtilityGrid title="Scroll Padding Utilities" items={utilities} />
 
-          <div className="space-y-6 border-t border-border pt-8">
+          <section className="space-y-6 border-t pt-8">
             <h2 className="text-3xl font-bold">Interactive Playground</h2>
+            <p className="text-muted-foreground">
+              Adjust the scroll padding to see how it affects where the content
+              stops scrolling.
+            </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-              <div className="space-y-4">
-                <UtilityExaButtons
-                  label="Scroll Padding (Top)"
-                  options={utilityExaOptions}
-                  activeValue={activeUtilityExa}
-                  onSelect={setActiveUtility}
-                />
+            <UtilityPlayground
+              title="Scroll Padding Playground"
+              description="See how scroll padding pushes content away from the container edges during scroll operations."
+              options={[
+                "scroll-pt-0",
+                "scroll-pt-24",
+                "scroll-pt-12",
+                "scroll-pl-12",
+              ]}
+              defaultValue="scroll-pt-0"
+              buildMarkup={(paddingClass, customClasses = "") => {
+                return `<div class="${paddingClass} h-64 overflow-y-auto border rounded relative snap-y snap-mandatory">
+  <div class="sticky top-0 bg-blue-600/90 text-white p-2 z-10 h-12">
+    Sticky Header (h-12)
+  </div>
+  
+  <div class="space-y-8 p-4">
+    <div class="h-32 bg-slate-100 rounded snap-start">Item 1</div>
+    <div class="h-32 bg-slate-100 rounded snap-start">Item 2</div>
+    <div class="h-32 bg-slate-100 rounded snap-start">Item 3</div>
+  </div>
+</div>`;
+              }}
+              renderPreview={(paddingClass, customClasses = "") => {
+                return (
+                  <div
+                    className={`
+                    h-64 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-lg relative bg-slate-50 dark:bg-slate-900 snap-y snap-mandatory scroll-smooth
+                    ${paddingClass} ${customClasses}
+                  `}
+                  >
+                    <div className="sticky top-0 left-0 right-0 bg-blue-600/90 backdrop-blur text-white p-3 z-10 h-12 flex items-center justify-between shadow-md">
+                      <span className="text-xs font-bold">
+                        Sticky Header (48px)
+                      </span>
+                    </div>
+
+                    <div className="p-4 space-y-16">
+                      <div className="h-12"></div>
+                      {[1, 2, 3].map((i) => (
+                        <div
+                          key={i}
+                          className="h-32 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-center snap-start"
+                        >
+                          Item {i}
+                        </div>
+                      ))}
+                      <div className="h-32"></div>
+                    </div>
+                  </div>
+                );
+              }}
+            />
+          </section>
+
+          <InteractiveChallenge
+            title="The Cramped Carousel"
+            description="This horizontal image gallery uses scroll snapping. Currently, when an image snaps into view, it sticks exactly to the left edge (`scroll-pl-0`), looking cramped. Add `scroll-pl-6` to the container to give the active image some breathing room from the edge."
+            codeSnippet={`<div class="{input} flex overflow-x-auto snap-x snap-mandatory gap-4 py-8 bg-slate-900 rounded-xl">
+  
+  <div class="snap-start shrink-0 w-48 h-64 bg-indigo-500 rounded-lg shadow-lg ml-6">
+    <img src="/img1.jpg" class="w-full h-full object-cover rounded-lg" />
+  </div>
+
+  <div class="snap-start shrink-0 w-48 h-64 bg-purple-500 rounded-lg shadow-lg">
+    <img src="/img2.jpg" class="w-full h-full object-cover rounded-lg" />
+  </div>
+
+  </div>`}
+            options={["scroll-pl-0", "scroll-pl-6", "pl-6", "ml-6"]}
+            correctOption="scroll-pl-6"
+            renderPreview={(userClass) => (
+              <div className="flex items-center justify-center w-full h-full bg-slate-50 dark:bg-slate-950 p-8 rounded-lg">
+                <div className="w-full max-w-md relative">
+                  {/* The Carousel */}
+                  <div
+                    className={`
+                      flex overflow-x-auto snap-x snap-mandatory gap-4 py-8 bg-slate-900 rounded-xl shadow-2xl no-scrollbar
+                      ${userClass}
+                    `}
+                  >
+                    {/* Spacer to simulate first-child margin if needed (usually handled by padding on container, but scroll-padding handles the SNAP point) */}
+                    <div className="w-2 shrink-0"></div>
+
+                    {[1, 2, 3, 4].map((i) => (
+                      <div
+                        key={i}
+                        className={`
+                          snap-start shrink-0 w-40 h-56 rounded-lg shadow-lg flex items-center justify-center text-white font-bold text-2xl
+                          ${
+                            i === 1
+                              ? "bg-indigo-500"
+                              : i === 2
+                              ? "bg-purple-500"
+                              : i === 3
+                              ? "bg-pink-500"
+                              : "bg-orange-500"
+                          }
+                        `}
+                      >
+                        {i}
+                      </div>
+                    ))}
+                    <div className="w-6 shrink-0"></div>
+                  </div>
+
+                  {/* Visualizer for the "Safe Zone" */}
+                  {userClass === "scroll-pl-6" && (
+                    <div className="absolute top-8 bottom-8 left-0 w-6 bg-green-500/20 border-r-2 border-green-500 pointer-events-none z-20 flex items-center justify-center animate-in fade-in">
+                      <div className="text-[10px] text-green-400 -rotate-90 whitespace-nowrap font-bold">
+                        Padding
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Helper Hint */}
+                  <div className="text-center mt-4 text-xs text-slate-400">
+                    Try scrolling horizontally!
+                  </div>
+                </div>
               </div>
+            )}
+          />
 
-              <div className="md:col-span-2">
-                <PreviewPanel
-                  title="Live Preview"
-                  code={code}
-                  onCodeChange={setCode}
-                  previewClass="p-6"
-                  description="Scroll to see how content clears the sticky header."
-                />
+          <ExampleSection title="Real-World Examples">
+            <ExampleCard
+              title="Sticky header containers"
+              description="Keeps scrollable content readable under pinned headers by setting a top scroll offset on the container."
+              code={`<div class="scroll-pt-16 h-48 overflow-y-auto rounded-xl border bg-white relative">
+  <div class="sticky top-0 bg-slate-900 text-white p-3 font-bold h-12 shadow-md">
+    Sticky Header
+  </div>
+  <div class="p-4 space-y-8">
+    <div class="snap-start scroll-mt-4">Item 1</div>
+    <div class="snap-start scroll-mt-4">Item 2</div>
+  </div>
+</div>`}
+            >
+              <div className="scroll-pt-16 h-48 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 relative snap-y">
+                <div className="sticky top-0 bg-slate-900 text-white p-3 font-bold h-12 shadow-md flex items-center text-sm z-10">
+                  Sticky Header (h-12)
+                </div>
+                <div className="p-4 space-y-32">
+                  <div className="h-8"></div>
+                  <div className="snap-start bg-slate-100 dark:bg-slate-800 p-4 rounded border border-slate-300 dark:border-slate-600">
+                    <p className="font-bold text-sm">Snap Target</p>
+                    <p className="text-xs text-slate-500">
+                      I stop below the header!
+                    </p>
+                  </div>
+                  <div className="h-32"></div>
+                </div>
               </div>
-            </div>
-          </div>
+            </ExampleCard>
 
-          <div className="space-y-6 border-t border-border pt-8">
-            <h2 className="text-3xl font-bold">Real-world examples</h2>
+            <ExampleCard
+              title="Scrollable data panels"
+              description="Adds breathing room for dense dashboards or filter lists."
+              code={`<div class="scroll-pt-10 h-40 overflow-y-auto border p-2">
+  <div class="sticky top-0 bg-gray-100 p-1 mb-2">Filters</div>
+  </div>`}
+            >
+              <div className="scroll-pt-12 h-40 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-2 relative">
+                <div className="sticky top-0 bg-slate-200 dark:bg-slate-800 p-2 rounded text-xs font-bold mb-4 z-10">
+                  Filters
+                </div>
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="mb-2 p-2 bg-white dark:bg-slate-800 rounded shadow-sm text-xs"
+                  >
+                    Filter Option {i}
+                  </div>
+                ))}
+              </div>
+            </ExampleCard>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <ExampleCard
-                title="Sticky header containers"
-                code={`<div class="scroll-pt-24 h-40 overflow-y-auto rounded-xl border bg-white">
-  <div class="sticky top-0 z-10 bg-slate-800 px-3 py-2 text-white font-medium">
-    Messages
-  </div>
-  <div class="h-40 bg-slate-200"></div>
-  <p class="px-3 py-2 text-sm">Conversation content</p>
+            <ExampleCard
+              title="Carousel & snap scrolling"
+              description="Maintains consistent spacing when snapping items in a horizontal list."
+              code={`<div class="scroll-pl-6 overflow-x-auto snap-x rounded-xl bg-slate-900 p-4 flex gap-4">
+  <div class="snap-start w-32 h-20 bg-blue-500 rounded"></div>
+  <div class="snap-start w-32 h-20 bg-green-500 rounded"></div>
 </div>`}
-                description="Keeps scrollable content readable under pinned headers."
-              >
-              </ExampleCard>
+            >
+              <div className="scroll-pl-6 overflow-x-auto snap-x rounded-lg bg-slate-900 p-4 flex gap-4 no-scrollbar">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="snap-start shrink-0 w-32 h-20 bg-gradient-to-br from-slate-700 to-slate-800 rounded border border-slate-600 flex items-center justify-center text-slate-400 text-xs font-mono"
+                  >
+                    Slide {i}
+                  </div>
+                ))}
+              </div>
+            </ExampleCard>
+          </ExampleSection>
 
-              <ExampleCard
-                title="Scrollable data panels"
-                code={`<div class="scroll-pt-32 h-40 overflow-y-auto rounded-xl border bg-slate-600 p-3 text-slate-200 space-y-3 text-sm">
-  <div class="sticky top-0 bg-slate-950 px-2 py-1 font-medium">
-    Filters
-  </div>
-  <div class="h-48 bg-slate-800 rounded"></div>
-  <div class="rounded bg-slate-800 px-2 py-1">
-    Chart content
-  </div>
-</div>`}
-                description="Adds breathing room for dense dashboards."
-              >
-              </ExampleCard>
+          <CommonMistakesSection
+            title="Common Mistakes"
+            mistakes={[
+              {
+                title: "Confusing it with layout padding",
+                reason:
+                  "`scroll-padding` DOES NOT add visual space around content during normal rendering. It only affects the scroll offset calculation.",
+                example: `<div class="scroll-p-10">Content</div> `,
+              },
+              {
+                title: "Applying to the child instead of container",
+                reason:
+                  "Scroll padding must be applied to the scroll container (the element with `overflow: auto`), not the items inside it.",
+                example: `<div class="overflow-auto">
+  <div class="scroll-pt-10">...</div> </div>`,
+              },
+            ]}
+          />
 
-              <ExampleCard
-                title="Carousel & snap scrolling"
-                code={`<div class="scroll-pt-16 overflow-x-auto whitespace-nowrap rounded-xl border bg-slate-50 p-4">
-  <div class="inline-block h-24 w-56 rounded-lg bg-blue-500 mr-4" ></div>
-  <div class="inline-block h-24 w-56 rounded-lg bg-green-500 mr-4" ></div>
-  <div class="inline-block h-24 w-56 rounded-lg bg-purple-500 mr-4" ></div>
-</div>`}
-                description="Maintains consistent spacing when snapping items."
-              >
-              </ExampleCard>
-
-              <ExampleCard
-                title="Command palette results"
-                code={`<div class="scroll-pt-16 h-40 overflow-y-auto rounded-xl border bg-white p-3 space-y-2 text-sm">
-  <div class="sticky top-0 bg-white font-medium">
-    Search results
-  </div>
-  <div class="h-32 bg-slate-100 rounded"></div>
-  <div class="rounded bg-indigo-600 px-3 py-2 text-white">
-    Selected item
-  </div>
-</div>`}
-                description="Ensures highlighted results are never hidden."
-              >
-              </ExampleCard>
-            </div>
-          </div>
-
-          <SummaryTips
-            items={[
-              "1. Scroll padding applies to the scroll container itself.",
-              "2. Different from scroll margin, which applies to target elements.",
-              "3. Commonly used with sticky headers.",
-              "4. Useful for scroll snap and carousel layouts.",
-              "5. Does not affect layout spacing outside the container.",
-              "6. Combine with scroll-smooth for polished UX.",
-              "7. Padding values should reflect header height.",
-              "8. Works with both vertical and horizontal scrolling.",
+          <TipsSection
+            tips={[
+              {
+                bold: "Container Scope:",
+                text: "Scroll padding applies to the scroll container itself and affects ALL children within it.",
+              },
+              {
+                bold: "Sticky Headers:",
+                text: "Use `scroll-pt-*` equal to the height of your sticky header so anchor links don't scroll content underneath it.",
+              },
+              {
+                bold: "Scroll Snap:",
+                text: "Essential for CSS Scroll Snap to prevent items from snapping directly to the edge of the viewport.",
+              },
+              {
+                bold: "Not Layout:",
+                text: "If you need visual spacing that is always visible, use regular `padding` (`p-*`). Use `scroll-padding` specifically for scroll alignment.",
+              },
             ]}
           />
         </div>
       </main>
-
       <Footer />
     </div>
-  )
+  );
 }

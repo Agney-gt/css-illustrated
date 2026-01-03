@@ -1,159 +1,308 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import PageTitle from "@/components/otherComponents/pageTitle"
-import UtilityCard from "@/components/otherComponents/utilityClassCard"
-import UtilityExaButtons from "@/components/otherComponents/utilityExaBtn"
-import PreviewPanel from "@/components/otherComponents/previewPanel"
-import ExampleCard from "@/components/otherComponents/realWorldExampleCard"
-import SummaryTips from "@/components/otherComponents/summaryTips"
+import React, { useState } from "react";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
+import { PageHero } from "@/components/shared/page-hero";
+import { UtilityGrid } from "@/components/shared/utility-grid";
+import { UtilityPlayground } from "@/components/shared/utility_playground";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
+import { TipsSection } from "@/components/shared/tips-section";
+import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
+import { MentalModelSection } from "@/components/shared/mental-model-section";
+import { ComparisonTable } from "@/components/shared/comparison-table";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 const utilities = [
   {
-    className: "scheme-normal",
+    cls: "scheme-normal",
     desc: "Use the browser or OS preferred color scheme",
   },
   {
-    className: "scheme-light",
+    cls: "scheme-light",
     desc: "Force native UI elements to render in light mode",
   },
   {
-    className: "scheme-dark",
+    cls: "scheme-dark",
     desc: "Force native UI elements to render in dark mode",
   },
-]
+];
 
 export default function ColorSchemePage() {
-  const utilityOptions = utilities.map((u) => u.className)
-  const [activeUtility, setActiveUtility] = useState(utilityOptions[0])
-  const [code, setCode] = useState("")
-
-  useEffect(() => {
-    setCode(
-      `
-<div class="${activeUtility} space-y-3 p-4 border rounded">
-  <input
-    type="text"
-    class="border rounded px-3 py-2 w-full"
-    placeholder="Text input"
-  />
-
-  <label class="flex items-center gap-2">
-    <input type="checkbox" checked />
-    Checkbox
-  </label>
-
-  <textarea
-    class="border rounded px-3 py-2 w-full"
-    placeholder="Textarea"
-  ></textarea>
-</div>
-      `.trim()
-    )
-  }, [activeUtility])
-
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
-
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
-          <PageTitle
+          <PageHero
             title="Color Scheme"
-            description="Control whether native UI elements render in light or dark mode, independent of your site theme."
+            description="Control whether native UI elements render in light or dark mode, independent of your site theme. Essential for mixed-theme interfaces and embedded widgets."
           />
 
-          <div className="space-y-6 border-t border-border pt-8">
-            <h2 className="text-3xl font-bold">Color Scheme Utilities</h2>
+          <MentalModelSection
+            title="Understanding Color Scheme"
+            description="The `color-scheme` property tells the browser which theme the element is designed for. This allows the browser to render native form controls (scrollbars, inputs, checkboxes) with the appropriate light or dark default styles."
+            features={[
+              "Affects native browser UI (scrollbars, inputs, forms)",
+              "Can override the user's OS preference for specific sections",
+              "scheme-dark usually renders dark backgrounds and light text on inputs",
+              "Crucial for 'Dark Mode' sections within 'Light Mode' pages (and vice versa)",
+              "Does NOT automatically change Tailwind colors (bg-*, text-*)",
+            ]}
+            layerAssignment="Content Layer - Hints rendering mode to browser engine"
+            browserBehavior="Browser switches its internal stylesheet for native controls to match the requested scheme."
+          />
 
-            <div className="grid md:grid-cols-3 gap-4">
-              {utilities.map((u) => (
-                <UtilityCard
-                  key={u.className}
-                  classNameValue={u.className}
-                  description={u.desc}
-                />
-              ))}
-            </div>
-          </div>
+          <ComparisonTable
+            title="Color Scheme vs Dark Mode"
+            columns={[
+              "Feature",
+              "Color Scheme Utility",
+              "Dark Mode Class (dark:)",
+            ]}
+            rows={[
+              {
+                feature: "Target",
+                values: ["Native Browser UI", "Custom CSS Styles"],
+              },
+              {
+                feature: "Scrollbars",
+                values: ["✅ Affected", "🚫 Not Affected"],
+              },
+              {
+                feature: "Inputs (Default)",
+                values: ["✅ Switches Theme", "🚫 Manual Styling Needed"],
+              },
+              {
+                feature: "Purpose",
+                values: ["System consistency", "Custom design"],
+              },
+            ]}
+          />
 
-          <div className="space-y-6 border-t border-border pt-8">
+          <UtilityGrid title="Color Scheme Utilities" items={utilities} />
+
+          <section className="space-y-6 border-t pt-8">
             <h2 className="text-3xl font-bold">Interactive Playground</h2>
+            <p className="text-muted-foreground">
+              Switch schemes to see how native UI elements adapt their default
+              styling.
+            </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-              <div className="space-y-4">
-                <UtilityExaButtons
-                  label="Color Scheme"
-                  options={utilityOptions}
-                  activeValue={activeUtility}
-                  onSelect={setActiveUtility}
-                />
+            <UtilityPlayground
+              title="Color Scheme Playground"
+              description="Toggle between schemes to see the effect on standard form elements."
+              options={utilities.map((u) => u.cls)}
+              defaultValue="scheme-normal"
+              buildMarkup={(schemeClass, customClasses = "") => {
+                return `<div class="${schemeClass} space-y-4 p-6 border rounded-lg ${customClasses}">
+  <input type="text" class="border rounded px-3 py-2 w-full" placeholder="Text input" />
+  
+  <div class="flex items-center gap-4">
+    <label class="flex items-center gap-2">
+      <input type="checkbox" checked /> Checkbox
+    </label>
+    <label class="flex items-center gap-2">
+      <input type="radio" checked /> Radio
+    </label>
+  </div>
+
+  <input type="date" class="border rounded px-3 py-2" />
+</div>`;
+              }}
+              renderPreview={(schemeClass, customClasses = "") => {
+                return (
+                  <div
+                    className={`${schemeClass} space-y-4 p-6 border border-slate-300 dark:border-slate-700 rounded-lg ${customClasses} bg-transparent`}
+                  >
+                    <input
+                      type="text"
+                      className="border border-slate-400 rounded px-3 py-2 w-full"
+                      placeholder="Text input (Native)"
+                    />
+
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" defaultChecked /> Checkbox
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input type="radio" defaultChecked /> Radio
+                      </label>
+                    </div>
+
+                    <input
+                      type="date"
+                      className="border border-slate-400 rounded px-3 py-2"
+                    />
+                    <div className="text-xs text-muted-foreground mt-2">
+                      *Note: Styles above depend on your OS/Browser defaults.
+                    </div>
+                  </div>
+                );
+              }}
+            />
+          </section>
+
+          <InteractiveChallenge
+            title="The Blinding Sidebar"
+            description="You have a dark-themed sidebar, but the native search input inside it is rendering in 'Light Mode' (white background), which is blindingly bright. Force the browser to render the input in dark mode to match the sidebar."
+            codeSnippet={`<aside class="w-64 bg-slate-900 text-white p-6 rounded-xl shadow-2xl">
+  <div class="font-bold mb-4 text-slate-400 uppercase text-xs tracking-widest">Tools</div>
+  
+  <div class="{input} space-y-4">
+    <input 
+      type="search" 
+      placeholder="Search tools..." 
+      class="w-full border border-slate-700 rounded px-3 py-2"
+    />
+    
+    <div class="space-y-2">
+      <label class="flex items-center gap-2 text-sm">
+        <input type="checkbox" checked /> 
+        <span>Show hidden</span>
+      </label>
+      <label class="flex items-center gap-2 text-sm">
+        <input type="checkbox" /> 
+        <span>Enable logs</span>
+      </label>
+    </div>
+  </div>
+</aside>`}
+            options={["scheme-light", "scheme-dark", "dark", "bg-black"]}
+            correctOption="scheme-dark"
+            renderPreview={(userClass) => (
+              <div className="flex items-center justify-center w-full h-full bg-slate-100 dark:bg-slate-950 p-8 rounded-lg">
+                <aside className="w-64 bg-slate-900 text-white p-6 rounded-xl shadow-2xl">
+                  <div className="font-bold mb-4 text-slate-400 uppercase text-xs tracking-widest">
+                    Tools
+                  </div>
+
+                  <div className={`${userClass} space-y-4`}>
+                    <input
+                      type="search"
+                      placeholder="Search tools..."
+                      className="w-full border border-slate-700 rounded px-3 py-2"
+                    />
+
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-2 text-sm text-slate-300">
+                        <input type="checkbox" defaultChecked />
+                        <span>Show hidden</span>
+                      </label>
+                      <label className="flex items-center gap-2 text-sm text-slate-300">
+                        <input type="checkbox" />
+                        <span>Enable logs</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {userClass === "scheme-dark" && (
+                    <div className="mt-6 text-center animate-in fade-in zoom-in">
+                      <span className="bg-green-900/50 text-green-400 text-[10px] px-2 py-1 rounded border border-green-800">
+                        Dark Inputs Active
+                      </span>
+                    </div>
+                  )}
+                </aside>
               </div>
+            )}
+          />
 
-              <div className="md:col-span-2">
-                <PreviewPanel
-                  title="Live Preview"
-                  code={code}
-                  onCodeChange={setCode}
-                  previewClass="p-4"
-                  description="Switch schemes to see how native UI elements adapt."
+          <ExampleSection title="Real-World Examples">
+            <ExampleCard
+              title="Dark widgets inside light UI"
+              description="Force dark native controls inside an otherwise light interface."
+              code={`<div class="scheme-dark bg-slate-900 text-white p-6 rounded-lg">
+  <h3 class="mb-4 font-bold">Dark Console</h3>
+  <input class="w-full border border-slate-700 rounded px-3 py-2" placeholder="Command..." />
+  <div class="mt-4 flex gap-4">
+    <label class="flex gap-2"><input type="checkbox" checked /> Verbose</label>
+  </div>
+</div>`}
+            >
+              <div className="scheme-dark bg-slate-900 text-white p-6 rounded-lg shadow-lg max-w-sm mx-auto">
+                <h3 className="mb-4 font-bold">Dark Console</h3>
+                <input
+                  className="w-full border border-slate-700 rounded px-3 py-2"
+                  placeholder="Command..."
                 />
+                <div className="mt-4 flex gap-4 text-sm text-slate-300">
+                  <label className="flex gap-2 items-center">
+                    <input type="checkbox" defaultChecked /> Verbose
+                  </label>
+                  <label className="flex gap-2 items-center">
+                    <input type="checkbox" /> Debug
+                  </label>
+                </div>
               </div>
-            </div>
-          </div>
+            </ExampleCard>
 
-          <div className="space-y-6 border-t border-border pt-8">
-            <h2 className="text-3xl font-bold">Real-world examples</h2>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <ExampleCard
-                title="Dark widgets inside light UI"
-                code={`<div class="scheme-dark p-3 border rounded space-y-2">
-  <input
-    class="border rounded px-3 py-2 w-full"
-    placeholder="Dark input"
-  />
-  <label class="flex items-center gap-2">
-    <input type="checkbox" />
-    Checkbox
-  </label>
+            <ExampleCard
+              title="Respect system preference"
+              description="Let the operating system decide light or dark mode automatically (default behavior)."
+              code={`<div class="scheme-normal p-6 border rounded-lg bg-background text-foreground">
+  <label class="block mb-2 font-medium">System Preference</label>
+  <select class="w-full border rounded px-3 py-2">
+    <option>Option 1</option>
+    <option>Option 2</option>
+  </select>
 </div>`}
-                description="Force dark native controls inside an otherwise light interface."
-              >
-              </ExampleCard>
+            >
+              <div className="scheme-normal p-6 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 max-w-sm mx-auto">
+                <label className="block mb-2 font-medium text-sm">
+                  System Preference
+                </label>
+                <select className="w-full border border-slate-300 dark:border-slate-600 rounded px-3 py-2">
+                  <option>Option 1</option>
+                  <option>Option 2</option>
+                </select>
+                <p className="text-xs text-muted-foreground mt-2">
+                  This control matches your OS theme.
+                </p>
+              </div>
+            </ExampleCard>
+          </ExampleSection>
 
-              <ExampleCard
-                title="Respect system preference"
-                code={`<div class="scheme-normal p-3 border rounded">
-  <input
-    class="border rounded px-3 py-2 w-full"
-    placeholder="System-based input"
-  />
-</div>`}
-                description="Let the operating system decide light or dark mode automatically."
-              >
-              </ExampleCard>
-            </div>
-          </div>
+          <CommonMistakesSection
+            title="Common Mistakes"
+            mistakes={[
+              {
+                title: "Expecting scheme-* to change Tailwind colors",
+                reason:
+                  "`scheme-dark` does NOT change `bg-white` to `bg-black`. It only tells the browser how to render NATIVE controls (scrollbars, default inputs).",
+                example: `<div class="scheme-dark bg-white"> `,
+              },
+              {
+                title: "Using on custom-styled inputs",
+                reason:
+                  "If you have `appearance-none` and fully custom styles, `scheme-*` might not have a visible effect on the input itself.",
+                example: `<input class="appearance-none border-red-500 scheme-dark" /> `,
+              },
+            ]}
+          />
 
-          <SummaryTips
-            items={[
-              "1. Color scheme affects only native browser UI elements.",
-              "2. Custom components are not affected by scheme utilities.",
-              "3. scheme-dark and scheme-light override OS preferences.",
-              "4. Use scheme-normal to respect system color settings.",
-              "5. Forcing schemes can surprise users if overused.",
-              "6. Useful for embedding widgets with fixed color requirements.",
-              "7. Test across browsers and operating systems.",
-              "8. Color scheme does not control Tailwind dark mode.",
+          <TipsSection
+            tips={[
+              {
+                bold: "Scrollbars:",
+                text: "Setting `scheme-dark` on the `html` or `body` tag is the easiest way to get dark scrollbars on the entire page.",
+              },
+              {
+                bold: "Isolation:",
+                text: "You can mix schemes! Have a `scheme-light` card inside a `scheme-dark` page.",
+              },
+              {
+                bold: "CSS Variable:",
+                text: "This utility sets the `color-scheme` CSS property.",
+              },
             ]}
           />
         </div>
       </main>
-
       <Footer />
     </div>
-  )
+  );
 }
