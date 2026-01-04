@@ -1,248 +1,328 @@
 "use client";
 
-import { useState } from "react";
+import React from "react";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import CodeBlock from "../../components/code-block";
+import { PageHero } from "@/components/shared/page-hero";
+import { UtilityGrid } from "@/components/shared/utility-grid";
+import { UtilityPlayground } from "@/components/shared/utility_playground";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
+import { TipsSection } from "@/components/shared/tips-section";
+import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
+import { MentalModelSection } from "@/components/shared/mental-model-section";
+import { ComparisonTable } from "@/components/shared/comparison-table";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 export default function JustifyItemsPage() {
-  const justifyItemsClasses = [
-    "justify-items-start",
-    "justify-items-center",
-    "justify-items-end",
-    "justify-items-stretch",
+  const utilities = [
+    {
+      className: "justify-items-start",
+      desc: "Align items to the start of their cell (left)",
+    },
+    {
+      className: "justify-items-end",
+      desc: "Align items to the end of their cell (right)",
+    },
+    {
+      className: "justify-items-center",
+      desc: "Align items to the center of their cell",
+    },
+    {
+      className: "justify-items-stretch",
+      desc: "Stretch items to fill the cell width (default)",
+    },
   ];
-
-  const [activeClass, setActiveClass] = useState(justifyItemsClasses[0]);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-
-  const copyToClipboard = (text: string, index: number) => {
-    navigator.clipboard.writeText(text);
-    setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 2000);
-  };
-
-  const CopyableCode = ({ code, index }: { code: string; index: number }) => (
-    <div
-      className="relative border border-border rounded-lg p-4 hover:bg-card/50 cursor-pointer group transition"
-      onClick={() => copyToClipboard(code, index)}
-    >
-      {copiedIndex === index && (
-        <div className="absolute top-2 left-2 px-2 py-0.5 text-xs text-white bg-green-600 rounded">
-          Copied!
-        </div>
-      )}
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 text-xs text-gray-700 bg-white rounded opacity-0 group-hover:opacity-100 transition">
-        Click to copy
-      </div>
-      <CodeBlock code={code} language="html" />
-    </div>
-  );
-
-  const explanations: Record<string, string> = {
-    "justify-items-start": "Aligns grid items to the start of the inline axis. Useful when you want items to start from the left of each grid cell.",
-    "justify-items-center": "Centers grid items horizontally within each cell.",
-    "justify-items-end": "Aligns grid items to the end of the inline axis within each cell.",
-    "justify-items-stretch": "Stretches grid items to fill the full width of their cell.",
-  };
-
-  const examplesData: Record<string, { title: string; note: string; code: string }[]> = {
-    "justify-items-start": [
-      {
-        title: "Start-aligned Grid",
-        note: "All items start at the left of each grid cell.",
-        code: `<div class="grid grid-cols-3 justify-items-start gap-4">
-  <div class="bg-blue-500 p-4">1</div>
-  <div class="bg-blue-500 p-4">2</div>
-  <div class="bg-blue-500 p-4">3</div>
-</div>`,
-      },
-      {
-        title: "Form Items Left-aligned",
-        note: "Input fields align to the start.",
-        code: `<form class="grid grid-cols-2 justify-items-start gap-2">
-  <label>Email</label>
-  <input type="email" />
-</form>`,
-      },
-    ],
-    "justify-items-center": [
-      {
-        title: "Centered Grid Items",
-        note: "Items are centered in each grid cell.",
-        code: `<div class="grid grid-cols-3 justify-items-center gap-4">
-  <div class="bg-blue-500 p-4">1</div>
-  <div class="bg-blue-500 p-4">2</div>
-  <div class="bg-blue-500 p-4">3</div>
-</div>`,
-      },
-      {
-        title: "Center Cards",
-        note: "Card elements centered within grid cells.",
-        code: `<div class="grid grid-cols-2 justify-items-center gap-4">
-  <div class="p-4 bg-gray-200">Card 1</div>
-  <div class="p-4 bg-gray-200">Card 2</div>
-</div>`,
-      },
-    ],
-    "justify-items-end": [
-      {
-        title: "End-aligned Grid",
-        note: "Items align to the end of each grid cell.",
-        code: `<div class="grid grid-cols-3 justify-items-end gap-4">
-  <div class="bg-blue-500 p-4">1</div>
-  <div class="bg-blue-500 p-4">2</div>
-  <div class="bg-blue-500 p-4">3</div>
-</div>`,
-      },
-      {
-        title: "Form Items Right-aligned",
-        note: "Input fields align to the end of the grid cells.",
-        code: `<form class="grid grid-cols-2 justify-items-end gap-2">
-  <label>Email</label>
-  <input type="email" />
-</form>`,
-      },
-    ],
-    "justify-items-stretch": [
-      {
-        title: "Stretched Grid Items",
-        note: "Items fill the width of each grid cell.",
-        code: `<div class="grid grid-cols-3 justify-items-stretch gap-4">
-  <div class="bg-blue-500 p-4">1</div>
-  <div class="bg-blue-500 p-4">2</div>
-  <div class="bg-blue-500 p-4">3</div>
-</div>`,
-      },
-      {
-        title: "Stretch Cards",
-        note: "Cards stretch to fill cell width.",
-        code: `<div class="grid grid-cols-2 justify-items-stretch gap-4">
-  <div class="p-4 bg-gray-200">Card 1</div>
-  <div class="p-4 bg-gray-200">Card 2</div>
-</div>`,
-      },
-    ],
-  };
-
-  const benefits: Record<string, string[]> = {
-    "justify-items-start": ["Aligns items predictably to the start.", "Helps create consistent layouts."],
-    "justify-items-center": ["Centers items for balanced appearance.", "Useful for symmetrical designs."],
-    "justify-items-end": ["Aligns items to end for visual emphasis.", "Good for right-aligned content."],
-    "justify-items-stretch": ["Fills available space in each cell.", "Creates uniform width for grid items."],
-  };
-
-  const commonUseCases: Record<string, string[]> = {
-    "justify-items-start": ["Forms", "Navigation grids", "Cards"],
-    "justify-items-center": ["Image galleries", "Cards", "Buttons"],
-    "justify-items-end": ["Footers", "Toolbars", "Right-aligned controls"],
-    "justify-items-stretch": ["Forms", "Cards", "Buttons filling cell width"],
-  };
-
-  const commonMistakes: Record<string, string[]> = {
-    "justify-items-start": ["Not using `grid` on container.", "Using `flex` instead of `grid`."],
-    "justify-items-center": ["Forgetting `grid` context.", "Combining with `text-center` incorrectly."],
-    "justify-items-end": ["Using flex properties accidentally.", "Overriding with margin utilities."],
-    "justify-items-stretch": ["Adding fixed width may prevent stretching.", "Not setting `grid` on container."],
-  };
-
-  const renderDiagram = (cls: string) => {
-    const justify = cls.replace("justify-items-", "");
-    const containerClasses = `grid grid-cols-3 h-32 border border-border rounded-lg p-4 gap-2 bg-slate-900 text-white justify-items-${justify} items-center border-white`;
-
-    // For stretch, make the blocks fill the cell width
-    const blockClass = cls === "justify-items-stretch"
-      ? "bg-blue-500 h-16 w-full flex items-center justify-center font-semibold"
-      : "bg-blue-500 w-16 h-16 flex items-center justify-center font-semibold";
-
-    return (
-      <div className="border border-border rounded-lg p-6 bg-slate-900 text-white text-center">
-        <p className="font-semibold">Visual representation of <code>{cls}</code></p>
-        <div className={`mt-4 ${containerClasses}`}>
-          <div className={blockClass}>1</div>
-          <div className={blockClass}>2</div>
-          <div className={blockClass}>3</div>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
-      <main className="flex-1 max-w-5xl px-8 py-12 space-y-12 text-left">
-        <h1 className="text-2xl font-semibold text-foreground mb-4">Tailwind Justify Items Utilities</h1>
+      <main className="flex-1">
+        <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
+          {/* Hero Section */}
+          <PageHero
+            title="Justify Items"
+            description="Control how grid items are aligned along the inline axis (row axis) within their grid areas. This property sets the `justify-items` CSS property on a grid container."
+          />
 
-        {/* Buttons */}
-        <div className="flex gap-4 mb-6 flex-wrap">
-          {justifyItemsClasses.map((cls) => (
-            <button
-              key={cls}
-              className={`px-4 py-2 rounded font-medium ${
-                activeClass === cls
-                  ? "bg-blue-600 text-white shadow"
-                  : "bg-card/20 text-foreground hover:bg-card/30"
-              }`}
-              onClick={() => setActiveClass(cls)}
+          {/* Mental Model */}
+          <MentalModelSection
+            title="Understanding Justify Items"
+            description="While `justify-content` aligns the grid tracks themselves within the container, `justify-items` controls how the content *inside* each grid cell aligns relative to that cell's horizontal boundaries."
+            features={[
+              "Applies to GRID CONTAINERS (display: grid)",
+              "Controls alignment along the INLINE axis (horizontal)",
+              "Acts as a default for all items in the grid",
+              "Individual items can override this with `justify-self-*`",
+              "Default behavior is usually `stretch` unless items have intrinsic width",
+            ]}
+            layerAssignment="Grid Alignment Layer - Intra-cell horizontal positioning"
+            browserBehavior="The browser calculates the width of the grid column, then positions the item inside that column based on this property."
+          />
+
+          {/* Comparison Table */}
+          <ComparisonTable
+            title="Justify Items Behavior"
+            columns={["Class", "Alignment", "Best For"]}
+            rows={[
+              {
+                feature: "justify-items-start",
+                values: ["Left (LTR)", "Forms, Text content lists"],
+              },
+              {
+                feature: "justify-items-center",
+                values: ["Center", "Icons, Avatars, Status badges"],
+              },
+              {
+                feature: "justify-items-end",
+                values: ["Right (LTR)", "Financial data, Actions columns"],
+              },
+              {
+                feature: "justify-items-stretch",
+                values: ["Full Width", "Cards, Inputs, Block elements"],
+              },
+            ]}
+          />
+
+          {/* Utility Grid */}
+          <UtilityGrid
+            title="Justify Items Utilities"
+            items={utilities.map((u) => ({ cls: u.className, desc: u.desc }))}
+          />
+
+          {/* Interactive Playground */}
+          <section className="space-y-6 border-t pt-8">
+            <h2 className="text-3xl font-bold">Interactive Playground</h2>
+            <p className="text-muted-foreground">
+              See how grid items position themselves inside their columns.
+            </p>
+
+            <UtilityPlayground
+              title="Justify Items Playground"
+              description="Change the justification to see items shift left, center, right, or stretch."
+              options={utilities.map((u) => u.className)}
+              defaultValue="justify-items-stretch"
+              buildMarkup={(justifyClass, customClasses = "") => {
+                return `<div class="grid grid-cols-3 gap-4 ${justifyClass} ${customClasses}">
+  <div class="bg-blue-500 w-16 h-16">1</div>
+  <div class="bg-blue-500 w-16 h-16">2</div>
+  <div class="bg-blue-500 w-16 h-16">3</div>
+</div>`;
+              }}
+              renderPreview={(justifyClass, customClasses = "") => {
+                // If stretch is selected, we remove the fixed width from children to let them stretch
+                const childClass =
+                  justifyClass === "justify-items-stretch"
+                    ? "bg-blue-500 dark:bg-blue-600 h-16 rounded flex items-center justify-center text-white font-bold"
+                    : "bg-blue-500 dark:bg-blue-600 w-16 h-16 rounded flex items-center justify-center text-white font-bold";
+
+                return (
+                  <div
+                    className={`grid grid-cols-3 gap-4 w-full p-4 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg ${justifyClass} ${customClasses}`}
+                  >
+                    <div className={childClass}>1</div>
+                    <div className={childClass}>2</div>
+                    <div className={childClass}>3</div>
+                    <div className={childClass}>4</div>
+                    <div className={childClass}>5</div>
+                    <div className={childClass}>6</div>
+                  </div>
+                );
+              }}
+            />
+          </section>
+          <InteractiveChallenge
+            title="The Off-Center Icons"
+            description="The dashed lines represent the grid cells (tracks). Currently, the blue icons are sticking to the start (left) of their cells, leaving empty space on the right. Apply `justify-items-center` to snap them perfectly into the center of their grid tracks."
+            codeSnippet={`<div class="grid grid-cols-3 gap-4 {input}">
+  
+  <button class="w-12 h-12 bg-blue-500 ...">
+    <svg>...</svg>
+  </button>
+  <button class="w-12 h-12 bg-blue-500 ...">
+    <svg>...</svg>
+  </button>
+  </div>`}
+            options={[
+              "justify-items-start",
+              "justify-items-center",
+              "justify-items-end",
+              "justify-items-stretch",
+            ]}
+            correctOption="justify-items-center"
+            renderPreview={(userClass) => {
+              const isCorrect = userClass === "justify-items-center";
+
+              return (
+                <div className="flex items-center justify-center w-full h-full bg-slate-50 dark:bg-slate-950 p-8 rounded-lg">
+                  <div className="relative w-64">
+                    {/* Layer 1: Ghost Tracks (Visual Guide) */}
+                    <div className="absolute inset-0 grid grid-cols-3 gap-4 pointer-events-none">
+                      {[...Array(6)].map((_, i) => (
+                        <div
+                          key={i}
+                          className={`
+                  border-2 border-dashed rounded-xl flex items-center justify-center transition-colors duration-500
+                  ${
+                    isCorrect
+                      ? "border-green-300 dark:border-green-800 bg-green-50/50 dark:bg-green-900/20"
+                      : "border-slate-300 dark:border-slate-700"
+                  }
+                `}
+                        >
+                          {/* Center Target Dot (Only visible when wrong) */}
+                          {!isCorrect && (
+                            <div className="w-1.5 h-1.5 bg-red-400 rounded-full opacity-40 animate-pulse" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Layer 2: The Actual Grid Content */}
+                    {/* We define fixed height rows here just for the visual demo to match the ghost tracks */}
+                    <div
+                      className={`grid grid-cols-3 gap-4 auto-rows-[80px] ${userClass}`}
+                    >
+                      {[
+                        { icon: "🔧", label: "Settings" },
+                        { icon: "🔨", label: "Build" },
+                        { icon: "📏", label: "Measure" },
+                        { icon: "📦", label: "Deploy" },
+                        { icon: "🔍", label: "Inspect" },
+                        { icon: "🚀", label: "Launch" },
+                      ].map((item, i) => (
+                        <div
+                          key={i}
+                          className="w-12 h-12 bg-blue-500 hover:bg-blue-600 transition-all duration-500 rounded-lg flex items-center justify-center text-white text-xl shadow-md z-10"
+                          title={item.label}
+                        >
+                          {item.icon}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            }}
+          />
+
+          {/* Real World Examples */}
+          <ExampleSection title="Real-World Examples">
+            <ExampleCard
+              title="Centered Icon Grid"
+              description="Perfect for dashboards or feature lists where icons should sit in the middle of their grid areas."
+              code={`<div class="grid grid-cols-3 justify-items-center gap-4">
+  <div class="w-12 h-12 bg-indigo-500 rounded-full"></div>
+  <div class="w-12 h-12 bg-indigo-500 rounded-full"></div>
+  <div class="w-12 h-12 bg-indigo-500 rounded-full"></div>
+</div>`}
             >
-              {cls}
-            </button>
-          ))}
-        </div>
-
-        {/* Diagram */}
-        {renderDiagram(activeClass)}
-
-        {/* Explanation */}
-        <div className="text-sm text-muted-foreground">
-          {explanations[activeClass]}
-        </div>
-
-        {/* Benefits */}
-        <section className="space-y-2 border border-border rounded-lg p-4 bg-card/30">
-          <h2 className="text-2xl font-semibold text-foreground">Benefits</h2>
-          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-            {benefits[activeClass].map((item, idx) => (
-              <li key={idx}>{item}</li>
-            ))}
-          </ul>
-        </section>
-
-        {/* Real-World Examples */}
-        <section className="space-y-6">
-          <h2 className="text-2xl font-semibold text-foreground">Real-World Examples</h2>
-          {examplesData[activeClass].map((ex, idx) => (
-            <div key={idx} className="space-y-2 border border-border rounded-lg p-4 bg-card/20">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                <h3 className="text-lg font-semibold text-foreground">{ex.title}</h3>
-                <p className="text-sm text-muted-foreground">{ex.note}</p>
+              <div className="grid grid-cols-3 justify-items-center gap-4 p-4 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center text-white shadow-sm"
+                  >
+                    {i}
+                  </div>
+                ))}
               </div>
-              <CopyableCode code={ex.code} index={idx} />
-            </div>
-          ))}
-        </section>
+            </ExampleCard>
 
-        {/* Common Mistakes */}
-        <section className="space-y-2 border border-border rounded-lg p-4 bg-card/30">
-          <h2 className="text-2xl font-semibold text-foreground">Common Mistakes</h2>
-          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-            {commonMistakes[activeClass].map((item, idx) => (
-              <li key={idx}>{item}</li>
-            ))}
-          </ul>
-        </section>
+            <ExampleCard
+              title="Form Labels & Inputs"
+              description="Using start alignment for form layouts to ensure labels line up neatly on the left."
+              code={`<form class="grid grid-cols-1 justify-items-start gap-4">
+  <label class="font-bold">Email Address</label>
+  <input class="w-full border rounded px-3 py-2" />
+  <button class="bg-blue-600 text-white px-4 py-2 rounded">Submit</button>
+</form>`}
+            >
+              <div className="grid grid-cols-1 justify-items-start gap-3 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg w-full max-w-xs">
+                <label className="font-bold text-sm text-slate-700 dark:text-slate-300">
+                  Email Address
+                </label>
+                <div className="w-full h-8 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded"></div>
+                <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium">
+                  Submit
+                </button>
+              </div>
+            </ExampleCard>
 
-        {/* Common Use Cases */}
-        <section className="space-y-2 border border-border rounded-lg p-4 bg-card/30">
-          <h2 className="text-2xl font-semibold text-foreground">Common Use Cases</h2>
-          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-            {commonUseCases[activeClass].map((item, idx) => (
-              <li key={idx}>{item}</li>
-            ))}
-          </ul>
-        </section>
+            <ExampleCard
+              title="Right-Aligned Actions"
+              description="Using end alignment for a column of action buttons or status indicators."
+              code={`<div class="grid grid-cols-1 justify-items-end gap-2">
+  <button class="text-blue-600 text-sm">Edit</button>
+  <button class="text-red-600 text-sm">Delete</button>
+</div>`}
+            >
+              <div className="grid grid-cols-1 justify-items-end gap-2 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                <div className="text-slate-500 text-xs w-full mb-1">
+                  Actions
+                </div>
+                <button className="text-blue-600 hover:underline text-sm font-medium">
+                  Edit Profile
+                </button>
+                <button className="text-red-600 hover:underline text-sm font-medium">
+                  Delete Account
+                </button>
+              </div>
+            </ExampleCard>
+          </ExampleSection>
+
+          {/* Common Mistakes */}
+          <CommonMistakesSection
+            mistakes={[
+              {
+                title: "Confusing with justify-content",
+                reason:
+                  "`justify-content` moves the entire grid track group. `justify-items` moves the items *inside* their tracks.",
+                example: `<div class="grid justify-center"> <div class="grid justify-items-center"> `,
+                level: "warning",
+              },
+              {
+                title: "Not using grid container",
+                reason:
+                  "`justify-items` only works on elements with `display: grid`. It has no effect on flex containers (use `align-items` for cross-axis or `justify-content` for main-axis).",
+                example: `<div class="flex justify-items-center"> `,
+                level: "critical",
+              },
+              {
+                title: "Stretch issues with fixed width",
+                reason:
+                  "If an item has a fixed width (e.g., `w-16`), `justify-items-stretch` cannot stretch it. Remove width classes to allow stretching.",
+                example: `<div class="justify-items-stretch">
+  <div class="w-16">...</div> </div>`,
+                level: "info",
+              },
+            ]}
+          />
+
+          {/* Tips */}
+          <TipsSection
+            tips={[
+              {
+                bold: "Default Behavior:",
+                text: "Grid items default to `stretch` unless they have intrinsic dimensions or you specify otherwise.",
+              },
+              {
+                bold: "Override Individual Items:",
+                text: "Use `justify-self-*` on a specific child element to override the parent's `justify-items` setting.",
+              },
+              {
+                bold: "Flexbox Equivalent:",
+                text: "There is no direct `justify-items` for Flexbox. In Flexbox, you use `justify-content` (main axis) or `align-items` (cross axis).",
+              },
+              {
+                bold: "Responsive:",
+                text: "Combine with breakpoints like `md:justify-items-center` to change alignment on larger screens.",
+              },
+            ]}
+          />
+        </div>
       </main>
-      <Footer />
     </div>
   );
 }
