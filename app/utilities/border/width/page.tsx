@@ -1,17 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 import { PageHero } from "@/components/shared/page-hero";
 import { UtilityGrid } from "@/components/shared/utility-grid";
 import { UtilityPlayground } from "@/components/shared/utility_playground";
-import { ExampleSection, ExampleCard } from "@/components/shared/example-section";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
 import { TipsSection } from "@/components/shared/tips-section";
 import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
 import { MentalModelSection } from "@/components/shared/mental-model-section";
 import { ComparisonTable } from "@/components/shared/comparison-table";
 import CodeBlock from "@/app/utilities/components/code-block";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 type BorderWidth =
   | "border-0"
@@ -86,10 +88,9 @@ export default function BorderWidthPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
-          <PageHero 
+          <PageHero
             title="Border Width"
             description="Control border thickness on elements — from hairline outlines to bold frames. Useful for cards, inputs, focus rings, table dividers and emphasis."
           />
@@ -108,7 +109,7 @@ export default function BorderWidthPage() {
               "Thicker borders create visual hierarchy and emphasis",
               "Combines with color and style for complete control",
               "Responsive widths adapt to screen sizes",
-              "Width changes can cause layout shift if not managed carefully"
+              "Width changes can cause layout shift if not managed carefully",
             ]}
             layerAssignment="Visual Weight Layer - Controls emphasis and attention through line thickness"
             browserBehavior="Border width adds to the element's box size unless using box-sizing: border-box"
@@ -116,35 +117,65 @@ export default function BorderWidthPage() {
 
           <ComparisonTable
             title="Border Width Comparison"
-            columns={["Width", "Visual Impact", "Layout Effect", "Best Use Cases"]}
+            columns={[
+              "Width",
+              "Visual Impact",
+              "Layout Effect",
+              "Best Use Cases",
+            ]}
             rows={[
               {
                 feature: "0 (border-0)",
-                values: ["No visible border", "Minimal, clean", "No space taken", "Minimalist designs, hover states"]
+                values: [
+                  "No visible border",
+                  "Minimal, clean",
+                  "No space taken",
+                  "Minimalist designs, hover states",
+                ],
               },
               {
                 feature: "1px (border)",
-                values: ["Hairline", "Subtle", "Minimal space", "Form inputs, subtle dividers"]
+                values: [
+                  "Hairline",
+                  "Subtle",
+                  "Minimal space",
+                  "Form inputs, subtle dividers",
+                ],
               },
               {
                 feature: "2px (border-2)",
-                values: ["Thin but visible", "Moderate", "Small space", "Cards, buttons, focus states"]
+                values: [
+                  "Thin but visible",
+                  "Moderate",
+                  "Small space",
+                  "Cards, buttons, focus states",
+                ],
               },
               {
                 feature: "4px (border-4)",
-                values: ["Noticeable", "Strong", "Significant space", "Featured content, emphasis"]
+                values: [
+                  "Noticeable",
+                  "Strong",
+                  "Significant space",
+                  "Featured content, emphasis",
+                ],
               },
               {
                 feature: "8px (border-8)",
-                values: ["Very bold", "Heavy emphasis", "Large space", "Special highlights, frames"]
-              }
+                values: [
+                  "Very bold",
+                  "Heavy emphasis",
+                  "Large space",
+                  "Special highlights, frames",
+                ],
+              },
             ]}
           />
 
           <UtilityPlayground
             title="Border Width Playground"
             description="Test different border widths and see how they affect visual hierarchy and layout."
-            options={utilities.map(u => u.cls)}
+            options={utilities.map((u) => u.cls)}
             defaultValue="border"
             buildMarkup={(widthClass, customClasses = "") => {
               return `<div class="${widthClass} border-solid ${customClasses} p-6 bg-slate-700">
@@ -153,13 +184,57 @@ export default function BorderWidthPage() {
             }}
             renderPreview={(widthClass, customClasses = "") => {
               return (
-                <div className={`${widthClass} border-solid ${customClasses} p-6 bg-slate-700 text-white`}>
+                <div
+                  className={`${widthClass} border-solid ${customClasses} p-6 bg-slate-700 text-white`}
+                >
                   Border Preview
                 </div>
               );
             }}
             optionLabel={(value) => value.replace("border-", "") || "0"}
             defaultCustomClasses="rounded-md"
+          />
+
+          <InteractiveChallenge
+            title="The Active Tab"
+            description="You are building a tabbed navigation. The 'Active' tab needs to stand out. Currently, it just has a background color, but a common pattern is to add a border to the bottom edge. Add `border-b-4` to the active tab to give it a clear, weighted indicator."
+            codeSnippet={`<nav class="flex border-b border-gray-200">
+  <button class="px-4 py-2 font-medium text-gray-500 hover:text-gray-700">
+    Profile
+  </button>
+  
+  <button class="px-4 py-2 font-bold text-indigo-600 border-indigo-600 {input}">
+    Account
+  </button>
+  
+  <button class="px-4 py-2 font-medium text-gray-500 hover:text-gray-700">
+    Settings
+  </button>
+</nav>`}
+            options={["border", "border-b", "border-b-4", "border-4"]}
+            correctOption="border-b-4"
+            renderPreview={(userClass) => (
+              <div className="flex items-center justify-center w-full h-full bg-slate-50 dark:bg-slate-950 p-8 rounded-lg">
+                <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-lg shadow-sm p-6">
+                  <nav className="flex space-x-4 border-b border-slate-200 dark:border-slate-700">
+                    <button className="px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
+                      Profile
+                    </button>
+                    <button
+                      className={`px-3 py-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 border-indigo-600 dark:border-indigo-400 transition-all duration-300 ${userClass}`}
+                    >
+                      Account
+                    </button>
+                    <button className="px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
+                      Settings
+                    </button>
+                  </nav>
+                  <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg h-24 flex items-center justify-center text-slate-400 text-sm border-2 border-dashed border-slate-200 dark:border-slate-700">
+                    Tab Content Area
+                  </div>
+                </div>
+              </div>
+            )}
           />
 
           <ExampleSection title="Real-World Examples">
@@ -173,7 +248,9 @@ export default function BorderWidthPage() {
             >
               <div className="border-4 border-blue-600 rounded-md p-4 bg-slate-700">
                 <h3 className="font-semibold text-slate-100">Featured Card</h3>
-                <p className="text-sm text-muted-foreground">Emphasized content</p>
+                <p className="text-sm text-muted-foreground">
+                  Emphasized content
+                </p>
               </div>
             </ExampleCard>
 
@@ -182,9 +259,9 @@ export default function BorderWidthPage() {
               description="Increase border width on focus for clear visual feedback"
               code={`<input class="border border-border focus:border-2 focus:border-blue-600 rounded px-3 py-2 bg-slate-700 text-white" placeholder="Your name" />`}
             >
-              <input 
-                className="border border-border focus:border-2 focus:border-blue-600 rounded px-3 py-2 bg-slate-700 text-white w-full" 
-                placeholder="Your name" 
+              <input
+                className="border border-border focus:border-2 focus:border-blue-600 rounded px-3 py-2 bg-slate-700 text-white w-full"
+                placeholder="Your name"
               />
             </ExampleCard>
 
@@ -226,7 +303,9 @@ export default function BorderWidthPage() {
             >
               <div className="border-l-4 border-blue-600 pl-4 bg-slate-700 p-3 rounded">
                 <div className="font-semibold text-slate-100">Release 1.4</div>
-                <div className="text-sm text-muted-foreground">Bug fixes and improvements</div>
+                <div className="text-sm text-muted-foreground">
+                  Bug fixes and improvements
+                </div>
               </div>
             </ExampleCard>
 
@@ -259,7 +338,9 @@ export default function BorderWidthPage() {
                 </div>
                 <div className="flex-1 p-4 text-center">
                   <div className="font-semibold text-slate-100">Enterprise</div>
-                  <div className="text-2xl font-bold text-slate-100">Contact</div>
+                  <div className="text-2xl font-bold text-slate-100">
+                    Contact
+                  </div>
                 </div>
               </div>
             </ExampleCard>
@@ -273,8 +354,12 @@ export default function BorderWidthPage() {
 </div>`}
             >
               <div className="border-dashed border-2 border-border rounded-md p-4 bg-slate-700">
-                <div className="font-semibold text-slate-100">Draft Content</div>
-                <div className="text-sm text-muted-foreground">This is a placeholder</div>
+                <div className="font-semibold text-slate-100">
+                  Draft Content
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  This is a placeholder
+                </div>
               </div>
             </ExampleCard>
 
@@ -288,23 +373,39 @@ export default function BorderWidthPage() {
             >
               <div className="border-t-4 border-blue-600 p-4 bg-slate-700 rounded-t-md">
                 <div className="font-semibold text-slate-100">Modal Title</div>
-                <div className="text-sm text-muted-foreground">Important action required</div>
+                <div className="text-sm text-muted-foreground">
+                  Important action required
+                </div>
               </div>
             </ExampleCard>
           </ExampleSection>
 
-          <TipsSection 
+          <TipsSection
             tips={[
-              { bold: "Use thin borders:", text: "(1px) for subtle dividers; thicker borders for emphasis or separated modules" },
-              { bold: "Prefer outline / ring for focus:", text: "ring utilities don't affect layout like borders do" },
-              { bold: "Combine with border-style:", text: "(dashed/dotted) for secondary separators (e.g., print previews, placeholders)" },
-              { bold: "Responsive borders:", text: "try responsive widths (md:border-2) to increase emphasis on larger screens" },
-              { bold: "Consider layout impact:", text: "thick borders increase element size, plan accordingly in your layout" }
+              {
+                bold: "Use thin borders:",
+                text: "(1px) for subtle dividers; thicker borders for emphasis or separated modules",
+              },
+              {
+                bold: "Prefer outline / ring for focus:",
+                text: "ring utilities don't affect layout like borders do",
+              },
+              {
+                bold: "Combine with border-style:",
+                text: "(dashed/dotted) for secondary separators (e.g., print previews, placeholders)",
+              },
+              {
+                bold: "Responsive borders:",
+                text: "try responsive widths (md:border-2) to increase emphasis on larger screens",
+              },
+              {
+                bold: "Consider layout impact:",
+                text: "thick borders increase element size, plan accordingly in your layout",
+              },
             ]}
           />
         </div>
       </main>
-      <Footer />
     </div>
   );
 }
