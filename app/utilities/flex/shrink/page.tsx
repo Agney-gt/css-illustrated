@@ -58,7 +58,7 @@ export default function FlexShrinkPage() {
   }, [])
 
   return (
-    <FlexLayout>
+    <>
       <div className="max-w-7xl mx-auto px-4 py-12 space-y-12">
 
         {/* Section 1: Hero with Intent-First Framing */}
@@ -368,6 +368,6 @@ export default function FlexShrinkPage() {
           />
 
         </div></div>
-    </FlexLayout>
+    </>
   )
 }
