@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 import CodeBlock from "@/app/utilities/components/code-block";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 type RotateClass =
   | "rotate-0"
@@ -124,7 +123,6 @@ export default function RotatePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
 
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
@@ -405,6 +403,67 @@ export default function RotatePage() {
             </div>
           </section>
 
+          <InteractiveChallenge
+            title="The Expanded Chevron"
+            description="You are building an accordion. When the user opens a section, the chevron icon needs to flip 180 degrees to indicate it can be closed. Add `rotate-180` to the chevron to flip it upside down."
+            codeSnippet={`<button class="flex items-center justify-between w-full p-4 bg-white rounded-lg shadow-sm group">
+  <span class="font-medium">Account Settings</span>
+  <svg 
+    class="w-5 h-5 text-gray-500 transition-transform duration-300 {input}"
+    viewBox="0 0 20 20" fill="currentColor"
+  >
+    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+  </svg>
+</button>`}
+            options={["rotate-45", "rotate-90", "rotate-0", "rotate-180"]}
+            correctOption="rotate-180"
+            renderPreview={(userClass) => (
+              <div className="flex items-center justify-center w-full h-full bg-slate-50 dark:bg-slate-950 p-12 rounded-lg">
+                <div className="w-full max-w-sm space-y-2">
+                  {/* Accordion Header */}
+                  <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors">
+                    <span className="font-medium text-slate-700 dark:text-slate-200">
+                      Account Settings
+                    </span>
+                    <div
+                      className={`text-slate-500 transition-transform duration-500 ease-in-out ${userClass}`}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Expanded Content Visual (Simulated) */}
+                  <div
+                    className={`
+                      overflow-hidden transition-all duration-500 ease-in-out border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900 px-4
+                      ${
+                        userClass === "rotate-180"
+                          ? "max-h-24 py-4 opacity-100"
+                          : "max-h-0 py-0 opacity-0 border-none"
+                      }
+                    `}
+                  >
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                      Here are your settings. You can update your profile and
+                      security preferences.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          />
+
           {/* Real-world examples */}
           <section className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Real-World Examples</h2>
@@ -487,7 +546,7 @@ export default function RotatePage() {
                   />
                 </div>
               </article>
-              { /*Loading spinner tilt */}
+              {/*Loading spinner tilt */}
               <article className="border border-border rounded-lg p-4 bg-card/20">
                 <div className="mb-3 flex items-baseline justify-between">
                   <div>
@@ -603,7 +662,6 @@ export default function RotatePage() {
                 </div>
               </article>
 
-
               {/* New example: Confirmation check rotate in */}
               <article className="md:col-span-2 border border-border rounded-lg p-4 bg-card/20">
                 <div className="mb-3 flex items-baseline justify-between">
@@ -698,7 +756,6 @@ export default function RotatePage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }
