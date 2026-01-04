@@ -1,17 +1,21 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import FlexLayout from "../layout"
-import { PageHero } from "@/components/shared/page-hero"
-import { UtilityGrid } from "@/components/shared/utility-grid"
-import { UtilityPlayground } from "@/components/shared/utility_playground"
-import { ExampleSection, ExampleCard } from "@/components/shared/example-section"
-import { TipsSection } from "@/components/shared/tips-section"
-import { MentalModelSection } from "@/components/shared/mental-model-section"
-import { CommonMistakesSection } from "@/components/shared/common-mistakes-section"
-import { ComparisonTable } from "@/components/shared/comparison-table"
-import { RealWorldExamples } from "@/components/cursor/real-world-examples"
-import CodeBlock from "@/app/utilities/components/code-block"
+import { useState, useEffect } from "react";
+import FlexLayout from "../layout";
+import { PageHero } from "@/components/shared/page-hero";
+import { UtilityGrid } from "@/components/shared/utility-grid";
+import { UtilityPlayground } from "@/components/shared/utility_playground";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
+import { TipsSection } from "@/components/shared/tips-section";
+import { MentalModelSection } from "@/components/shared/mental-model-section";
+import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
+import { ComparisonTable } from "@/components/shared/comparison-table";
+import { RealWorldExamples } from "@/components/cursor/real-world-examples";
+import CodeBlock from "@/app/utilities/components/code-block";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 // Animated flex item component
 function GrowItem({
@@ -21,11 +25,11 @@ function GrowItem({
   basis = "auto",
   shrink = 1,
 }: {
-  color: string
-  label: string
-  grow?: number
-  basis?: string
-  shrink?: number
+  color: string;
+  label: string;
+  grow?: number;
+  basis?: string;
+  shrink?: number;
 }) {
   return (
     <div
@@ -39,32 +43,34 @@ function GrowItem({
     >
       {label}
     </div>
-  )
+  );
 }
 
 export default function FlexGrowPage() {
-  const [demo1Cycle, setDemo1Cycle] = useState(0)
-  const [demo2Pulse, setDemo2Pulse] = useState(true)
-  const [demo3Alt, setDemo3Alt] = useState(false)
+  const [demo1Cycle, setDemo1Cycle] = useState(0);
+  const [demo2Pulse, setDemo2Pulse] = useState(true);
+  const [demo3Alt, setDemo3Alt] = useState(false);
 
   useEffect(() => {
-    const interval1 = setInterval(() => setDemo1Cycle((n) => (n + 1) % 3), 2200)
-    const interval2 = setInterval(() => setDemo2Pulse((p) => !p), 2000)
-    const interval3 = setInterval(() => setDemo3Alt((x) => !x), 2500)
+    const interval1 = setInterval(
+      () => setDemo1Cycle((n) => (n + 1) % 3),
+      2200
+    );
+    const interval2 = setInterval(() => setDemo2Pulse((p) => !p), 2000);
+    const interval3 = setInterval(() => setDemo3Alt((x) => !x), 2500);
 
     return () => {
-      clearInterval(interval1)
-      clearInterval(interval2)
-      clearInterval(interval3)
-    }
-  }, [])
+      clearInterval(interval1);
+      clearInterval(interval2);
+      clearInterval(interval3);
+    };
+  }, []);
 
   return (
-    <FlexLayout>
+    <>
       <div className="max-w-7xl mx-auto px-4 py-12 space-y-12">
-
         {/* Section 1: Hero with Intent-First Framing */}
-        <PageHero 
+        <PageHero
           title="Flex Grow"
           description="You should reach for flex-grow when you need items to expand and fill leftover space in a flex container. flex-grow distributes *available* space — not desired space. It only works after all flex items claim their basis, then allocates what remains according to grow ratios."
         />
@@ -77,7 +83,7 @@ export default function FlexGrowPage() {
             "Browser first gives each item its flex-basis (content size or explicit basis)",
             "Browser calculates remaining space: container width minus sum of all bases",
             "Browser distributes remaining space proportionally to grow values",
-            "Higher grow values get larger shares, but all growing items get something"
+            "Higher grow values get larger shares, but all growing items get something",
           ]}
           layerAssignment="Layout layer — controls space distribution along main axis. Apply to flex children, not containers."
           browserBehavior="If no remaining space exists after basis allocation, grow has no visible effect. Items at their basis size won't shrink unless flex-shrink is also set."
@@ -90,32 +96,67 @@ export default function FlexGrowPage() {
           rows={[
             {
               feature: "flex-grow",
-              values: ["Space expansion", "Fill remaining space", "Responsive distribution", "Needs available space"]
+              values: [
+                "Space expansion",
+                "Fill remaining space",
+                "Responsive distribution",
+                "Needs available space",
+              ],
             },
             {
-              feature: "flex-shrink", 
-              values: ["Space contraction", "Items shrink when needed", "Prevent overflow", "min-content blocks shrinking"]
+              feature: "flex-shrink",
+              values: [
+                "Space contraction",
+                "Items shrink when needed",
+                "Prevent overflow",
+                "min-content blocks shrinking",
+              ],
             },
             {
-              feature: "flex-basis", 
-              values: ["Starting size", "Initial size before grow/shrink", "Content size control", "Auto vs fixed confusion"]
-            }
+              feature: "flex-basis",
+              values: [
+                "Starting size",
+                "Initial size before grow/shrink",
+                "Content size control",
+                "Auto vs fixed confusion",
+              ],
+            },
           ]}
         />
 
         {/* Section 4: Utility Grid - Behavior-Based Grouping */}
         <div className="space-y-6 border-t border-border pt-8">
-          <h2 className="text-3xl font-bold text-foreground">Flex-Grow Utility Classes</h2>
+          <h2 className="text-3xl font-bold text-foreground">
+            Flex-Grow Utility Classes
+          </h2>
           <p className="text-muted-foreground">Click to copy a class.</p>
 
           <UtilityGrid
             items={[
-              { cls: "grow", desc: "flex-grow: 1 — expands to fill available space" },
-              { cls: "grow-0", desc: "flex-grow: 0 — will NOT expand beyond basis" },
-              { cls: "basis-auto grow", desc: "Start at content size, then grow" },
-              { cls: "basis-1/3 grow", desc: "Start at 33% width, grows if space available" },
-              { cls: "basis-0 grow", desc: "Start at 0px, pure proportional growth" },
-              { cls: "grow-[2]", desc: "flex-grow: 2 — gets 2x share of space" }
+              {
+                cls: "grow",
+                desc: "flex-grow: 1 — expands to fill available space",
+              },
+              {
+                cls: "grow-0",
+                desc: "flex-grow: 0 — will NOT expand beyond basis",
+              },
+              {
+                cls: "basis-auto grow",
+                desc: "Start at content size, then grow",
+              },
+              {
+                cls: "basis-1/3 grow",
+                desc: "Start at 33% width, grows if space available",
+              },
+              {
+                cls: "basis-0 grow",
+                desc: "Start at 0px, pure proportional growth",
+              },
+              {
+                cls: "grow-[2]",
+                desc: "flex-grow: 2 — gets 2x share of space",
+              },
             ]}
           />
         </div>
@@ -126,28 +167,32 @@ export default function FlexGrowPage() {
           mistakes={[
             {
               title: "Using grow without container constraint",
-              reason: "Flex-grow needs a container with defined dimensions or it won't know what 'available space' means",
+              reason:
+                "Flex-grow needs a container with defined dimensions or it won't know what 'available space' means",
               example: `<div class="flex grow"> <!-- Grows to what? No parent width -->\n  <div>Content</div>\n</div>`,
-              level: 'critical'
+              level: "critical",
             },
             {
               title: "Expecting grow to create space",
-              reason: "Grow distributes existing space, it doesn't create it. Container must have width constraint.",
+              reason:
+                "Grow distributes existing space, it doesn't create it. Container must have width constraint.",
               example: `<div class="flex"> <!-- No width constraint -->\n  <div class="grow">Won't expand</div>\n</div>`,
-              level: 'critical'
+              level: "critical",
             },
             {
               title: "Confusing grow with width percentages",
-              reason: "Grow is proportional distribution of leftover space, not fixed percentage of container",
+              reason:
+                "Grow is proportional distribution of leftover space, not fixed percentage of container",
               example: `<div class="flex w-full">\n  <div class="grow">50%? No, depends on siblings</div>\n  <div class="basis-64">Fixed width sibling</div>\n</div>`,
-              level: 'warning'
+              level: "warning",
             },
             {
               title: "Using grow on non-flex children",
-              reason: "Flex properties only work on direct children of display:flex containers",
+              reason:
+                "Flex properties only work on direct children of display:flex containers",
               example: `<div> <!-- Missing display:flex -->\n  <div class="grow">No effect</div>\n</div>`,
-              level: 'critical'
-            }
+              level: "critical",
+            },
           ]}
         />
 
@@ -155,19 +200,27 @@ export default function FlexGrowPage() {
         <UtilityPlayground
           title="Flex-Grow Playground"
           description="Test how flex-grow distributes available space between items. Notice how grow values only affect leftover space after all flex-basis values are accounted for."
-          options={["grow-0", "grow", "grow-[2]", "basis-0 grow", "basis-32 grow"]}
+          options={[
+            "grow-0",
+            "grow",
+            "grow-[2]",
+            "basis-0 grow",
+            "basis-32 grow",
+          ]}
           defaultValue="grow"
           buildMarkup={(growClass, customClasses = "") => {
             return `<div class="flex gap-4 ${customClasses}">
           <div class="${growClass} bg-blue-500 p-4 rounded">Growing Item</div>
           <div class="basis-32 bg-red-500 p-4 rounded">Fixed 128px</div>
           <div class="basis-24 bg-green-500 p-4 rounded">Fixed 96px</div>
-        </div>`
+        </div>`;
           }}
           renderPreview={(growClass, customClasses = "") => {
             return (
               <div className={`flex gap-4 ${customClasses}`}>
-                <div className={`${growClass} bg-blue-500 p-4 rounded text-white`}>
+                <div
+                  className={`${growClass} bg-blue-500 p-4 rounded text-white`}
+                >
                   Growing Item
                 </div>
                 <div className="basis-32 bg-red-500 p-4 rounded text-white">
@@ -177,8 +230,52 @@ export default function FlexGrowPage() {
                   Fixed 96px
                 </div>
               </div>
-            )
+            );
           }}
+        />
+
+        <InteractiveChallenge
+          title="The Toolbar Gap"
+          description="You are building a toolbar with a 'Back' button on the left and 'Action' buttons on the right. Currently, they are all bunched up on the left side. You need an empty element in the middle to push them apart. Apply `grow` to the spacer `div` so it eats up all the empty space."
+          codeSnippet={`<div class="flex items-center gap-2 p-4 bg-slate-100 rounded-lg w-full">
+  <button class="px-4 py-2 bg-white border rounded">Back</button>
+
+  <div class="{input} h-1"></div>
+
+  <button class="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
+  <button class="px-4 py-2 bg-green-600 text-white rounded">Publish</button>
+</div>`}
+          options={["grow", "grow-0", "w-full", "flex-1"]}
+          correctOption="grow"
+          renderPreview={(userClass) => (
+            <div className="flex items-center justify-center w-full h-full bg-slate-50 dark:bg-slate-950 p-8 rounded-lg">
+              <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2 rounded-xl shadow-lg">
+                <div className="flex items-center gap-2 w-full">
+                  <button className="px-3 py-1.5 text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded hover:bg-slate-200 transition-colors">
+                    Back
+                  </button>
+
+                  {/* The Spacer */}
+                  <div
+                    className={`${userClass} h-8 bg-stripes-gray rounded opacity-50 flex items-center justify-center transition-all duration-500`}
+                  >
+                    {userClass === "grow" && (
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        Spacer (Growing)
+                      </span>
+                    )}
+                  </div>
+
+                  <button className="px-3 py-1.5 text-xs font-bold bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                    Save
+                  </button>
+                  <button className="px-3 py-1.5 text-xs font-bold bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+                    Publish
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         />
 
         {/* Section 7: Real-World Examples */}
@@ -204,8 +301,12 @@ export default function FlexGrowPage() {
                 </div>
               </div>
               <div className="grow">
-                <h3 className="text-lg font-semibold text-white">Media Title</h3>
-                <p className="text-slate-300">Content expands to fill remaining space in the container.</p>
+                <h3 className="text-lg font-semibold text-white">
+                  Media Title
+                </h3>
+                <p className="text-slate-300">
+                  Content expands to fill remaining space in the container.
+                </p>
               </div>
             </div>
           </ExampleCard>
@@ -222,10 +323,16 @@ export default function FlexGrowPage() {
         </div>`}
           >
             <div className="flex gap-2 items-center">
-              <button className="px-4 py-2 bg-blue-500 rounded text-white">Back</button>
+              <button className="px-4 py-2 bg-blue-500 rounded text-white">
+                Back
+              </button>
               <div className="grow h-4 bg-slate-700 rounded"></div>
-              <button className="px-4 py-2 bg-green-500 rounded text-white">Save</button>
-              <button className="px-4 py-2 bg-purple-500 rounded text-white">Next</button>
+              <button className="px-4 py-2 bg-green-500 rounded text-white">
+                Save
+              </button>
+              <button className="px-4 py-2 bg-purple-500 rounded text-white">
+                Next
+              </button>
             </div>
           </ExampleCard>
 
@@ -302,12 +409,16 @@ export default function FlexGrowPage() {
 
         {/* Section 8: Animated Demonstrations */}
         <div className="space-y-6 border-t border-border pt-8">
-          <h2 className="text-3xl font-bold text-foreground">Live Demonstrations</h2>
+          <h2 className="text-3xl font-bold text-foreground">
+            Live Demonstrations
+          </h2>
 
           {/* Demo 1: Growth Cycling */}
           <div className="space-y-2">
             <p className="text-muted-foreground text-sm">
-              <strong>Demo 1:</strong> Items cycle through different grow values. Notice how growth only affects *remaining* space after fixed items claim their basis.
+              <strong>Demo 1:</strong> Items cycle through different grow
+              values. Notice how growth only affects *remaining* space after
+              fixed items claim their basis.
             </p>
 
             <div className="flex gap-4 h-32 bg-slate-800 rounded p-4 overflow-hidden">
@@ -330,7 +441,9 @@ export default function FlexGrowPage() {
           {/* Demo 2: Basis + Grow Interaction */}
           <div className="space-y-2">
             <p className="text-muted-foreground text-sm">
-              <strong>Demo 2:</strong> Items change flex-basis while grow smooths the layout. Shows how grow handles *available* space dynamically.
+              <strong>Demo 2:</strong> Items change flex-basis while grow
+              smooths the layout. Shows how grow handles *available* space
+              dynamically.
             </p>
 
             <div className="flex gap-4 h-32 bg-slate-800 rounded p-4 transition-all duration-1000">
@@ -353,7 +466,8 @@ export default function FlexGrowPage() {
           {/* Demo 3: Alternating Growth */}
           <div className="space-y-2">
             <p className="text-muted-foreground text-sm">
-              <strong>Demo 3:</strong> One item alternates between growing and not growing. Other items re-adjust proportionally.
+              <strong>Demo 3:</strong> One item alternates between growing and
+              not growing. Other items re-adjust proportionally.
             </p>
 
             <div className="flex gap-4 h-32 w-full bg-slate-800 rounded p-4">
@@ -365,35 +479,35 @@ export default function FlexGrowPage() {
               />
               <GrowItem color="#805ad5" label="Stable" grow={1} basis="120px" />
               <GrowItem color="#6b46c1" label="Stable" grow={1} basis="120px" />
+            </div>
           </div>
+
+          <TipsSection
+            tips={[
+              {
+                bold: "Layout Layer Rules:",
+                text: "flex-grow only works on direct children of display:flex containers",
+              },
+              {
+                bold: "Parent constraints:",
+                text: "Grow requires container with defined width or it has no 'available space' to distribute",
+              },
+              {
+                bold: "Not for content:",
+                text: "Grow is layout concern, use text utilities like truncate for text content issues",
+              },
+              {
+                bold: "Proportional thinking:",
+                text: "Higher grow values get proportionally more space, not fixed percentages",
+              },
+              {
+                bold: "Available space first:",
+                text: "Browser calculates remaining space after all flex-basis values, then distributes based on grow ratios",
+              },
+            ]}
+          />
         </div>
-
-        <TipsSection
-          tips={[
-            { 
-              bold: "Layout Layer Rules:", 
-              text: "flex-grow only works on direct children of display:flex containers" 
-            },
-            { 
-              bold: "Parent constraints:", 
-              text: "Grow requires container with defined width or it has no 'available space' to distribute" 
-            },
-            { 
-              bold: "Not for content:", 
-              text: "Grow is layout concern, use text utilities like truncate for text content issues" 
-            },
-            { 
-              bold: "Proportional thinking:", 
-              text: "Higher grow values get proportionally more space, not fixed percentages" 
-            },
-            { 
-              bold: "Available space first:", 
-              text: "Browser calculates remaining space after all flex-basis values, then distributes based on grow ratios" 
-            }
-          ]}
-        />
-
-      </div></div>
-    </FlexLayout>
-  )
+      </div>
+    </>
+  );
 }
