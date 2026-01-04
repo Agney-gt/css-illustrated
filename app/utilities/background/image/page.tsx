@@ -1,53 +1,70 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { PageHero } from "@/components/shared/page-hero"
-import { UtilityGrid } from "@/components/shared/utility-grid"
-import { UtilityPlayground } from "@/components/shared/utility_playground"
-import { ExampleSection, ExampleCard } from "@/components/shared/example-section"
-import { TipsSection } from "@/components/shared/tips-section"
-import { CommonMistakesSection } from "@/components/shared/common-mistakes-section"
-import { MentalModelSection } from "@/components/shared/mental-model-section"
-import { ComparisonTable } from "@/components/shared/comparison-table"
-import { RealWorldExamples } from "@/components/shared/real-world-examples"
-import CodeBlock from "@/app/utilities/components/code-block"
-import { backgroundImageUtilities } from "@/lib/utilities"
+import { useState } from "react";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
+import { PageHero } from "@/components/shared/page-hero";
+import { UtilityGrid } from "@/components/shared/utility-grid";
+import { UtilityPlayground } from "@/components/shared/utility_playground";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
+import { TipsSection } from "@/components/shared/tips-section";
+import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
+import { MentalModelSection } from "@/components/shared/mental-model-section";
+import { ComparisonTable } from "@/components/shared/comparison-table";
+import { RealWorldExamples } from "@/components/shared/real-world-examples";
+import CodeBlock from "@/app/utilities/components/code-block";
+import { backgroundImageUtilities } from "@/lib/utilities";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 export default function BackgroundImagePage() {
-  const utilityItems = backgroundImageUtilities.classes.map(item => ({
+  const utilityItems = backgroundImageUtilities.classes.map((item) => ({
     cls: item.class,
-    desc: item.description
-  }))
+    desc: item.description,
+  }));
 
   const tips = [
-    { bold: "bg-gradient-to-r:", text: "Perfect for horizontal progress bars and buttons" },
-    { bold: "bg-gradient-to-b:", text: "Great for vertical overlays and loading states" },
-    { bold: "bg-gradient-to-t:", text: "Ideal for elevated cards and floating elements" },
-    { bold: "bg-none:", text: "Use to remove inherited backgrounds in nested components" }
-  ]
+    {
+      bold: "bg-gradient-to-r:",
+      text: "Perfect for horizontal progress bars and buttons",
+    },
+    {
+      bold: "bg-gradient-to-b:",
+      text: "Great for vertical overlays and loading states",
+    },
+    {
+      bold: "bg-gradient-to-t:",
+      text: "Ideal for elevated cards and floating elements",
+    },
+    {
+      bold: "bg-none:",
+      text: "Use to remove inherited backgrounds in nested components",
+    },
+  ];
 
   const commonMistakes = [
     {
       title: "Forgetting gradient direction",
-      reason: "Gradients without direction may not render as expected in all browsers.",
+      reason:
+        "Gradients without direction may not render as expected in all browsers.",
       example: `<div class="from-blue-500 to-purple-500">❌ No direction</div>`,
-      level: "warning" as const
+      level: "warning" as const,
     },
     {
       title: "Using too many gradient stops",
       reason: "Complex gradients can impact performance and readability.",
       example: `<div class="from-red-500 via-pink-500 via-purple-500 via-blue-500 to-green-500">❌ Too many stops</div>`,
-      level: "warning" as const
+      level: "warning" as const,
     },
     {
       title: "Poor contrast gradients",
       reason: "Low contrast gradients can make text hard to read.",
       example: `<div class="from-gray-100 to-gray-200 text-gray-300">❌ Poor contrast</div>`,
-      level: "critical" as const
-    }
-  ]
+      level: "critical" as const,
+    },
+  ];
 
   const comparisonData = {
     title: "Background Properties Comparison",
@@ -55,7 +72,12 @@ export default function BackgroundImagePage() {
     rows: [
       {
         feature: "bg-none",
-        values: ["Removal", "Reset", "Override inheritance", "Improves readability"],
+        values: [
+          "Removal",
+          "Reset",
+          "Override inheritance",
+          "Improves readability",
+        ],
       },
       {
         feature: "bg-gradient-to-r",
@@ -68,9 +90,9 @@ export default function BackgroundImagePage() {
       {
         feature: "bg-gradient-to-tr",
         values: ["Gradient", "Diagonal", "Creative effects", "Check contrast"],
-      }
-    ]
-  }
+      },
+    ],
+  };
 
   const realWorldExamples = [
     {
@@ -84,7 +106,7 @@ export default function BackgroundImagePage() {
           Get Started
         </button>
       ),
-      category: "Buttons"
+      category: "Buttons",
     },
     {
       title: "Hero Section",
@@ -103,7 +125,7 @@ export default function BackgroundImagePage() {
           </div>
         </div>
       ),
-      category: "Hero Sections"
+      category: "Hero Sections",
     },
     {
       title: "Card Background",
@@ -118,7 +140,7 @@ export default function BackgroundImagePage() {
           <p className="text-xs text-gray-600">Card with subtle gradient</p>
         </div>
       ),
-      category: "Cards"
+      category: "Cards",
     },
     {
       title: "Loading Bar",
@@ -129,16 +151,16 @@ export default function BackgroundImagePage() {
       preview: (
         <div className="w-full h-2 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-full animate-pulse"></div>
       ),
-      category: "Loading States"
-    }
-  ]
+      category: "Loading States",
+    },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12">
-          <PageHero 
+          <PageHero
             title={backgroundImageUtilities.title}
             description={backgroundImageUtilities.description}
           />
@@ -150,58 +172,113 @@ export default function BackgroundImagePage() {
               "Gradients create smooth color transitions without image assets",
               "Direction controls gradient flow and visual hierarchy",
               "bg-none removes inherited backgrounds for clean styling",
-              "Background layers stack with content on top for proper accessibility"
+              "Background layers stack with content on top for proper accessibility",
             ]}
             layerAssignment="Background Layer - Visual presentation behind content"
             browserBehavior="Browser renders gradients mathematically for smooth transitions, images load independently and tile/clip as specified"
           />
 
-          <UtilityGrid 
-            title="Available Classes"
-            items={utilityItems}
-          />
+          <UtilityGrid title="Available Classes" items={utilityItems} />
 
           <UtilityPlayground
             title="Interactive Playground"
             description="Experiment with different gradients and background styles."
-            options={backgroundImageUtilities.classes.map(item => item.class)}
+            options={backgroundImageUtilities.classes.map((item) => item.class)}
             defaultValue="bg-gradient-to-r"
             defaultCustomClasses="h-32 w-full flex items-center justify-center text-white font-bold rounded-lg"
             buildMarkup={(bgClass, customClasses = "") => {
-              const classes = [bgClass, customClasses].filter(Boolean).join(" ")
+              const classes = [bgClass, customClasses]
+                .filter(Boolean)
+                .join(" ");
               if (bgClass === "bg-none") {
                 return `<div class="${classes}">
   No Background Demo
-</div>`
+</div>`;
               }
               return `<div class="${classes} from-blue-500 to-purple-600">
   Gradient Background Demo
-</div>`
+</div>`;
             }}
             renderPreview={(bgClass, customClasses = "") => {
-              const classes = [bgClass, customClasses].filter(Boolean).join(" ")
-              let content = "Gradient Background Demo"
-              let additionalClasses = ""
-              
+              const classes = [bgClass, customClasses]
+                .filter(Boolean)
+                .join(" ");
+              let content = "Gradient Background Demo";
+              let additionalClasses = "";
+
               if (bgClass === "bg-none") {
-                content = "No Background Demo"
-                additionalClasses = "bg-gray-100 text-gray-800"
+                content = "No Background Demo";
+                additionalClasses = "bg-gray-100 text-gray-800";
               } else {
-                additionalClasses = "from-blue-500 to-purple-600"
+                additionalClasses = "from-blue-500 to-purple-600";
               }
-              
+
               return (
                 <div className={`${classes} ${additionalClasses}`}>
                   {content}
                 </div>
-              )
+              );
             }}
-            optionLabel={(value) => value.replace("bg-gradient-to-", "").replace("bg-", "")}
+            optionLabel={(value) =>
+              value.replace("bg-gradient-to-", "").replace("bg-", "")
+            }
           />
 
           <ComparisonTable {...comparisonData} />
 
-          <RealWorldExamples 
+          <InteractiveChallenge
+            title="The Invisible Gradient"
+            description="You are trying to create a cool 'Sunset' gradient button. You've set the colors (`from-orange-500 to-pink-500`), but the button looks flat because the gradient has no direction! Apply `bg-gradient-to-r` to activate the gradient flow from left to right."
+            codeSnippet={`<button class="px-6 py-2 rounded-full text-white font-bold transition-all
+  {input} from-orange-500 to-pink-500">
+  Sunset Button
+</button>`}
+            options={[
+              "bg-none",
+              "bg-gradient-to-r",
+              "bg-color-orange",
+              "bg-cover",
+            ]}
+            correctOption="bg-gradient-to-r"
+            renderPreview={(userClass) => (
+              <div className="flex items-center justify-center w-full h-full bg-slate-100 dark:bg-slate-950 p-12 rounded-lg">
+                <div className="text-center">
+                  <button
+                    className={`
+                      px-8 py-3 rounded-full text-white font-bold shadow-xl transform transition-all duration-500 hover:scale-105
+                      ${userClass} from-orange-500 to-pink-600
+                      ${
+                        userClass === "bg-none" ||
+                        userClass === "bg-color-orange" ||
+                        userClass === "bg-cover"
+                          ? "bg-slate-400"
+                          : ""
+                      } 
+                    `}
+                  >
+                    Sunset Button
+                  </button>
+
+                  {/* Feedback Message */}
+                  <div className="mt-4 h-6 text-sm font-medium">
+                    {userClass === "bg-gradient-to-r" ? (
+                      <span className="text-green-500 animate-in fade-in slide-in-from-bottom-2">
+                        ✨ Beautiful Gradient!
+                      </span>
+                    ) : (
+                      <span className="text-slate-400">
+                        {userClass === "bg-none"
+                          ? "Gradient removed."
+                          : "Waiting for direction..."}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          />
+
+          <RealWorldExamples
             title="Real World Examples"
             description="See how background image utilities are used in practical applications."
             examples={realWorldExamples}
@@ -237,7 +314,10 @@ export default function BackgroundImagePage() {
 
           <div className="space-y-6">
             <h2 className="text-3xl font-bold">Code Reference</h2>
-            <CodeBlock language="jsx" code={backgroundImageUtilities.codeSnippet} />
+            <CodeBlock
+              language="jsx"
+              code={backgroundImageUtilities.codeSnippet}
+            />
           </div>
 
           <CommonMistakesSection mistakes={commonMistakes} />
@@ -247,5 +327,5 @@ export default function BackgroundImagePage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
