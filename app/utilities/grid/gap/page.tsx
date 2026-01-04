@@ -1,18 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 import CodeBlock from "@/app/utilities/components/code-block";
 import { PageHero } from "@/components/shared/page-hero";
 import { UtilityGrid } from "@/components/shared/utility-grid";
 import { UtilityPlayground } from "@/components/shared/utility_playground";
-import { ExampleSection, ExampleCard } from "@/components/shared/example-section";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
 import { TipsSection } from "@/components/shared/tips-section";
 import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
 import { MentalModelSection } from "@/components/shared/mental-model-section";
 import { ComparisonTable } from "@/components/shared/comparison-table";
 import { RealWorldExamples } from "@/components/shared/real-world-examples";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 type GapMode = "gap" | "gap-x" | "gap-y";
 type LayoutType = "flex" | "grid";
@@ -72,10 +74,9 @@ export default function GapPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
-          <PageHero 
+          <PageHero
             title="Gap"
             description="You should reach for gap utilities when you need consistent spacing between child elements in flex or grid containers. Gap creates symmetric space between items without margin collapse issues and works predictably across layout primitives."
           />
@@ -88,7 +89,7 @@ export default function GapPage() {
               "Applies only to direct flex or grid children",
               "Doesn't affect container outer margins or padding",
               "Prevents margin collapse between adjacent elements",
-              "Works with responsive prefixes for breakpoint-specific spacing"
+              "Works with responsive prefixes for breakpoint-specific spacing",
             ]}
             layerAssignment="Layout Layer - Controls inter-child spacing distribution"
             browserBehavior="Browser calculates gap space and distributes it between children in specified axes, reducing available content space accordingly"
@@ -96,20 +97,41 @@ export default function GapPage() {
 
           <ComparisonTable
             title="Gap vs Margin: Spacing Approaches"
-            columns={["Property", "Scope", "Collapse Behavior", "Best For", "Responsive Control"]}
+            columns={[
+              "Property",
+              "Scope",
+              "Collapse Behavior",
+              "Best For",
+              "Responsive Control",
+            ]}
             rows={[
               {
                 feature: "gap-*",
-                values: ["Container children only", "No collapse", "Even spacing", "gap-2 sm:gap-4"]
+                values: [
+                  "Container children only",
+                  "No collapse",
+                  "Even spacing",
+                  "gap-2 sm:gap-4",
+                ],
               },
               {
-                feature: "margin-*", 
-                values: ["Individual elements", "Can collapse", "Asymmetric needs", "m-2 sm:m-4"]
+                feature: "margin-*",
+                values: [
+                  "Individual elements",
+                  "Can collapse",
+                  "Asymmetric needs",
+                  "m-2 sm:m-4",
+                ],
               },
               {
-                feature: "space-*", 
-                values: ["Flex children with stack", "No collapse", "Stacked elements", "space-y-2"]
-              }
+                feature: "space-*",
+                values: [
+                  "Flex children with stack",
+                  "No collapse",
+                  "Stacked elements",
+                  "space-y-2",
+                ],
+              },
             ]}
           />
 
@@ -117,7 +139,8 @@ export default function GapPage() {
             mistakes={[
               {
                 title: "Using gap when asymmetric spacing is needed",
-                reason: "Gap creates symmetric spacing between all children. When items need different spacing on different sides, margins or wrapper elements are more appropriate.",
+                reason:
+                  "Gap creates symmetric spacing between all children. When items need different spacing on different sides, margins or wrapper elements are more appropriate.",
                 example: `// Problem: Gap applies to all sides equally
 <div class="flex gap-4">
   <div>Item with tight left spacing needed</div>
@@ -131,11 +154,12 @@ export default function GapPage() {
   <div class="mx-4">Item with normal spacing</div>
   <div class="ml-8">Item with wide right spacing</div>
 </div>`,
-                level: "warning"
+                level: "warning",
               },
               {
                 title: "Applying gap to non-layout containers",
-                reason: "Gap only works on display: flex, grid, or their inline variants. Applying gap to block containers has no effect.",
+                reason:
+                  "Gap only works on display: flex, grid, or their inline variants. Applying gap to block containers has no effect.",
                 example: `// Problem: Gap on block container (no effect)
 <div class="gap-4">
   <div>Item 1</div>
@@ -147,11 +171,12 @@ export default function GapPage() {
   <div>Item 1</div>
   <div>Item 2</div>
 </div>`,
-                level: "critical"
+                level: "critical",
               },
               {
                 title: "Relying on gap for edge spacing",
-                reason: "Gap creates space between children, not between container and viewport or parent. Edge spacing requires margin on the container itself.",
+                reason:
+                  "Gap creates space between children, not between container and viewport or parent. Edge spacing requires margin on the container itself.",
                 example: `// Problem: No space at container edges
 <section class="flex gap-4">
   <div>Content touches container edge</div>
@@ -163,15 +188,12 @@ export default function GapPage() {
   <div>Content has breathing room</div>
   <div>Content has breathing room</div>
 </section>`,
-                level: "warning"
-              }
+                level: "warning",
+              },
             ]}
           />
 
-          <UtilityGrid
-            title="Gap Utilities"
-            items={utilities}
-          />
+          <UtilityGrid title="Gap Utilities" items={utilities} />
 
           {/* Utilities */}
           <div className="space-y-6 border-t border-border pt-8">
@@ -421,225 +443,203 @@ export default function GapPage() {
             </div>
           </div>
 
+          <InteractiveChallenge
+            title="The Collapsed Cards"
+            description="These product cards are jammed together with zero spacing between them (`gap-0`). This makes the layout look cluttered and unprofessional. Add `gap-4` to the grid container to give the cards room to breathe."
+            codeSnippet={`<div class="grid grid-cols-3 {input} p-4 bg-slate-100 rounded-xl">
+  <div class="bg-white p-4 rounded shadow-sm">
+    <div class="h-20 bg-slate-200 rounded mb-2"></div>
+    <h3 class="font-bold">Product A</h3>
+  </div>
+
+  <div class="bg-white p-4 rounded shadow-sm">
+    <div class="h-20 bg-slate-200 rounded mb-2"></div>
+    <h3 class="font-bold">Product B</h3>
+  </div>
+
+  <div class="bg-white p-4 rounded shadow-sm">
+    <div class="h-20 bg-slate-200 rounded mb-2"></div>
+    <h3 class="font-bold">Product C</h3>
+  </div>
+</div>`}
+            options={["gap-0", "gap-4", "gap-x-8", "gap-y-4"]}
+            correctOption="gap-4"
+            renderPreview={(userClass) => (
+              <div className="flex items-center justify-center w-full h-full bg-slate-50 dark:bg-slate-950 p-8 rounded-lg overflow-hidden">
+                <div
+                  className={`grid grid-cols-3 ${userClass} p-6 bg-slate-200 dark:bg-slate-900/50 rounded-xl border border-slate-300 dark:border-slate-800 transition-all duration-500 w-full max-w-md`}
+                >
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm flex flex-col min-w-0"
+                    >
+                      <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded mb-3"></div>
+                      <h3 className="font-bold text-slate-800 dark:text-white text-xs mb-1">
+                        Item {i}
+                      </h3>
+                      <div className="h-2 w-2/3 bg-slate-100 dark:bg-slate-700/50 rounded"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          />
+
           <ExampleSection title="Real-World Gap Patterns">
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Horizontal nav spacing */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <div className="mb-3 flex items-baseline justify-between">
-                  <h3 className="text-lg font-semibold">
-                    Horizontal nav spacing
-                  </h3>
-                  <button
-                    onClick={() => copyToClipboard("flex gap-6 items-center")}
-                    className="text-xs px-2 py-1 rounded bg-muted/10"
-                  >
-                    Copy
+            {/* 1. Horizontal Nav Spacing */}
+            <ExampleCard
+              title="Horizontal Nav Spacing"
+              copyText="flex gap-6 items-center"
+              description="Use a larger gap to visually separate primary items. Gap keeps spacing consistent without margin hacks."
+              code={`<nav class="flex gap-6 items-center">
+  <div>Logo</div>
+  <a href="#">Home</a>
+  <a href="#">Docs</a>
+  <a href="#">Pricing</a>
+</nav>`}
+            >
+              <nav className="flex gap-6 items-center border border-white/10 p-3 rounded bg-slate-900/50">
+                <div className="font-bold text-white">Logo</div>
+                <div className="flex gap-6 text-sm">
+                  <a className="text-slate-300 hover:text-white cursor-pointer">
+                    Home
+                  </a>
+                  <a className="text-slate-300 hover:text-white cursor-pointer">
+                    Docs
+                  </a>
+                  <a className="text-slate-300 hover:text-white cursor-pointer">
+                    Pricing
+                  </a>
+                </div>
+                <div className="ml-auto">
+                  <button className="px-3 py-1 bg-blue-600 rounded text-white text-xs">
+                    Sign in
                   </button>
                 </div>
+              </nav>
+            </ExampleCard>
 
-                <div className="bg-slate-800 rounded p-3">
-                  <nav className="flex gap-6 items-center">
-                    <div className="font-bold text-white">Logo</div>
-                    <div className="flex gap-6">
-                      <a className="text-slate-200">Home</a>
-                      <a className="text-slate-200">Docs</a>
-                      <a className="text-slate-200">Pricing</a>
+            {/* 2. Card Grid */}
+            <ExampleCard
+              title="Card Grid"
+              copyText="grid grid-cols-3 gap-4"
+              description="Gap controls spacing between cards. Use gap-x / gap-y to control axes independently."
+              code={`<div class="grid grid-cols-3 gap-4">
+  <div>Card 1</div>
+  <div>Card 2</div>
+  <div>Card 3</div>
+</div>`}
+            >
+              <div className="grid grid-cols-3 gap-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-slate-700/50 border border-white/5 rounded p-3 text-slate-200"
+                  >
+                    <div className="font-semibold text-xs mb-1">
+                      Card {i + 1}
                     </div>
-                    <div className="ml-auto">
-                      <button className="px-3 py-1 bg-blue-600 rounded text-white">
-                        Sign in
-                      </button>
+                    <div className="text-[10px] text-slate-400 leading-tight">
+                      Short description.
                     </div>
-                  </nav>
-                </div>
-
-                <div className="mt-3">
-                  <CodeBlock
-                    language="jsx"
-                    code={`<nav class="flex gap-6 items-center">\n  <div>Logo</div>\n  <a>Home</a>\n  <a>Docs</a>\n  <a>Pricing</a>\n</nav>`}
-                  />
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Use a larger gap to visually separate primary items — the
-                    gap keeps spacing consistent across breakpoints without
-                    extra margin rules.
-                  </p>
-                </div>
+                  </div>
+                ))}
               </div>
+            </ExampleCard>
 
-              {/* Card grid */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <div className="mb-3 flex items-baseline justify-between">
-                  <h3 className="text-lg font-semibold">Card grid</h3>
-                  <button
-                    onClick={() => copyToClipboard("grid grid-cols-3 gap-4")}
-                    className="text-xs px-2 py-1 rounded bg-muted/10"
+            {/* 3. Responsive Pricing Cards */}
+            <ExampleCard
+              title="Responsive Gaps"
+              copyText="gap-4 sm:gap-6 md:gap-8"
+              description="Responsive gap helps scale whitespace across breakpoints for a comfortable layout."
+              code={`<div class="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+  <div class="p-4">Pro Plan</div>
+  </div>`}
+            >
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-slate-700/50 border border-white/5 rounded p-3 text-slate-200 flex flex-col justify-between"
                   >
-                    Copy
-                  </button>
-                </div>
-
-                <div className="bg-slate-800 rounded p-3 overflow-auto">
-                  <div className="grid grid-cols-3 gap-4">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="bg-slate-700 rounded p-4 text-slate-200"
-                      >
-                        <div className="font-semibold mb-2">Card {i + 1}</div>
-                        <div className="text-sm text-muted-foreground">
-                          Short description here.
-                        </div>
+                    <div>
+                      <div className="font-semibold text-xs mb-1">Pro</div>
+                      <div className="text-[10px] text-slate-400">
+                        Full Access
                       </div>
-                    ))}
+                    </div>
+                    <div className="mt-2 font-bold text-white text-sm">
+                      ₹499
+                    </div>
                   </div>
-                </div>
-
-                <div className="mt-3">
-                  <CodeBlock
-                    language="jsx"
-                    code={`<div class="grid grid-cols-3 gap-4">\n  <div>Card</div>\n  <div>Card</div>\n</div>`}
-                  />
-                  <p className="text-sm text-muted-foreground mt-2">
-                    gap controls spacing between cards — use gap-x/gap-y to
-                    control one axis only.
-                  </p>
-                </div>
+                ))}
               </div>
+            </ExampleCard>
 
-              {/* Pricing cards (responsive gaps) */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <div className="mb-3 flex items-baseline justify-between">
-                  <h3 className="text-lg font-semibold">
-                    Pricing cards — responsive gap
-                  </h3>
-                  <button
-                    onClick={() =>
-                      copyToClipboard(
-                        "grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8"
-                      )
-                    }
-                    className="text-xs px-2 py-1 rounded bg-muted/10"
+            {/* 4. Avatar Stack (Negative Margin) */}
+            <ExampleCard
+              title="Avatar Stack"
+              copyText="flex items-center -space-x-2"
+              description={
+                <span>
+                  Gap cannot overlap items. For stacks, use{" "}
+                  <code className="bg-white/10 px-1 rounded">-space-x-</code>{" "}
+                  (negative margin) instead.
+                </span>
+              }
+              code={`<div class="flex items-center -space-x-2">
+  <img class="rounded-full ring-2 ring-white" src="..." />
+  <img class="rounded-full ring-2 ring-white" src="..." />
+</div>`}
+            >
+              <div className="flex items-center -space-x-3 pl-2">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-10 h-10 rounded-full border-2 border-slate-800 bg-slate-600 flex items-center justify-center text-xs font-bold text-white relative z-0 hover:z-10 transition-all hover:scale-110"
                   >
-                    Copy
-                  </button>
-                </div>
-
-                <div className="bg-slate-800 rounded p-3 overflow-auto">
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="bg-slate-700 rounded p-4 text-slate-200"
-                      >
-                        <div className="font-semibold mb-2">Pro {i + 1}</div>
-                        <div className="text-sm text-muted-foreground">
-                          Everything you need.
-                        </div>
-                        <div className="mt-4 font-bold text-white">₹499</div>
-                      </div>
-                    ))}
+                    {i + 1}
                   </div>
-                </div>
-
-                <div className="mt-3">
-                  <p className="text-sm text-muted-foreground">
-                    Responsive gap helps scale spacing across breakpoints —
-                    combine responsive gap utilities to create comfortable
-                    spacing on all screen sizes.
-                  </p>
-                </div>
+                ))}
               </div>
+            </ExampleCard>
 
-              {/* Avatar stack (gap with negative margin alternative explanation) */}
-              <div className="border border-border rounded-lg p-4 bg-card/20">
-                <div className="mb-3 flex items-baseline justify-between">
-                  <h3 className="text-lg font-semibold">
-                    Avatar stack (use gap + negative margin)
-                  </h3>
-                  <button
-                    onClick={() =>
-                      copyToClipboard("flex items-center -space-x-2")
-                    }
-                    className="text-xs px-2 py-1 rounded bg-muted/10"
-                  >
-                    Copy
-                  </button>
+            {/* 5. Toolbar (Full Width Wrapper) */}
+            <div className="md:col-span-2">
+              <ExampleCard
+                title="Toolbar (Scrollable Row)"
+                copyText="flex flex-nowrap gap-x-3 overflow-x-auto"
+                description="Use gap-x for horizontal spacing in a tight toolbar. Pair with overflow-x-auto to handle small screens safely."
+                code={`<div class="flex flex-nowrap gap-x-3 overflow-x-auto">
+  <button>Action 1</button>
+  <button>Action 2</button>
+  </div>`}
+              >
+                <div className="flex flex-nowrap gap-x-3 overflow-x-auto pb-2 scrollbar-hide">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <button
+                      key={i}
+                      className="px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-white/5 rounded text-slate-200 whitespace-nowrap text-xs transition"
+                    >
+                      Action {i + 1}
+                    </button>
+                  ))}
                 </div>
+              </ExampleCard>
+            </div>
 
-                <div className="bg-slate-800 rounded p-3">
-                  <div className="flex items-center -space-x-2">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <img
-                        key={i}
-                        src={`https://i.pravatar.cc/40?img=${i + 1}`}
-                        className="w-10 h-10 rounded-full border-2 border-slate-800"
-                        alt={`avatar-${i}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-3">
-                  <p className="text-sm text-muted-foreground">
-                    Avatar stacks are an exception where you intentionally
-                    overlap items. gap isn't useful for overlap; negative
-                    margins (e.g.{" "}
-                    <code className="bg-slate-700 px-1 rounded">
-                      -space-x-2
-                    </code>
-                    ) or absolute positioning are appropriate.
-                  </p>
-                </div>
-              </div>
-
-              {/* Toolbar with gap-x and overflow (full width) */}
-              <div className="md:col-span-2 border border-border rounded-lg p-4 bg-card/20">
-                <div className="mb-3 flex items-baseline justify-between">
-                  <h3 className="text-lg font-semibold">
-                    Toolbar (nowrap + gap-x)
-                  </h3>
-                  <button
-                    onClick={() =>
-                      copyToClipboard(
-                        "flex flex-nowrap gap-x-3 overflow-x-auto"
-                      )
-                    }
-                    className="text-xs px-2 py-1 rounded bg-muted/10"
-                  >
-                    Copy
-                  </button>
-                </div>
-
-                <div className="bg-slate-800 rounded p-3 overflow-auto">
-                  <div className="flex flex-nowrap gap-x-3">
-                    {Array.from({ length: 12 }).map((_, i) => (
-                      <button
-                        key={i}
-                        className="px-4 py-2 bg-slate-700 rounded text-slate-200 whitespace-nowrap"
-                      >
-                        Action {i + 1}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-3">
-                  <p className="text-sm text-muted-foreground">
-                    Use gap-x for horizontal spacing in a tight toolbar and pair
-                    with overflow-x-auto if content may overflow.
-                  </p>
-                </div>
-              </div>
-
-              {/* Accessibility note (full width) */}
-              <div className="md:col-span-2 text-sm text-muted-foreground">
-                <strong>Accessibility reminder:</strong> <em>gap</em> only
-                affects visual spacing between children — it does not change DOM
-                order or keyboard/tab order. Ensure interactive items have
-                adequate touch target sizes (padding), clear focus styles, and
-                that spacing does not rely on visual-only cues. When in doubt,
-                test with keyboard-only navigation and a screen reader.
-              </div>
+            {/* 6. Accessibility Note */}
+            <div className="md:col-span-2 mt-2 p-4 border border-blue-500/20 bg-blue-500/10 rounded-lg">
+              <p className="text-sm text-black-200/80">
+                <strong className="text-black-100 block mb-1">
+                  Accessibility Reminder
+                </strong>
+                <em>gap</em> only affects visual spacing. It does not change DOM
+                order or keyboard navigation order. Ensure interactive items
+                have adequate touch target sizes and that spacing implies
+                relationships correctly to screen readers.
+              </p>
             </div>
           </ExampleSection>
 
@@ -683,7 +683,6 @@ export default function GapPage() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }
