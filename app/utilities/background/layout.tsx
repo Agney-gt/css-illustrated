@@ -18,6 +18,12 @@ export default function BackgroundLayout({
           </h2>
           <div className="flex gap-2 flex-wrap">
             <Link
+              href="/utilities/background/color"
+              className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
+            >
+              Color
+            </Link>
+            <Link
               href="/utilities/background/position"
               className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
             >

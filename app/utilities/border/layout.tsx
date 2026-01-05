@@ -42,6 +42,12 @@ export default function GridLayout({
               >
                 Border Width
               </Link>
+              <Link
+                href="/utilities/border/divide/style"
+                className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
+              >
+                Divide
+              </Link>
             </div>
           </div>
         </div>

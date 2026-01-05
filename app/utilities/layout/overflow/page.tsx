@@ -1,27 +1,27 @@
-"use client"
+"use client";
 
-
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { PageHero } from "@/components/shared/page-hero"
-import { UtilityGrid } from "@/components/shared/utility-grid"
-import { UtilityPlayground } from "@/components/shared/utility_playground"
-import { ExampleSection, ExampleCard } from "@/components/shared/example-section"
-import { TipsSection } from "@/components/shared/tips-section"
-import { CommonMistakesSection } from "@/components/shared/common-mistakes-section"
-import { MentalModelSection } from "@/components/shared/mental-model-section"
-import { ComparisonTable } from "@/components/shared/comparison-table"
-import { RealWorldExamples } from "@/components/shared/real-world-examples"
-import CodeBlock from "@/app/utilities/components/code-block"
+import { PageHero } from "@/components/shared/page-hero";
+import { UtilityGrid } from "@/components/shared/utility-grid";
+import { UtilityPlayground } from "@/components/shared/utility_playground";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
+import { TipsSection } from "@/components/shared/tips-section";
+import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
+import { MentalModelSection } from "@/components/shared/mental-model-section";
+import { ComparisonTable } from "@/components/shared/comparison-table";
+import { RealWorldExamples } from "@/components/shared/real-world-examples";
+import CodeBlock from "@/app/utilities/components/code-block";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 export default function OverflowPage() {
   return (
     <>
       <div className="min-h-screen flex flex-col bg-background">
-        <Navbar />
         <main className="flex-1">
           <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
-            <PageHero 
+            <PageHero
               title="Overflow Utilities"
               description="Control how content behaves when it exceeds container boundaries. Understand clipping, scrolling, and the browser's overflow algorithm to build predictable layouts."
             />
@@ -34,7 +34,7 @@ export default function OverflowPage() {
                 "Content continues to exist even when clipped—scrollbars reveal it",
                 "Auto overflow shows scrollbars only when needed, not proactively",
                 "Separate axes (overflow-x/overflow-y) provide granular control",
-                "Scrolling containers establish positioning contexts for children"
+                "Scrolling containers establish positioning contexts for children",
               ]}
               layerAssignment="Shape Layer - Controls content visibility boundaries"
               browserBehavior="Browser clips content to container's padding box, then calculates whether scrollbars are needed based on content dimensions vs container dimensions"
@@ -42,24 +42,45 @@ export default function OverflowPage() {
 
             <ComparisonTable
               title="Overflow Behavior Comparison"
-              columns={["Property", "When Scrollbars Appear", "Layout Impact", "Common Use Cases"]}
+              columns={[
+                "Property",
+                "When Scrollbars Appear",
+                "Layout Impact",
+                "Common Use Cases",
+              ]}
               rows={[
                 {
                   feature: "overflow-visible",
-                  values: ["Never", "Content may overlap other elements", "Default behavior, unrestricted content"],
+                  values: [
+                    "Never",
+                    "Content may overlap other elements",
+                    "Default behavior, unrestricted content",
+                  ],
                 },
                 {
-                  feature: "overflow-hidden", 
-                  values: ["Never", "No layout impact", "Image cropping, text truncation with ellipsis"],
+                  feature: "overflow-hidden",
+                  values: [
+                    "Never",
+                    "No layout impact",
+                    "Image cropping, text truncation with ellipsis",
+                  ],
                 },
                 {
-                  feature: "overflow-auto", 
-                  values: ["Only when content exceeds", "Scrollbar space reserved only when needed", "Responsive content areas, code blocks"],
+                  feature: "overflow-auto",
+                  values: [
+                    "Only when content exceeds",
+                    "Scrollbar space reserved only when needed",
+                    "Responsive content areas, code blocks",
+                  ],
                 },
                 {
-                  feature: "overflow-scroll", 
-                  values: ["Always", "Scrollbar space always reserved", "Consistent UI dimensions, terminal-like interfaces"],
-                }
+                  feature: "overflow-scroll",
+                  values: [
+                    "Always",
+                    "Scrollbar space always reserved",
+                    "Consistent UI dimensions, terminal-like interfaces",
+                  ],
+                },
               ]}
             />
 
@@ -82,72 +103,145 @@ export default function OverflowPage() {
               mistakes={[
                 {
                   title: "Applying overflow-hidden at layout level",
-                  reason: "Clips all content including navigation and important elements instead of isolating to specific shape containers.",
+                  reason:
+                    "Clips all content including navigation and important elements instead of isolating to specific shape containers.",
                   example: `<div className="overflow-hidden">  <!-- Layout container -->
   <img />
   <p>Text disappears</p>           <!-- Everything gets clipped -->
 </div>`,
-                  level: "critical"
+                  level: "critical",
                 },
                 {
-                  title: "Using overflow-hidden for text truncation without truncate",
-                  reason: "overflow-hidden only clips content—it doesn't add ellipsis. Text appears cut off without indication of truncation.",
+                  title:
+                    "Using overflow-hidden for text truncation without truncate",
+                  reason:
+                    "overflow-hidden only clips content—it doesn't add ellipsis. Text appears cut off without indication of truncation.",
                   example: `<div className="overflow-hidden w-32">Very long text that appears broken</div>`,
-                  level: "warning"
+                  level: "warning",
                 },
                 {
                   title: "Percentage height without overflow context",
-                  reason: "Child with h-full expands but parent doesn't constrain it, so content flows beyond visible bounds without scrollbars.",
+                  reason:
+                    "Child with h-full expands but parent doesn't constrain it, so content flows beyond visible bounds without scrollbars.",
                   example: `<div className="h-full">        <!-- No parent height defined -->
   <div className="overflow-auto">
     <!-- Content overflows invisibly -->
   </div>
 </div>`,
-                  level: "critical"
+                  level: "critical",
                 },
                 {
                   title: "Mixing layout and shape overflow concerns",
-                  reason: "Using overflow for layout positioning instead of visual clipping creates unpredictable stacking and positioning contexts.",
+                  reason:
+                    "Using overflow for layout positioning instead of visual clipping creates unpredictable stacking and positioning contexts.",
                   example: `<div className="overflow-hidden relative">
   <div className="absolute -top-4">Escapes clipping</div>
 </div>`,
-                  level: "warning"
+                  level: "warning",
                 },
                 {
                   title: "overflow-scroll on mobile content",
-                  reason: "Shows scrollbars even when content fits, wasting space and creating visual clutter on touch devices.",
+                  reason:
+                    "Shows scrollbars even when content fits, wasting space and creating visual clutter on touch devices.",
                   example: `<div className="overflow-scroll h-32">
   <p>Short content with unnecessary scrollbars</p>
 </div>`,
-                  level: "info"
-                }
+                  level: "info",
+                },
               ]}
             />
 
             <section className="space-y-6 border-t pt-8">
               <h2 className="text-3xl font-bold">Interactive Playground</h2>
-              <p className="text-muted-foreground">Experiment with overflow behaviors and understand how they interact with content dimensions and layout constraints.</p>
+              <p className="text-muted-foreground">
+                Experiment with overflow behaviors and understand how they
+                interact with content dimensions and layout constraints.
+              </p>
 
               <UtilityPlayground
                 title="Overflow Playground"
                 description="Test how different overflow values affect content visibility and scrollbar behavior."
-                options={["overflow-visible", "overflow-hidden", "overflow-auto", "overflow-scroll"]}
+                options={[
+                  "overflow-visible",
+                  "overflow-hidden",
+                  "overflow-auto",
+                  "overflow-scroll",
+                ]}
                 defaultValue="overflow-auto"
                 buildMarkup={(overflowClass, customClasses = "") => {
                   return `<div class="${overflowClass} ${customClasses} w-64 h-32 border border-border">
   <p class="p-4">This content will demonstrate how ${overflowClass} affects visibility and scrolling behavior in a constrained container.</p>
-</div>`
+</div>`;
                 }}
                 renderPreview={(overflowClass, customClasses = "") => {
                   return (
-                    <div className={`${overflowClass} ${customClasses} w-64 h-32 border border-border`}>
-                      <p className="p-4">This content demonstrates how {overflowClass} affects visibility and scrolling in a constrained container. Try different overflow values to see the behavior change.</p>
+                    <div
+                      className={`${overflowClass} ${customClasses} w-64 h-32 border border-border`}
+                    >
+                      <p className="p-4">
+                        This content demonstrates how {overflowClass} affects
+                        visibility and scrolling in a constrained container. Try
+                        different overflow values to see the behavior change.
+                      </p>
                     </div>
-                  )
+                  );
                 }}
-                optionLabel={(value) => value.replace('overflow-', '').replace('-', ' ')}
+                optionLabel={(value) =>
+                  value.replace("overflow-", "").replace("-", " ")
+                }
               />
             </section>
+
+            <InteractiveChallenge
+              title="The Horizontal Scroller"
+              description="You have a row of cards that is wider than the screen. Currently, it's breaking the layout and causing the whole page to scroll horizontally (a bad user experience). Apply `overflow-x-auto` to the container so only the cards scroll horizontally, while the rest of the page stays put."
+              codeSnippet={`<div class="w-full max-w-md border rounded-lg p-4">
+  <h3 class="font-bold mb-2">Recommended For You</h3>
+  
+  <div class="flex gap-4 {input} pb-2">
+    <div class="card w-32 shrink-0">Card 1</div>
+    <div class="card w-32 shrink-0">Card 2</div>
+    <div class="card w-32 shrink-0">Card 3</div>
+    <div class="card w-32 shrink-0">Card 4</div>
+    <div class="card w-32 shrink-0">Card 5</div>
+  </div>
+</div>`}
+              options={[
+                "overflow-hidden",
+                "overflow-x-auto",
+                "overflow-visible",
+                "flex-wrap",
+              ]}
+              correctOption="overflow-x-auto"
+              renderPreview={(userClass) => (
+                <div className="w-full max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 overflow-hidden relative">
+                  <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4">
+                    Mobile Carousel
+                  </h3>
+
+                  <div
+                    className={`flex gap-3 pb-2 ${
+                      userClass === "flex-wrap" ? "flex-wrap" : ""
+                    } ${userClass}`}
+                  >
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div
+                        key={i}
+                        className="w-28 h-32 bg-indigo-50 dark:bg-indigo-900/20 border-2 border-indigo-100 dark:border-indigo-800 rounded-lg flex-shrink-0 flex items-center justify-center text-indigo-400 font-bold"
+                      >
+                        Item {i}
+                      </div>
+                    ))}
+                  </div>
+
+                  {userClass === "overflow-x-auto" && (
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-12 h-32 bg-gradient-to-l from-white dark:from-slate-900 to-transparent pointer-events-none flex items-center justify-end pr-2 text-slate-400">
+                      →
+                    </div>
+                  )}
+                </div>
+              )}
+            />
 
             <ExampleSection title="Real-World Examples">
               <ExampleCard
@@ -223,7 +317,8 @@ const example = () => {
                 <div className="w-64">
                   <div className="overflow-hidden">
                     <p className="truncate text-sm font-medium">
-                      This very long text will be truncated with an ellipsis when it exceeds the container width.
+                      This very long text will be truncated with an ellipsis
+                      when it exceeds the container width.
                     </p>
                   </div>
                 </div>
@@ -255,12 +350,18 @@ const example = () => {
                     <h3 className="text-sm font-semibold">Modal Title</h3>
                   </div>
                   <div className="flex-1 overflow-auto p-3">
-                    <p className="text-sm">This content area scrolls when it exceeds the available height while keeping header and footer visible at all times.</p>
+                    <p className="text-sm">
+                      This content area scrolls when it exceeds the available
+                      height while keeping header and footer visible at all
+                      times.
+                    </p>
                     <p className="text-sm mt-2">More content here...</p>
                     <p className="text-sm mt-2">Even more content...</p>
                   </div>
                   <div className="p-3 border-t bg-slate-100">
-                    <button className="text-sm px-3 py-1 bg-blue-500 text-white rounded">Close</button>
+                    <button className="text-sm px-3 py-1 bg-blue-500 text-white rounded">
+                      Close
+                    </button>
                   </div>
                 </div>
               </ExampleCard>
@@ -286,22 +387,41 @@ const example = () => {
               </ExampleCard>
             </ExampleSection>
 
-            <TipsSection 
+            <TipsSection
               tips={[
-                { bold: "Shape vs Layout:", text: "Apply overflow to shape containers, not layout containers—don't clip entire layouts" },
-                { bold: "Auto vs Scroll:", text: "Use overflow-auto for responsive design, overflow-scroll only when consistent dimensions are required" },
-                { bold: "Truncation pattern:", text: "Text truncation needs both overflow-hidden and truncate—missing overflow creates text overflow" },
-                { bold: "Mobile considerations:", text: "Touch devices don't show scrollbars for overflow-auto—provide visual hints that content scrolls" },
-                { bold: "Stacking contexts:", text: "overflow creates positioning contexts—absolute children are positioned relative to overflow container" },
-                { bold: "Performance:", text: "overflow-hidden is cheaper than overflow-auto—browsers don't need to calculate scroll behavior" }
+                {
+                  bold: "Shape vs Layout:",
+                  text: "Apply overflow to shape containers, not layout containers—don't clip entire layouts",
+                },
+                {
+                  bold: "Auto vs Scroll:",
+                  text: "Use overflow-auto for responsive design, overflow-scroll only when consistent dimensions are required",
+                },
+                {
+                  bold: "Truncation pattern:",
+                  text: "Text truncation needs both overflow-hidden and truncate—missing overflow creates text overflow",
+                },
+                {
+                  bold: "Mobile considerations:",
+                  text: "Touch devices don't show scrollbars for overflow-auto—provide visual hints that content scrolls",
+                },
+                {
+                  bold: "Stacking contexts:",
+                  text: "overflow creates positioning contexts—absolute children are positioned relative to overflow container",
+                },
+                {
+                  bold: "Performance:",
+                  text: "overflow-hidden is cheaper than overflow-auto—browsers don't need to calculate scroll behavior",
+                },
               ]}
             />
 
-            <RealWorldExamples 
+            <RealWorldExamples
               examples={[
                 {
                   title: "Scrolling Table with Sticky Headers",
-                  description: "Data table where headers stay visible while body scrolls horizontally and vertically.",
+                  description:
+                    "Data table where headers stay visible while body scrolls horizontally and vertically.",
                   code: `<div className="w-full max-h-96 overflow-auto">
   <table className="w-full">
     <thead className="sticky top-0 bg-background">
@@ -316,11 +436,12 @@ const example = () => {
   </table>
 </div>`,
                   category: "Tables",
-                  difficulty: "intermediate"
+                  difficulty: "intermediate",
                 },
                 {
                   title: "Infinite Scroll Container",
-                  description: "Container that loads more content as user scrolls, using overflow-auto for performance.",
+                  description:
+                    "Container that loads more content as user scrolls, using overflow-auto for performance.",
                   code: `<div className="h-96 overflow-auto" onScroll={handleScroll}>
   <div className="space-y-4">
     {items.map(item => (
@@ -332,11 +453,12 @@ const example = () => {
   </div>
 </div>`,
                   category: "Dynamic Content",
-                  difficulty: "advanced"
+                  difficulty: "advanced",
                 },
                 {
                   title: "Text Overflow with Ellipsis",
-                  description: "Single-line text that truncates with ellipsis when container width is exceeded.",
+                  description:
+                    "Single-line text that truncates with ellipsis when container width is exceeded.",
                   code: `<div className="w-48">
   <div className="overflow-hidden">
     <p className="truncate whitespace-nowrap">
@@ -345,11 +467,12 @@ const example = () => {
   </div>
 </div>`,
                   category: "Text",
-                  difficulty: "beginner"
+                  difficulty: "beginner",
                 },
                 {
                   title: "Horizontal Image Carousel",
-                  description: "Touch-friendly carousel that scrolls horizontally when images exceed container width.",
+                  description:
+                    "Touch-friendly carousel that scrolls horizontally when images exceed container width.",
                   code: `<div className="overflow-x-auto snap-x snap-mandatory">
   <div className="flex gap-4">
     <div className="w-64 h-48 snap-start flex-shrink-0">
@@ -361,11 +484,12 @@ const example = () => {
   </div>
 </div>`,
                   category: "Media",
-                  difficulty: "intermediate"
+                  difficulty: "intermediate",
                 },
                 {
                   title: "Dropdown Menu with Scrolling",
-                  description: "Dropdown that scrolls when menu items exceed viewport height while keeping dropdown button visible.",
+                  description:
+                    "Dropdown that scrolls when menu items exceed viewport height while keeping dropdown button visible.",
                   code: `<div className="relative">
   <button className="px-4 py-2 border rounded">Open Menu</button>
   <div className="absolute top-full mt-2 w-64 max-h-48 overflow-auto border rounded shadow-lg bg-background">
@@ -379,8 +503,8 @@ const example = () => {
   </div>
 </div>`,
                   category: "Navigation",
-                  difficulty: "intermediate"
-                }
+                  difficulty: "intermediate",
+                },
               ]}
             />
 
@@ -390,28 +514,64 @@ const example = () => {
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Shape Layer</h3>
                   <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                    <li>[ ] Is overflow-hidden applied to shape wrappers, not layout containers?</li>
-                    <li>[ ] Does text truncation include both overflow-hidden and truncate?</li>
-                    <li>[ ] Are circular/rounded elements using overflow-hidden to mask content?</li>
-                    <li>[ ] Does overflow-auto only appear when content actually exceeds bounds?</li>
+                    <li>
+                      [ ] Is overflow-hidden applied to shape wrappers, not
+                      layout containers?
+                    </li>
+                    <li>
+                      [ ] Does text truncation include both overflow-hidden and
+                      truncate?
+                    </li>
+                    <li>
+                      [ ] Are circular/rounded elements using overflow-hidden to
+                      mask content?
+                    </li>
+                    <li>
+                      [ ] Does overflow-auto only appear when content actually
+                      exceeds bounds?
+                    </li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Layout Layer</h3>
                   <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                    <li>[ ] Does percentage height content have a parent with defined height?</li>
-                    <li>[ ] Are absolute positioned elements positioned relative to the intended overflow container?</li>
-                    <li>[ ] Is scrollbar-only space reserved consistently across the design?</li>
-                    <li>[ ] Do fixed-height containers account for header/footer space when using overflow-auto?</li>
+                    <li>
+                      [ ] Does percentage height content have a parent with
+                      defined height?
+                    </li>
+                    <li>
+                      [ ] Are absolute positioned elements positioned relative
+                      to the intended overflow container?
+                    </li>
+                    <li>
+                      [ ] Is scrollbar-only space reserved consistently across
+                      the design?
+                    </li>
+                    <li>
+                      [ ] Do fixed-height containers account for header/footer
+                      space when using overflow-auto?
+                    </li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Content Layer</h3>
                   <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                    <li>[ ] Do images have object-cover/object-contain when in overflow containers?</li>
-                    <li>[ ] Does scrollable content have proper padding so text doesn't touch edges?</li>
-                    <li>[ ] Are there visual indicators when content can scroll (auto overflow on mobile)?</li>
-                    <li>[ ] Does text maintain readability when clipped (adequate line height, font size)?</li>
+                    <li>
+                      [ ] Do images have object-cover/object-contain when in
+                      overflow containers?
+                    </li>
+                    <li>
+                      [ ] Does scrollable content have proper padding so text
+                      doesn't touch edges?
+                    </li>
+                    <li>
+                      [ ] Are there visual indicators when content can scroll
+                      (auto overflow on mobile)?
+                    </li>
+                    <li>
+                      [ ] Does text maintain readability when clipped (adequate
+                      line height, font size)?
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -419,7 +579,6 @@ const example = () => {
           </div>
         </main>
       </div>
-      <Footer />
     </>
-  )
+  );
 }

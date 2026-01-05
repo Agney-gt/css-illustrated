@@ -12,9 +12,8 @@ export default function DivideLayout({
   const pathname = usePathname()
 
   const navigationItems = [
-    { href: "/utilities/divide/width", label: "Width" },
-    { href: "/utilities/divide/color", label: "Color" },
-    { href: "/utilities/divide/style", label: "Style" },
+    { href: "/utilities/border/divide/width", label: "Width" },
+    { href: "/utilities/border/divide/style", label: "Style" },
   ]
 
   return (

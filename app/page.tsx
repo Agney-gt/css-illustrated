@@ -23,6 +23,7 @@ export default function Home() {
     { title: "Effects", desc: "Shadow, Ring, Outline", href: "/utilities/effects/ring/color", demoClass: "shadow-lg" },
     { title: "Transforms", desc: "Scale, Rotate, Translate, Skew", href: "/utilities/transform/scale", demoClass: "scale-110" },
     { title: "Interactivity", desc: "Cursor, Pointer, Scroll", href: "/utilities/interactivity/cursor", demoClass: "cursor-pointer" },
+    { title: "Typography", desc:"Font, Size, Color",href:"/utilities/typography/font/family",demoClass:"font-light"},
     { title: "Accessibility", desc: "Screen Readers", href: "/utilities/accessibility/screen-readers", demoClass: "sr-only" },
   ]
 

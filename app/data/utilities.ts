@@ -11,6 +11,7 @@ export const categories = [
       { name: "Floats & Clear", href: "/utilities/layout/flows" },
       { name: "Object Fit", href: "/utilities/layout/object/fit" },
       { name: "Object Position", href: "/utilities/layout/object/position" },
+      { name: "Overflow", href: "/utilities/layout/overflow" },
     ],
   },
   {
@@ -18,13 +19,10 @@ export const categories = [
     utilities: [
       { name: "Padding", href: "/utilities/spacing/padding" },
       { name: "Margin", href: "/utilities/spacing/margin" },
-      { name: "Space Between", href: "/utilities/spacing/space-between" },
       { name: "Width", href: "/utilities/sizing/width" },
       { name: "Min Width", href: "/utilities/sizing/min-width" },
       { name: "Max Width", href: "/utilities/sizing/max-width" },
       { name: "Height", href: "/utilities/sizing/height" },
-      { name: "Min Height", href: "/utilities/sizing/min-height" },
-      { name: "Max Height", href: "/utilities/sizing/max-height" },
     ],
   },
   {
@@ -44,15 +42,15 @@ export const categories = [
   {
     name: "Alignment",
     utilities: [
-      { name: "Justify Content", href: "/utilities/justify/content" },
-      { name: "Justify Items", href: "/utilities/justify/items" },
-      { name: "Justify Self", href: "/utilities/justify/self" },
-      { name: "Align Content", href: "/utilities/align/content" },
-      { name: "Align Items", href: "/utilities/align/items" },
-      { name: "Align Self", href: "/utilities/align/self" },
-      { name: "Place Content", href: "/utilities/place/content" },
-      { name: "Place Items", href: "/utilities/place/items" },
-      { name: "Place Self", href: "/utilities/place/self" },
+      { name: "Justify Content", href: "/utilities/alignment/justify/content" },
+      { name: "Justify Items", href: "/utilities/alignment/justify/items" },
+      { name: "Justify Self", href: "/utilities/alignment/justify/self" },
+      { name: "Align Content", href: "/utilities/alignment/align/content" },
+      { name: "Align Items", href: "/utilities/alignment/align/items" },
+      { name: "Align Self", href: "/utilities/alignment/align/self" },
+      { name: "Place Content", href: "/utilities/alignment/place/content" },
+      { name: "Place Items", href: "/utilities/alignment/place/items" },
+      { name: "Place Self", href: "/utilities/alignment/place/self" },
     ],
   },
   {

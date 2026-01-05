@@ -1,63 +1,92 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { PageHero } from "@/components/shared/page-hero"
-import { UtilityGrid } from "@/components/shared/utility-grid"
-import { UtilityPlayground } from "@/components/shared/utility_playground"
-import { ExampleSection, ExampleCard } from "@/components/shared/example-section"
-import { TipsSection } from "@/components/shared/tips-section"
-import { CommonMistakesSection } from "@/components/shared/common-mistakes-section"
-import { MentalModelSection } from "@/components/shared/mental-model-section"
-import { ComparisonTable } from "@/components/shared/comparison-table"
-import { RealWorldExamples } from "@/components/shared/real-world-examples"
-import CodeBlock from "@/app/utilities/components/code-block"
-import { backgroundColorUtilities } from "@/lib/utilities"
+import { useState } from "react";
+import { PageHero } from "@/components/shared/page-hero";
+import { UtilityGrid } from "@/components/shared/utility-grid";
+import { UtilityPlayground } from "@/components/shared/utility_playground";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
+import { TipsSection } from "@/components/shared/tips-section";
+import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
+import { MentalModelSection } from "@/components/shared/mental-model-section";
+import { ComparisonTable } from "@/components/shared/comparison-table";
+import { RealWorldExamples } from "@/components/shared/real-world-examples";
+import CodeBlock from "@/app/utilities/components/code-block";
+import { backgroundColorUtilities } from "@/lib/utilities";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 export default function BgColorPage() {
-  const [selectedColor, setSelectedColor] = useState("bg-blue-600")
-  const [customColors, setCustomColors] = useState("")
-  
-  const utilityItems = backgroundColorUtilities.classes.map(item => ({
+  const [selectedColor, setSelectedColor] = useState("bg-blue-600");
+  const [customColors, setCustomColors] = useState("");
+
+  const utilityItems = backgroundColorUtilities.classes.map((item) => ({
     cls: item.class,
-    desc: item.description
-  }))
+    desc: item.description,
+  }));
 
   const allTailwindColors = [
-    "bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-green-500", 
-    "bg-teal-500", "bg-blue-500", "bg-indigo-500", "bg-purple-500", 
-    "bg-pink-500", "bg-gray-500", "bg-slate-700", "bg-zinc-700",
-    "bg-neutral-700", "bg-stone-700", "bg-white", "bg-black"
-  ]
+    "bg-red-500",
+    "bg-orange-500",
+    "bg-yellow-500",
+    "bg-green-500",
+    "bg-teal-500",
+    "bg-blue-500",
+    "bg-indigo-500",
+    "bg-purple-500",
+    "bg-pink-500",
+    "bg-gray-500",
+    "bg-slate-700",
+    "bg-zinc-700",
+    "bg-neutral-700",
+    "bg-stone-700",
+    "bg-white",
+    "bg-black",
+  ];
 
   const tips = [
-    { bold: "Semantic tokens:", text: "Use bg-background, bg-card for design system consistency" },
-    { bold: "Contrast:", text: "Always ensure text remains readable on colored backgrounds" },
-    { bold: "Hover states:", text: "Add darker/lighter variations for interactive elements" },
-    { bold: "Dark mode:", text: "Use semantic colors that adapt to theme changes" }
-  ]
+    {
+      bold: "Semantic tokens:",
+      text: "Use bg-background, bg-card for design system consistency",
+    },
+    {
+      bold: "Contrast:",
+      text: "Always ensure text remains readable on colored backgrounds",
+    },
+    {
+      bold: "Hover states:",
+      text: "Add darker/lighter variations for interactive elements",
+    },
+    {
+      bold: "Dark mode:",
+      text: "Use semantic colors that adapt to theme changes",
+    },
+  ];
 
   const commonMistakes = [
     {
       title: "Poor color contrast",
-      reason: "Light text on light backgrounds or dark text on dark backgrounds makes content unreadable.",
+      reason:
+        "Light text on light backgrounds or dark text on dark backgrounds makes content unreadable.",
       example: `<div class="bg-gray-100 text-gray-300">❌ Low contrast</div>`,
-      level: "critical" as const
+      level: "critical" as const,
     },
     {
       title: "Hard-coded values",
-      reason: "Avoid absolute colors that don't adapt to themes or accessibility.",
+      reason:
+        "Avoid absolute colors that don't adapt to themes or accessibility.",
       example: `<div class="bg-#FF0000">❌ Hard-coded red</div>`,
-      level: "warning" as const
+      level: "warning" as const,
     },
     {
       title: "Ignoring hover states",
-      reason: "Interactive elements need visual feedback through background changes.",
+      reason:
+        "Interactive elements need visual feedback through background changes.",
       example: `<button class="bg-blue-500">❌ No hover state</button>`,
-      level: "warning" as const
-    }
-  ]
+      level: "warning" as const,
+    },
+  ];
 
   const comparisonData = {
     title: "Background Approaches Comparison",
@@ -65,7 +94,12 @@ export default function BgColorPage() {
     rows: [
       {
         feature: "bg-color",
-        values: ["Specific color", "Direct control", "Check contrast", "Accents, states"],
+        values: [
+          "Specific color",
+          "Direct control",
+          "Check contrast",
+          "Accents, states",
+        ],
       },
       {
         feature: "bg-white/black",
@@ -74,9 +108,9 @@ export default function BgColorPage() {
       {
         feature: "Semantic tokens",
         values: ["Theme-aware", "Indirect", "Automatic", "Design systems"],
-      }
-    ]
-  }
+      },
+    ],
+  };
 
   const realWorldExamples = [
     {
@@ -93,12 +127,18 @@ export default function BgColorPage() {
 </div>`,
       preview: (
         <div className="flex gap-2">
-          <div className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Active</div>
-          <div className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">Error</div>
-          <div className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">Pending</div>
+          <div className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+            Active
+          </div>
+          <div className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">
+            Error
+          </div>
+          <div className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
+            Pending
+          </div>
         </div>
       ),
-      category: "UI Components"
+      category: "UI Components",
     },
     {
       title: "Card System",
@@ -110,10 +150,12 @@ export default function BgColorPage() {
       preview: (
         <div className="bg-card p-4 rounded-lg shadow-md">
           <h3 className="text-sm font-semibold">Card Title</h3>
-          <p className="text-xs text-muted-foreground mt-1">Card content with semantic background</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Card content with semantic background
+          </p>
         </div>
       ),
-      category: "Design Systems"
+      category: "Design Systems",
     },
     {
       title: "Section Backgrounds",
@@ -135,7 +177,7 @@ export default function BgColorPage() {
           </div>
         </div>
       ),
-      category: "Layouts"
+      category: "Layouts",
     },
     {
       title: "Interactive Button",
@@ -148,16 +190,15 @@ export default function BgColorPage() {
           Interactive Button
         </button>
       ),
-      category: "Interactive Elements"
-    }
-  ]
+      category: "Interactive Elements",
+    },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12">
-          <PageHero 
+          <PageHero
             title={backgroundColorUtilities.title}
             description={backgroundColorUtilities.description}
           />
@@ -169,16 +210,13 @@ export default function BgColorPage() {
               "Colors create emotional responses and guide user attention",
               "Semantic tokens (bg-card, bg-background) adapt to themes",
               "Contrast is critical for accessibility and readability",
-              "Hover states provide essential interactive feedback"
+              "Hover states provide essential interactive feedback",
             ]}
             layerAssignment="Background Layer - Visual foundation beneath content"
             browserBehavior="Browser fills element background with solid color or gradient, overriding any default background"
           />
 
-          <UtilityGrid 
-            title="Available Classes"
-            items={utilityItems}
-          />
+          <UtilityGrid title="Available Classes" items={utilityItems} />
 
           <UtilityPlayground
             title="Interactive Playground"
@@ -187,18 +225,24 @@ export default function BgColorPage() {
             defaultValue="bg-blue-600"
             defaultCustomClasses="h-32 w-full flex items-center justify-center text-white font-bold rounded-lg"
             buildMarkup={(colorClass, customClasses = "") => {
-              const classes = [colorClass, customClasses].filter(Boolean).join(" ")
+              const classes = [colorClass, customClasses]
+                .filter(Boolean)
+                .join(" ");
               return `<div class="${classes}">
   Background Color Demo
-</div>`
+</div>`;
             }}
             renderPreview={(colorClass, customClasses = "") => {
-              const classes = [colorClass, customClasses].filter(Boolean).join(" ")
+              const classes = [colorClass, customClasses]
+                .filter(Boolean)
+                .join(" ");
               return (
-                <div className={`text-white font-semibold rounded-lg ${classes}`}>
+                <div
+                  className={`text-white font-semibold rounded-lg ${classes}`}
+                >
                   Background Color Demo
                 </div>
-              )
+              );
             }}
             optionLabel={(value) => value.replace("bg-", "").replace("-", " ")}
           />
@@ -223,18 +267,61 @@ export default function BgColorPage() {
                 </button>
               ))}
             </div>
-            
+
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Selected Color: {selectedColor}</h3>
-              <div className={`h-32 rounded-lg flex items-center justify-center text-white font-bold ${selectedColor}`}>
+              <h3 className="text-lg font-semibold">
+                Selected Color: {selectedColor}
+              </h3>
+              <div
+                className={`h-32 rounded-lg flex items-center justify-center text-white font-bold ${selectedColor}`}
+              >
                 Live Preview
               </div>
             </div>
           </section>
 
+          <InteractiveChallenge
+            title="The Ghost Button"
+            description="You have a primary 'Sign Up' button. The text is set to white (`text-white`), but the background color is missing! This makes the button text invisible against the white card background. Apply `bg-blue-600` to reveal the button and invite interaction."
+            codeSnippet={`<div class="p-8 bg-white rounded-xl shadow-lg text-center">
+  <h2 class="text-xl font-bold mb-4">Join Us Today</h2>
+  
+  <button class="px-6 py-3 rounded-lg text-white font-semibold {input}">
+    Create Account
+  </button>
+</div>`}
+            options={["bg-transparent", "bg-white", "bg-blue-600", "border-2"]}
+            correctOption="bg-blue-600"
+            renderPreview={(userClass) => (
+              <div className="w-full h-64 bg-slate-100 dark:bg-slate-950 flex items-center justify-center p-4">
+                <div className="bg-white dark:bg-slate-900 p-8 rounded-xl shadow-xl text-center w-64 border border-slate-100 dark:border-slate-800">
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6">
+                    Join Us Today
+                  </h3>
+                  <button
+                    className={`px-6 py-3 rounded-lg text-white font-semibold transition-all duration-300 w-full ${userClass} ${
+                      userClass === "bg-transparent" ||
+                      userClass === "bg-white" ||
+                      userClass === "border-2"
+                        ? "ring-2 ring-red-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900" // Highlight error state
+                        : "shadow-md hover:scale-105"
+                    }`}
+                  >
+                    Create Account
+                  </button>
+                  {userClass !== "bg-blue-600" && (
+                    <p className="text-xs text-red-500 mt-2 font-medium">
+                      Where did the button go?
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          />
+
           <ComparisonTable {...comparisonData} />
 
-          <RealWorldExamples 
+          <RealWorldExamples
             title="Real World Examples"
             description="See how background color utilities are used in practical applications."
             examples={realWorldExamples}
@@ -252,8 +339,12 @@ export default function BgColorPage() {
 </div>`}
             >
               <div className="flex gap-2">
-                <div className="bg-green-100 text-green-800 px-3 py-1 rounded text-sm">Success</div>
-                <div className="bg-red-100 text-red-800 px-3 py-1 rounded text-sm">Error</div>
+                <div className="bg-green-100 text-green-800 px-3 py-1 rounded text-sm">
+                  Success
+                </div>
+                <div className="bg-red-100 text-red-800 px-3 py-1 rounded text-sm">
+                  Error
+                </div>
               </div>
             </ExampleCard>
 
@@ -272,7 +363,10 @@ export default function BgColorPage() {
 
           <div className="space-y-6">
             <h2 className="text-3xl font-bold">Code Reference</h2>
-            <CodeBlock language="jsx" code={backgroundColorUtilities.codeSnippet} />
+            <CodeBlock
+              language="jsx"
+              code={backgroundColorUtilities.codeSnippet}
+            />
           </div>
 
           <CommonMistakesSection mistakes={commonMistakes} />
@@ -280,7 +374,6 @@ export default function BgColorPage() {
           <TipsSection tips={tips} />
         </div>
       </main>
-      <Footer />
     </div>
-  )
+  );
 }
