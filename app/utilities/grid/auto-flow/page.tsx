@@ -1,18 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 import CodeBlock from "@/app/utilities/components/code-block";
 import { PageHero } from "@/components/shared/page-hero";
 import { UtilityGrid } from "@/components/shared/utility-grid";
 import { UtilityPlayground } from "@/components/shared/utility_playground";
-import { ExampleSection, ExampleCard } from "@/components/shared/example-section";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
 import { TipsSection } from "@/components/shared/tips-section";
 import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
 import { MentalModelSection } from "@/components/shared/mental-model-section";
 import { ComparisonTable } from "@/components/shared/comparison-table";
 import { RealWorldExamples } from "@/components/shared/real-world-examples";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 type AutoFlow =
   | "grid-flow-row"
@@ -48,10 +50,9 @@ export default function GridAutoFlowPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <Navbar />
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-8">
-          <PageHero 
+          <PageHero
             title="Grid — Auto Flow"
             description="You should reach for auto-flow utilities when you want to control how grid items automatically position themselves without explicit placement. Auto-flow determines the algorithm browsers use to fill empty grid cells — row-first (default), column-first, or dense packing for tighter layouts."
           />
@@ -61,10 +62,10 @@ export default function GridAutoFlowPage() {
             description="Auto-flow is the browser's placement algorithm when you don't specify grid-item positions. It's a layout concern that determines coordinate assignment for automatically placed items."
             features={[
               "Default row flow places items left→right, then wraps to next row",
-              "Column flow places items top→bottom, then wraps to next column", 
+              "Column flow places items top→bottom, then wraps to next column",
               "Dense mode backfills gaps with later items (visual reordering)",
               "Flow algorithm respects explicit grid tracks (grid-template-areas)",
-              "Implicit tracks are created automatically when items exceed defined tracks"
+              "Implicit tracks are created automatically when items exceed defined tracks",
             ]}
             layerAssignment="Layout Layer - Controls automatic item positioning algorithm"
             browserBehavior="Browser evaluates each auto-placed item against current grid state, placing it according to flow direction and optionally filling gaps in dense mode"
@@ -72,24 +73,49 @@ export default function GridAutoFlowPage() {
 
           <ComparisonTable
             title="Grid Flow Modes: Algorithm Behavior"
-            columns={["Flow Mode", "Algorithm", "Visual Order vs DOM", "Best Use Case"]}
+            columns={[
+              "Flow Mode",
+              "Algorithm",
+              "Visual Order vs DOM",
+              "Best Use Case",
+            ]}
             rows={[
               {
                 feature: "grid-flow-row",
-                values: ["Place left→right, wrap down", "Matches DOM order", "Predictable card grids", "Standard layouts"]
+                values: [
+                  "Place left→right, wrap down",
+                  "Matches DOM order",
+                  "Predictable card grids",
+                  "Standard layouts",
+                ],
               },
               {
                 feature: "grid-flow-col",
-                values: ["Place top→bottom, wrap right", "Matches DOM order", "Column-first galleries", "Horizontal scrollers"]
+                values: [
+                  "Place top→bottom, wrap right",
+                  "Matches DOM order",
+                  "Column-first galleries",
+                  "Horizontal scrollers",
+                ],
               },
               {
                 feature: "grid-flow-row-dense",
-                values: ["Row flow + gap fill", "May diverge from DOM", "Tight masonry packing", "Variable-height items"]
+                values: [
+                  "Row flow + gap fill",
+                  "May diverge from DOM",
+                  "Tight masonry packing",
+                  "Variable-height items",
+                ],
               },
               {
                 feature: "grid-flow-col-dense",
-                values: ["Column flow + gap fill", "May diverge from DOM", "Vertical space optimization", "Dashboard widgets"]
-              }
+                values: [
+                  "Column flow + gap fill",
+                  "May diverge from DOM",
+                  "Vertical space optimization",
+                  "Dashboard widgets",
+                ],
+              },
             ]}
           />
 
@@ -97,7 +123,8 @@ export default function GridAutoFlowPage() {
             mistakes={[
               {
                 title: "Using dense mode without accessibility testing",
-                reason: "Dense mode changes visual order while preserving DOM order. Keyboard navigation and screen readers follow DOM order, creating mismatch between what users see and how they navigate.",
+                reason:
+                  "Dense mode changes visual order while preserving DOM order. Keyboard navigation and screen readers follow DOM order, creating mismatch between what users see and how they navigate.",
                 example: `// Layout Layer: Dense mode reorders visually
 <div class="grid grid-cols-3 grid-flow-row-dense gap-4">
   <div>Item 1 (DOM order: 1, visual order: 2)</div>
@@ -109,11 +136,12 @@ export default function GridAutoFlowPage() {
   <div>Item 1 (DOM order: 1, visual order: 1)</div>
   <div>Item 2 (DOM order: 2, visual order: 2)</div>
 </div>`,
-                level: "critical"
+                level: "critical",
               },
               {
                 title: "Auto-flow without explicit grid structure",
-                reason: "Auto-flow needs defined grid tracks to work predictably. Without explicit columns/rows, browsers create implicit tracks that may not match design intent.",
+                reason:
+                  "Auto-flow needs defined grid tracks to work predictably. Without explicit columns/rows, browsers create implicit tracks that may not match design intent.",
                 example: `// Layout Layer: No structure defined
 <div class="grid grid-flow-row">
   <!-- Browser creates single column implicitly -->
@@ -123,11 +151,12 @@ export default function GridAutoFlowPage() {
 <div class="grid grid-cols-3 grid-flow-row gap-4">
   <!-- Auto-flow works within defined 3-column structure -->
 </div>`,
-                level: "warning"
+                level: "warning",
               },
               {
                 title: "Column flow without width constraints",
-                reason: "grid-flow-col can create extremely wide containers. Column flow needs explicit width constraints or overflow handling.",
+                reason:
+                  "grid-flow-col can create extremely wide containers. Column flow needs explicit width constraints or overflow handling.",
                 example: `// Layout Layer: Unbounded width
 <div class="grid grid-cols-4 grid-flow-col gap-4">
   <!-- Container width grows indefinitely -->
@@ -137,8 +166,8 @@ export default function GridAutoFlowPage() {
 <div class="grid grid-cols-4 grid-flow-col gap-4 max-w-4xl overflow-x-auto">
   <!-- Container has maximum width, horizontal scroll if needed -->
 </div>`,
-                level: "warning"
-              }
+                level: "warning",
+              },
             ]}
           />
 
@@ -154,7 +183,7 @@ export default function GridAutoFlowPage() {
               { cls: "grid-cols-3", desc: "Three columns" },
               { cls: "grid-cols-4", desc: "Four columns" },
               { cls: "grid-cols-6", desc: "Six columns" },
-              { cls: "grid-cols-12", desc: "Twelve columns" }
+              { cls: "grid-cols-12", desc: "Twelve columns" },
             ]}
           />
 
@@ -166,7 +195,7 @@ export default function GridAutoFlowPage() {
               "Can flow column-wise (top to bottom) with grid-flow-col",
               "Dense mode packs items into gaps for tighter layouts",
               "Affects visual order but preserves DOM order for accessibility",
-              "Works best with varying item sizes (masonry-style layouts)"
+              "Works best with varying item sizes (masonry-style layouts)",
             ]}
             layerAssignment="Grid Placement Layer - Controls automatic item positioning algorithm"
             browserBehavior="Browser places items according to the flow algorithm, filling rows or columns and optionally backfilling gaps in dense mode"
@@ -174,24 +203,49 @@ export default function GridAutoFlowPage() {
 
           <ComparisonTable
             title="Grid Flow Modes Comparison"
-            columns={["Flow Mode", "Placement Direction", "Best For", "Accessibility Notes"]}
+            columns={[
+              "Flow Mode",
+              "Placement Direction",
+              "Best For",
+              "Accessibility Notes",
+            ]}
             rows={[
               {
                 feature: "grid-flow-row",
-                values: ["Left→right, then wrap", "Card grids, galleries", "Predictable visual order", "DOM and visual order match"]
+                values: [
+                  "Left→right, then wrap",
+                  "Card grids, galleries",
+                  "Predictable visual order",
+                  "DOM and visual order match",
+                ],
               },
               {
-                feature: "grid-flow-col", 
-                values: ["Top→bottom, then wrap", "Horizontal scrollers", "Column-first layouts", "DOM and visual order match"]
+                feature: "grid-flow-col",
+                values: [
+                  "Top→bottom, then wrap",
+                  "Horizontal scrollers",
+                  "Column-first layouts",
+                  "DOM and visual order match",
+                ],
               },
               {
-                feature: "grid-flow-row-dense", 
-                values: ["Row flow + gap fill", "Masonry photos", "Variable height items", "Visual order may differ from DOM"]
+                feature: "grid-flow-row-dense",
+                values: [
+                  "Row flow + gap fill",
+                  "Masonry photos",
+                  "Variable height items",
+                  "Visual order may differ from DOM",
+                ],
               },
               {
-                feature: "grid-flow-col-dense", 
-                values: ["Column flow + gap fill", "Dashboard widgets", "Tight vertical packing", "Visual order may differ from DOM"]
-              }
+                feature: "grid-flow-col-dense",
+                values: [
+                  "Column flow + gap fill",
+                  "Dashboard widgets",
+                  "Tight vertical packing",
+                  "Visual order may differ from DOM",
+                ],
+              },
             ]}
           />
 
@@ -207,25 +261,28 @@ export default function GridAutoFlowPage() {
               { cls: "grid-cols-3", desc: "3 columns" },
               { cls: "grid-cols-4", desc: "4 columns" },
               { cls: "grid-cols-6", desc: "6 columns" },
-              { cls: "grid-cols-12", desc: "12 columns" }
+              { cls: "grid-cols-12", desc: "12 columns" },
             ]}
           />
 
           <CommonMistakesSection
             mistakes={[
               {
-                title: "Using dense mode without considering keyboard navigation",
-                reason: "Dense mode can change visual order while preserving DOM order, causing keyboard navigation to follow a different path than what users see visually.",
+                title:
+                  "Using dense mode without considering keyboard navigation",
+                reason:
+                  "Dense mode can change visual order while preserving DOM order, causing keyboard navigation to follow a different path than what users see visually.",
                 example: `// Problem: Dense mode reorders visually but keyboard follows DOM
 <div class="grid grid-cols-3 grid-flow-row-dense">
   <div>Item 1 (appears second visually)</div>
   <div>Item 2 (appears first visually)</div>
 </div>`,
-                level: "critical"
+                level: "critical",
               },
               {
                 title: "Assuming auto-flow fixes all responsive grid issues",
-                reason: "Auto-flow controls placement, not responsive behavior. You still need responsive grid-cols- utilities for proper breakpoints.",
+                reason:
+                  "Auto-flow controls placement, not responsive behavior. You still need responsive grid-cols- utilities for proper breakpoints.",
                 example: `// Problem: No responsive columns
 <div class="grid grid-cols-4 grid-flow-row">
   <!-- 4 columns on mobile too small -->
@@ -235,11 +292,12 @@ export default function GridAutoFlowPage() {
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 grid-flow-row">
   <!-- Adapts to viewport -->
 </div>`,
-                level: "warning"
+                level: "warning",
               },
               {
                 title: "Using column flow without overflow handling",
-                reason: "Grid-flow-col can create very wide containers that overflow horizontally without proper sizing or overflow handling.",
+                reason:
+                  "Grid-flow-col can create very wide containers that overflow horizontally without proper sizing or overflow handling.",
                 example: `// Problem: Column flow may overflow
 <div class="grid grid-cols-3 grid-flow-col">
   <!-- Can exceed container width -->
@@ -249,8 +307,8 @@ export default function GridAutoFlowPage() {
 <div class="grid grid-cols-3 grid-flow-col overflow-x-auto">
   <!-- Horizontal scroll if needed -->
 </div>`,
-                level: "warning"
-              }
+                level: "warning",
+              },
             ]}
           />
 
@@ -449,6 +507,83 @@ export default function GridAutoFlowPage() {
               </div>
             </aside>
           </section>
+
+          <InteractiveChallenge
+            title="The Swiss Cheese Layout"
+            description="We have a 3-column grid. Because the 'Featured' item is 2 columns wide, it can't fit in the remaining space of the first row, so it drops down, leaving an ugly gap. Change the flow to `grid-flow-row-dense` to force the later items (3 & 4) to jump back up and fill that empty space."
+            codeSnippet={`<div class="grid grid-cols-3 {input} gap-4 auto-rows-[80px]">
+  <div class="bg-slate-700 rounded-xl">1</div>
+  <div class="bg-slate-700 rounded-xl">2</div>
+
+  <div class="col-span-2 row-span-2 bg-indigo-600 rounded-xl">
+    Featured
+  </div>
+
+  <div class="bg-slate-700 rounded-xl">3</div>
+  <div class="bg-slate-700 rounded-xl">4</div>
+</div>`}
+            options={[
+              "grid-flow-row",
+              "grid-flow-col",
+              "grid-flow-col-dense",
+              "grid-flow-row-dense",
+            ]}
+            correctOption="grid-flow-row-dense"
+            renderPreview={(userClass) => {
+              const isDense = userClass === "grid-flow-row-dense";
+              return (
+                <div className="flex items-center justify-center w-full h-full bg-slate-100 dark:bg-slate-950 p-8 rounded-lg overflow-hidden">
+                  <div
+                    className={`grid grid-cols-3 gap-4 w-full max-w-sm auto-rows-[80px] transition-all duration-500 relative ${userClass}`}
+                  >
+                    {/* Visualizing the Gap (Only visible when NOT dense) */}
+                    {!isDense && userClass === "grid-flow-row" && (
+                      <div className="absolute top-0 right-0 w-[31%] h-[80px] border-2 border-dashed border-red-400/50 bg-red-400/10 rounded-xl flex items-center justify-center pointer-events-none animate-pulse">
+                        <span className="text-red-500 text-xs font-bold font-mono">
+                          GAP
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="bg-slate-700 dark:bg-slate-800 rounded-xl p-4 text-white flex items-center justify-center font-mono text-xl shadow-sm">
+                      1
+                    </div>
+                    <div className="bg-slate-700 dark:bg-slate-800 rounded-xl p-4 text-white flex items-center justify-center font-mono text-xl shadow-sm">
+                      2
+                    </div>
+
+                    {/* Featured Item */}
+                    <div className="col-span-2 row-span-2 bg-indigo-600 rounded-xl p-4 text-white font-bold text-lg flex items-center justify-center shadow-lg z-10">
+                      Featured
+                    </div>
+
+                    {/* Backfill Candidates */}
+                    <div
+                      className={`
+                      rounded-xl p-4 text-white flex items-center justify-center font-mono text-xl shadow-sm transition-colors duration-500
+                      ${
+                        isDense
+                          ? "bg-green-600 border-2 border-green-400"
+                          : "bg-slate-700 dark:bg-slate-800"
+                      }
+                    `}
+                    >
+                      3
+                      {isDense && (
+                        <span className="ml-2 text-[10px] uppercase font-bold text-green-200">
+                          (Moved)
+                        </span>
+                      )}
+                    </div>
+                    <div className="bg-slate-700 dark:bg-slate-800 rounded-xl p-4 text-white flex items-center justify-center font-mono text-xl shadow-sm">
+                      4
+                    </div>
+                  </div>
+                </div>
+              );
+            }}
+          />
+
           {/* Visual examples section (auto-flow focused) */}
           <section className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Visual examples — auto flow</h2>
@@ -969,12 +1104,24 @@ export default function GridAutoFlowPage() {
             >
               <div className="bg-slate-800 rounded p-3 overflow-auto">
                 <div className="grid grid-cols-4 grid-flow-col-dense gap-3">
-                  <div className="h-24 bg-slate-700 rounded p-2 text-white text-xs">Metric</div>
-                  <div className="h-48 bg-slate-700 rounded p-2 text-white text-xs">Tall Chart</div>
-                  <div className="h-32 bg-slate-700 rounded p-2 text-white text-xs">Widget</div>
-                  <div className="h-20 bg-slate-700 rounded p-2 text-white text-xs">Short</div>
-                  <div className="h-36 bg-slate-700 rounded p-2 text-white text-xs">Medium</div>
-                  <div className="h-28 bg-slate-700 rounded p-2 text-white text-xs">Card</div>
+                  <div className="h-24 bg-slate-700 rounded p-2 text-white text-xs">
+                    Metric
+                  </div>
+                  <div className="h-48 bg-slate-700 rounded p-2 text-white text-xs">
+                    Tall Chart
+                  </div>
+                  <div className="h-32 bg-slate-700 rounded p-2 text-white text-xs">
+                    Widget
+                  </div>
+                  <div className="h-20 bg-slate-700 rounded p-2 text-white text-xs">
+                    Short
+                  </div>
+                  <div className="h-36 bg-slate-700 rounded p-2 text-white text-xs">
+                    Medium
+                  </div>
+                  <div className="h-28 bg-slate-700 rounded p-2 text-white text-xs">
+                    Card
+                  </div>
                 </div>
               </div>
             </ExampleCard>
@@ -993,33 +1140,64 @@ export default function GridAutoFlowPage() {
             >
               <div className="bg-slate-800 rounded p-3 overflow-auto">
                 <div className="grid grid-cols-4 grid-flow-col gap-3">
-                  <div className="px-3 py-2 bg-blue-600 rounded text-white text-xs text-center">Home</div>
-                  <div className="px-3 py-2 bg-slate-600 rounded text-white text-xs text-center">About</div>
-                  <div className="px-3 py-2 bg-slate-600 rounded text-white text-xs text-center">Services</div>
-                  <div className="px-3 py-2 bg-slate-600 rounded text-white text-xs text-center">Contact</div>
-                  <div className="px-3 py-2 bg-slate-600 rounded text-white text-xs text-center">Portfolio</div>
-                  <div className="px-3 py-2 bg-slate-600 rounded text-white text-xs text-center">Blog</div>
+                  <div className="px-3 py-2 bg-blue-600 rounded text-white text-xs text-center">
+                    Home
+                  </div>
+                  <div className="px-3 py-2 bg-slate-600 rounded text-white text-xs text-center">
+                    About
+                  </div>
+                  <div className="px-3 py-2 bg-slate-600 rounded text-white text-xs text-center">
+                    Services
+                  </div>
+                  <div className="px-3 py-2 bg-slate-600 rounded text-white text-xs text-center">
+                    Contact
+                  </div>
+                  <div className="px-3 py-2 bg-slate-600 rounded text-white text-xs text-center">
+                    Portfolio
+                  </div>
+                  <div className="px-3 py-2 bg-slate-600 rounded text-white text-xs text-center">
+                    Blog
+                  </div>
                 </div>
               </div>
             </ExampleCard>
           </ExampleSection>
 
-          <TipsSection 
+          <TipsSection
             tips={[
-              { bold: "Accessibility first:", text: "Dense mode changes visual order - test with keyboard and screen readers. Use semantic markup when order matters." },
-              { bold: "Explicit tracks:", text: "Always define grid-cols-* or grid-rows-* for predictable auto-flow behavior." },
-              { bold: "Width constraints:", text: "grid-flow-col needs width limits or overflow handling to prevent horizontal overflow." },
-              { bold: "Performance:", text: "Dense mode requires more placement calculations - avoid on very large grids." },
-              { bold: "Responsive flow:", text: "Consider different flow modes at different breakpoints (e.g., row-flow on mobile, col-flow on desktop)." }
+              {
+                bold: "Accessibility first:",
+                text: "Dense mode changes visual order - test with keyboard and screen readers. Use semantic markup when order matters.",
+              },
+              {
+                bold: "Explicit tracks:",
+                text: "Always define grid-cols-* or grid-rows-* for predictable auto-flow behavior.",
+              },
+              {
+                bold: "Width constraints:",
+                text: "grid-flow-col needs width limits or overflow handling to prevent horizontal overflow.",
+              },
+              {
+                bold: "Performance:",
+                text: "Dense mode requires more placement calculations - avoid on very large grids.",
+              },
+              {
+                bold: "Responsive flow:",
+                text: "Consider different flow modes at different breakpoints (e.g., row-flow on mobile, col-flow on desktop).",
+              },
             ]}
           />
 
           <div className="border border-yellow-500/30 rounded-lg p-6 bg-yellow-50/30 dark:bg-yellow-900/10">
-            <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-400 mb-4">🎯 Pre-Ship Checklist</h3>
-            
+            <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-400 mb-4">
+              🎯 Pre-Ship Checklist
+            </h3>
+
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-semibold text-sm mb-3">Layout Layer Verification</h4>
+                <h4 className="font-semibold text-sm mb-3">
+                  Layout Layer Verification
+                </h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start">
                     <input type="checkbox" className="mt-1 mr-2" readOnly />
@@ -1035,13 +1213,17 @@ export default function GridAutoFlowPage() {
                   </li>
                   <li className="flex items-start">
                     <input type="checkbox" className="mt-1 mr-2" readOnly />
-                    <span>Responsive breakpoints defined for different screen sizes?</span>
+                    <span>
+                      Responsive breakpoints defined for different screen sizes?
+                    </span>
                   </li>
                 </ul>
               </div>
-              
+
               <div>
-                <h4 className="font-semibold text-sm mb-3">Content & Accessibility</h4>
+                <h4 className="font-semibold text-sm mb-3">
+                  Content & Accessibility
+                </h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start">
                     <input type="checkbox" className="mt-1 mr-2" readOnly />
@@ -1053,11 +1235,15 @@ export default function GridAutoFlowPage() {
                   </li>
                   <li className="flex items-start">
                     <input type="checkbox" className="mt-1 mr-2" readOnly />
-                    <span>Focus indicators visible on all interactive items?</span>
+                    <span>
+                      Focus indicators visible on all interactive items?
+                    </span>
                   </li>
                   <li className="flex items-start">
                     <input type="checkbox" className="mt-1 mr-2" readOnly />
-                    <span>Touch targets meet minimum size (44px) for mobile?</span>
+                    <span>
+                      Touch targets meet minimum size (44px) for mobile?
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -1065,7 +1251,6 @@ export default function GridAutoFlowPage() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

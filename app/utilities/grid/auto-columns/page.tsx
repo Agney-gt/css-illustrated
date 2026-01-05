@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 import CodeBlock from "@/app/utilities/components/code-block";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 type AutoColsMode =
   | "auto-cols-min"
@@ -54,7 +53,6 @@ export default function GridAutoColumnsPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
           {/* Header */}
@@ -309,6 +307,53 @@ export default function GridAutoColumnsPage() {
               </div>
             </div>
           </div>
+
+          <InteractiveChallenge
+            title="The Squished Carousel"
+            description="You are building a horizontal product carousel. Currently, the items are sized based on their content (`auto-cols-auto`), making them uneven. Apply `auto-cols-fr` to force all items to have equal width, creating a uniform, professional look."
+            codeSnippet={`<div class="grid grid-flow-col {input} gap-4 overflow-x-auto">
+  <div class="bg-white p-4 rounded shadow w-48">Product A</div>
+  <div class="bg-white p-4 rounded shadow w-48">Product B (Best Seller)</div>
+  <div class="bg-white p-4 rounded shadow w-48">Product C</div>
+  <div class="bg-white p-4 rounded shadow w-48">Product D</div>
+</div>`}
+            options={[
+              "auto-cols-auto",
+              "auto-cols-fr",
+              "auto-cols-min",
+              "auto-cols-max",
+            ]}
+            correctOption="auto-cols-fr"
+            renderPreview={(userClass) => (
+              <div className="flex items-center justify-center w-full h-full bg-slate-100 dark:bg-slate-950 p-8 rounded-lg overflow-hidden">
+                <div className="w-full max-w-lg bg-slate-200 dark:bg-slate-900 p-4 rounded-xl border border-slate-300 dark:border-slate-800 overflow-x-auto">
+                  <div className={`grid grid-flow-col gap-4 ${userClass}`}>
+                    {[
+                      { name: "Basic", price: "$9" },
+                      { name: "Pro (Best Value)", price: "$29" },
+                      { name: "Enterprise", price: "$99" },
+                      { name: "Custom", price: "Contact" },
+                    ].map((item, i) => (
+                      <div
+                        key={i}
+                        className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm min-w-[120px] flex flex-col items-center text-center transition-all duration-500"
+                      >
+                        <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-2 font-bold">
+                          {i + 1}
+                        </div>
+                        <h4 className="font-bold text-slate-800 dark:text-white text-sm mb-1">
+                          {item.name}
+                        </h4>
+                        <div className="text-slate-500 text-xs">
+                          {item.price}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          />
 
           {/* Real-world examples with visuals */}
           <div className="space-y-6 border-t border-border pt-8">
@@ -678,7 +723,6 @@ export default function GridAutoColumnsPage() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }
