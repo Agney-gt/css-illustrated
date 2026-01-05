@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 import { PageHero } from "@/components/shared/page-hero";
 import { UtilityGrid } from "@/components/shared/utility-grid";
 import { UtilityPlayground } from "@/components/shared/utility_playground";
@@ -138,7 +136,7 @@ export default function GradientStopsPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
+
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12">
           <PageHero
@@ -289,7 +287,7 @@ export default function GradientStopsPage() {
           <TipsSection tips={tips} />
         </div>
       </main>
-      <Footer />
+
     </div>
   );
 }
