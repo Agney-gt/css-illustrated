@@ -13,25 +13,19 @@ export default function RingLayout({
           <h2 className="text-lg font-semibold text-foreground mb-3">Ring Utilities</h2>
           <div className="flex gap-2 flex-wrap">
             <Link
-              href="/utilities/ring/width"
-              className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
-            >
-              Width
-            </Link>
-            <Link
-              href="/utilities/ring/color"
+              href="/utilities/effects/ring/color"
               className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
             >
               Color
             </Link>
             <Link
-              href="/utilities/ring/offset-width"
+              href="/utilities/effects/ring/offset-width"
               className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
             >
               Offset Width
             </Link>
             <Link
-              href="/utilities/ring/offset-color"
+              href="/utilities/effects/ring/offset-color"
               className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
             >
               Offset Color
