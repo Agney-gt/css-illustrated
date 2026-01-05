@@ -4,12 +4,16 @@ import { useState } from "react";
 import { PageHero } from "@/components/shared/page-hero";
 import { UtilityGrid } from "@/components/shared/utility-grid";
 import { UtilityPlayground } from "@/components/shared/utility_playground";
-import { ExampleSection, ExampleCard } from "@/components/shared/example-section";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
 import { TipsSection } from "@/components/shared/tips-section";
 import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
 import { MentalModelSection } from "@/components/shared/mental-model-section";
 import { ComparisonTable } from "@/components/shared/comparison-table";
 import CodeBlock from "../../components/code-block";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 export default function JustifyContentPage() {
   const justifyClasses = [
@@ -25,16 +29,25 @@ export default function JustifyContentPage() {
 
   // Detailed explanations per class
   const explanations: Record<string, string> = {
-    "justify-start": "Aligns items to the left side of the container. Useful when you want content to start from the beginning without spacing.",
-    "justify-center": "Centers all items horizontally in the container. Ideal for creating balanced layouts where items are in the middle.",
-    "justify-end": "Aligns items to the right side of the container. Perfect for placing buttons or elements at the end of a row.",
-    "justify-between": "Distributes items evenly with space between them. Great for layouts where first and last items are at edges and others spread out.",
-    "justify-around": "Distributes items with equal space around them, creating consistent spacing on both sides of each item.",
-    "justify-evenly": "Distributes items so the spaces between them, as well as at the edges, are equal, giving a very uniform look.",
+    "justify-start":
+      "Aligns items to the left side of the container. Useful when you want content to start from the beginning without spacing.",
+    "justify-center":
+      "Centers all items horizontally in the container. Ideal for creating balanced layouts where items are in the middle.",
+    "justify-end":
+      "Aligns items to the right side of the container. Perfect for placing buttons or elements at the end of a row.",
+    "justify-between":
+      "Distributes items evenly with space between them. Great for layouts where first and last items are at edges and others spread out.",
+    "justify-around":
+      "Distributes items with equal space around them, creating consistent spacing on both sides of each item.",
+    "justify-evenly":
+      "Distributes items so the spaces between them, as well as at the edges, are equal, giving a very uniform look.",
   };
 
   // Examples per class
-  const examplesData: Record<string, { title: string; note: string; code: string }[]> = {
+  const examplesData: Record<
+    string,
+    { title: string; note: string; code: string }[]
+  > = {
     "justify-start": [
       {
         title: "Basic Left Alignment",
@@ -310,101 +323,111 @@ export default function JustifyContentPage() {
     ],
   };
 
-  const commonMistakes: Record<string, Array<{ title: string; reason: string; example: string }>> = {
+  const commonMistakes: Record<
+    string,
+    Array<{ title: string; reason: string; example: string }>
+  > = {
     "justify-start": [
       {
         title: "Not applying flex container",
-        reason: "Without `display: flex` on the container, justify-* utilities won't work.",
+        reason:
+          "Without `display: flex` on the container, justify-* utilities won't work.",
         example: `<div class="justify-start">This won't work</div>
 <!-- Should be -->
-<div class="flex justify-start">This works</div>`
+<div class="flex justify-start">This works</div>`,
       },
       {
         title: "Conflicting margin utilities",
-        reason: "Adding margin-auto or fixed margins can override justify behavior.",
+        reason:
+          "Adding margin-auto or fixed margins can override justify behavior.",
         example: `<div class="flex justify-start">
   <div class="ml-auto">This ignores justify-start</div>
-</div>`
-      }
+</div>`,
+      },
     ],
     "justify-center": [
       {
         title: "Missing flex context",
-        reason: "Forgetting to add `flex` class to the container prevents centering.",
+        reason:
+          "Forgetting to add `flex` class to the container prevents centering.",
         example: `<div class="justify-center">Not centered</div>
 <!-- Should be -->
-<div class="flex justify-center">Centered</div>`
+<div class="flex justify-center">Centered</div>`,
       },
       {
         title: "Mixing with auto margins",
         reason: "Using `ml-auto` or `mr-auto` conflicts with centering.",
         example: `<div class="flex justify-center">
   <div class="mr-auto">This breaks centering</div>
-</div>`
-      }
+</div>`,
+      },
     ],
     "justify-end": [
       {
         title: "Using float instead",
-        reason: "Using legacy float properties won't work with flexbox justify.",
+        reason:
+          "Using legacy float properties won't work with flexbox justify.",
         example: `<div class="float-right">Old approach</div>
 <!-- Should be -->
 <div class="flex justify-end">
   <div>Flex approach</div>
-</div>`
+</div>`,
       },
       {
         title: "Overlapping with other spacing",
-        reason: "Combining justify-end with gap utilities might create unexpected spacing.",
+        reason:
+          "Combining justify-end with gap utilities might create unexpected spacing.",
         example: `<div class="flex justify-end gap-8">
   <!-- Items may not reach the edge due to gap -->
-</div>`
-      }
+</div>`,
+      },
     ],
     "justify-between": [
       {
         title: "Too many items",
-        reason: "With many items, justify-between might make edge items less visually distinct.",
+        reason:
+          "With many items, justify-between might make edge items less visually distinct.",
         example: `<div class="flex justify-between">
   <!-- 10+ items might crowd edges -->
 </div>
-<!-- Consider using gap utilities for better spacing -->`
+<!-- Consider using gap utilities for better spacing -->`,
       },
       {
         title: "Ignoring gap utilities",
         reason: "Without gap, items might be too close together in the middle.",
         example: `<div class="flex justify-between">Items too close</div>
 <!-- Better -->
-<div class="flex justify-between gap-4">Properly spaced</div>`
-      }
+<div class="flex justify-between gap-4">Properly spaced</div>`,
+      },
     ],
     "justify-around": [
       {
         title: "Small container width",
         reason: "In narrow containers, justify-around might look uneven.",
-        example: `<div class="flex justify-around w-32">May look cramped</div>`
+        example: `<div class="flex justify-around w-32">May look cramped</div>`,
       },
       {
         title: "Nested flex containers",
-        reason: "Using nested justify-around can create confusing spacing patterns.",
+        reason:
+          "Using nested justify-around can create confusing spacing patterns.",
         example: `<div class="flex justify-around">
   <div class="flex justify-around">Double spacing confusion</div>
-</div>`
-      }
+</div>`,
+      },
     ],
     "justify-evenly": [
       {
         title: "Combining with gap utilities",
         reason: "Mixing justify-evenly with gap-* doubles the spacing.",
         example: `<div class="flex justify-evenly gap-4">Too much space</div>
-<!-- Use either justify-evenly OR gap utilities -->`
+<!-- Use either justify-evenly OR gap utilities -->`,
       },
       {
         title: "Ignoring padding/margins",
         reason: "Container padding can break the visual evenness.",
-        example: `<div class="flex justify-evenly p-8">Padding skews evenness</div>`
-      }
-    ]
+        example: `<div class="flex justify-evenly p-8">Padding skews evenness</div>`,
+      },
+    ],
   };
 
   const renderDiagram = (cls: string) => {
@@ -412,11 +435,14 @@ export default function JustifyContentPage() {
       "justify-",
       ""
     )} items-center gap-2`;
-    const block = "bg-blue-500 w-16 h-16 flex items-center justify-center text-white font-semibold";
+    const block =
+      "bg-blue-500 w-16 h-16 flex items-center justify-center text-white font-semibold";
 
     return (
       <div className="border border-border rounded-lg p-6 bg-slate-900 text-white text-center">
-        <p className="font-semibold">Visual representation of <code>{cls}</code></p>
+        <p className="font-semibold">
+          Visual representation of <code>{cls}</code>
+        </p>
         <div className={`mt-4 ${containerClasses}`}>
           <div className={block}>1</div>
           <div className={block}>2</div>
@@ -429,7 +455,7 @@ export default function JustifyContentPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
-        <PageHero 
+        <PageHero
           title="Justify Content Utilities"
           description="Complete guide to CSS justify-content utilities for flexbox layouts. Master horizontal alignment of flex items with start, center, end, between, around, and evenly options."
         />
@@ -443,7 +469,7 @@ export default function JustifyContentPage() {
             "Controls main axis alignment (horizontal by default)",
             "Six main values: start, center, end, between, around, evenly",
             "Essential for responsive design and component layouts",
-            "Interacts with gap utilities for precise spacing control"
+            "Interacts with gap utilities for precise spacing control",
           ]}
           layerAssignment="Flexbox Layout Layer - Main axis alignment and space distribution"
           browserBehavior="Browser calculates available space and distributes items according to the specified alignment rule"
@@ -451,32 +477,61 @@ export default function JustifyContentPage() {
 
         <ComparisonTable
           title="Justify Content Properties Comparison"
-          columns={["Utility", "Alignment Behavior", "Space Distribution", "Best Use Cases"]}
+          columns={[
+            "Utility",
+            "Alignment Behavior",
+            "Space Distribution",
+            "Best Use Cases",
+          ]}
           rows={[
             {
               feature: "justify-start",
-              values: ["Items to left edge", "No space distribution", "Left-aligned nav, forms"]
+              values: [
+                "Items to left edge",
+                "No space distribution",
+                "Left-aligned nav, forms",
+              ],
             },
             {
-              feature: "justify-center", 
-              values: ["Items centered", "Equal left/right space", "Modal content, centered sections"]
+              feature: "justify-center",
+              values: [
+                "Items centered",
+                "Equal left/right space",
+                "Modal content, centered sections",
+              ],
             },
             {
-              feature: "justify-end", 
-              values: ["Items to right edge", "No space distribution", "Right-aligned buttons, toolbars"]
+              feature: "justify-end",
+              values: [
+                "Items to right edge",
+                "No space distribution",
+                "Right-aligned buttons, toolbars",
+              ],
             },
             {
-              feature: "justify-between", 
-              values: ["Items spread out", "Space between only", "Headers, button groups at edges"]
+              feature: "justify-between",
+              values: [
+                "Items spread out",
+                "Space between only",
+                "Headers, button groups at edges",
+              ],
             },
             {
-              feature: "justify-around", 
-              values: ["Items with space around", "Equal space around each", "Distributed navigation, spaced cards"]
+              feature: "justify-around",
+              values: [
+                "Items with space around",
+                "Equal space around each",
+                "Distributed navigation, spaced cards",
+              ],
             },
             {
-              feature: "justify-evenly", 
-              values: ["Perfectly even spacing", "Equal space everywhere", "Symmetric layouts, evenly spaced buttons"]
-            }
+              feature: "justify-evenly",
+              values: [
+                "Perfectly even spacing",
+                "Equal space everywhere",
+                "Symmetric layouts, evenly spaced buttons",
+              ],
+            },
           ]}
         />
 
@@ -488,13 +543,16 @@ export default function JustifyContentPage() {
             { cls: "justify-end", desc: "Align to right edge" },
             { cls: "justify-between", desc: "Space between items" },
             { cls: "justify-around", desc: "Space around items" },
-            { cls: "justify-evenly", desc: "Equal space everywhere" }
+            { cls: "justify-evenly", desc: "Equal space everywhere" },
           ]}
         />
 
         <section className="space-y-6 border-t border-border pt-8">
           <h2 className="text-3xl font-bold">Interactive Playground</h2>
-          <p className="text-muted-foreground">Experiment with different justify-content values and see how they affect item alignment.</p>
+          <p className="text-muted-foreground">
+            Experiment with different justify-content values and see how they
+            affect item alignment.
+          </p>
 
           <div className="flex gap-4 mb-6 flex-wrap">
             {justifyClasses.map((cls) => (
@@ -529,7 +587,7 @@ export default function JustifyContentPage() {
   <div class="w-16 h-16 bg-blue-500"></div>
   <div class="w-16 h-16 bg-blue-500"></div>
   <div class="w-16 h-16 bg-blue-500"></div>
-</div>`
+</div>`;
           }}
           renderPreview={(justifyClass) => {
             const containerClass = `flex ${justifyClass} gap-4 p-4 border border-border rounded`;
@@ -539,8 +597,42 @@ export default function JustifyContentPage() {
                 <div className="w-16 h-16 bg-blue-500 rounded"></div>
                 <div className="w-16 h-16 bg-blue-500 rounded"></div>
               </div>
-            )
+            );
           }}
+        />
+
+        <InteractiveChallenge
+          title="The Unbalanced Navbar"
+          description="This navigation bar has a logo on the left and a 'Sign In' button on the right, but they are currently bunching up on the left side (`justify-start`). Change the justification to `justify-between` to push them to the far edges of the container."
+          codeSnippet={`<nav class="flex {input} items-center p-4 bg-slate-900 text-white w-full rounded-xl">
+  <div class="font-bold text-xl">Brand</div>
+  
+  <button class="bg-blue-600 px-4 py-2 rounded text-sm font-bold">
+    Sign In
+  </button>
+</nav>`}
+          options={[
+            "justify-start",
+            "justify-center",
+            "justify-end",
+            "justify-between",
+          ]}
+          correctOption="justify-between"
+          renderPreview={(userClass) => (
+            <div className="flex items-center justify-center w-full h-full bg-slate-100 dark:bg-slate-950 p-8 rounded-lg">
+              <nav
+                className={`flex ${userClass} items-center p-4 bg-slate-900 text-white w-full max-w-md rounded-xl shadow-xl transition-all duration-500`}
+              >
+                <div className="font-bold text-xl flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-blue-500"></div>
+                  Brand
+                </div>
+                <button className="bg-blue-600 hover:bg-blue-700 transition-colors px-4 py-2 rounded text-sm font-bold shadow-md">
+                  Sign In
+                </button>
+              </nav>
+            </div>
+          )}
         />
 
         <ExampleSection title="Real-World Examples">
@@ -551,7 +643,17 @@ export default function JustifyContentPage() {
               description={ex.note}
               code={ex.code}
             >
-              <div dangerouslySetInnerHTML={{ __html: ex.code.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/class="/g, 'class="bg-gray-100 p-2 rounded text-gray-800 ') }} />
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: ex.code
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(
+                      /class="/g,
+                      'class="bg-gray-100 p-2 rounded text-gray-800 '
+                    ),
+                }}
+              />
             </ExampleCard>
           ))}
         </ExampleSection>
@@ -561,13 +663,28 @@ export default function JustifyContentPage() {
           mistakes={commonMistakes[activeClass]}
         />
 
-        <TipsSection 
+        <TipsSection
           tips={[
-            { bold: "Always use flex:", text: "Justify-content only works on flex containers" },
-            { bold: "Combine with gap:", text: "Use gap utilities for better spacing between items" },
-            { bold: "Responsive alignment:", text: "Change justify values at different breakpoints" },
-            { bold: "Vertical alignment:", text: "Use align-items for cross-axis alignment" },
-            { bold: "Container width matters:", text: "Justify behavior depends on available space" }
+            {
+              bold: "Always use flex:",
+              text: "Justify-content only works on flex containers",
+            },
+            {
+              bold: "Combine with gap:",
+              text: "Use gap utilities for better spacing between items",
+            },
+            {
+              bold: "Responsive alignment:",
+              text: "Change justify values at different breakpoints",
+            },
+            {
+              bold: "Vertical alignment:",
+              text: "Use align-items for cross-axis alignment",
+            },
+            {
+              bold: "Container width matters:",
+              text: "Justify behavior depends on available space",
+            },
           ]}
         />
       </div>
