@@ -1,14 +1,16 @@
-"use client" 
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { PageHero } from "@/components/shared/page-hero"
-import { UtilityGrid } from "@/components/shared/utility-grid"
-import { UtilityPlayground } from "@/components/shared/utility_playground"
-import { MentalModelSection } from "@/components/shared/mental-model-section"
-import { CommonMistakesSection } from "@/components/shared/common-mistakes-section"
-import { ComparisonTable } from "@/components/shared/comparison-table"
-import { ExampleSection, ExampleCard } from "@/components/shared/example-section"
-import { TipsSection } from "@/components/shared/tips-section"
+"use client";
+import { PageHero } from "@/components/shared/page-hero";
+import { UtilityGrid } from "@/components/shared/utility-grid";
+import { UtilityPlayground } from "@/components/shared/utility_playground";
+import { MentalModelSection } from "@/components/shared/mental-model-section";
+import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
+import { ComparisonTable } from "@/components/shared/comparison-table";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
+import { TipsSection } from "@/components/shared/tips-section";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 const breakAfterClasses = [
   { cls: "break-after-auto", desc: "Auto break behavior" },
@@ -19,12 +21,11 @@ const breakAfterClasses = [
   { cls: "break-after-left", desc: "Break to left page" },
   { cls: "break-after-right", desc: "Break to right page" },
   { cls: "break-after-column", desc: "Break to next column" },
-]
+];
 
 export default function BreakAfterPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12">
           {/* Hero Section */}
@@ -41,7 +42,7 @@ export default function BreakAfterPage() {
               "Breaks are hints, not commands - browsers may ignore them",
               "Only works in paginated contexts (print, columns, multi-page apps)",
               "Affects content flow, not element positioning",
-              "Different from CSS 'page-break-after' but conceptually similar"
+              "Different from CSS 'page-break-after' but conceptually similar",
             ]}
             layerAssignment="Layout layer - controls content flow and pagination in multi-column or print contexts"
             browserBehavior="Browsers create a 'fragmentation context' when content needs to be split across pages/columns. Break utilities insert hints into this context."
@@ -60,9 +61,9 @@ export default function BreakAfterPage() {
             description="See how different break-after values affect content flow in multi-column layouts. Notice how breaks only work when the container has a fragmentation context."
             options={[
               "break-after-auto",
-              "break-after-avoid", 
               "break-after-column",
-              "break-after-page"
+              "break-after-page",
+              "break-after-avoid",
             ]}
             defaultValue="break-after-auto"
             buildMarkup={(value) => `<div class="columns-2 gap-4 max-w-lg">
@@ -72,13 +73,80 @@ export default function BreakAfterPage() {
 </div>`}
             renderPreview={(value) => (
               <div className="columns-2 gap-4 max-w-lg">
-                <p className="p-3 bg-slate-100 rounded text-sm">First column content that demonstrates how text flows naturally across column boundaries when no explicit break is specified.</p>
-                <p className={`${value} p-3 bg-blue-100 rounded text-sm`}>This element tries to break after itself</p>
-                <p className="p-3 bg-slate-100 rounded text-sm">More content that would normally continue flowing</p>
-                <p className="p-3 bg-slate-100 rounded text-sm">Additional text to show flow behavior</p>
+                <p className="p-3 bg-slate-100 rounded text-sm">
+                  First column content that demonstrates how text flows
+                  naturally across column boundaries when no explicit break is
+                  specified.
+                </p>
+                <p className={`${value} p-3 bg-blue-100 rounded text-sm`}>
+                  This element tries to break after itself
+                </p>
+                <p className="p-3 bg-slate-100 rounded text-sm">
+                  More content that would normally continue flowing
+                </p>
+                <p className="p-3 bg-slate-100 rounded text-sm">
+                  Additional text to show flow behavior
+                </p>
               </div>
             )}
-            optionLabel={(v) => v.replace('break-after-', '')}
+            optionLabel={(v) => v.replace("break-after-", "")}
+          />
+
+          <InteractiveChallenge
+            title="The Orphaned Heading"
+            description="You have a 2-column layout. A heading ('Chapter 2') is stuck at the very bottom of the first column, while its text starts in the second column. This is bad typography. Use `break-after-avoid` on the heading to force it to jump to the next column with its text."
+            codeSnippet={`<div class="columns-2 gap-4 h-40">
+  <p>Chapter 1 content...</p>
+  <p>More content...</p>
+  
+  <h3 class="font-bold text-lg bg-yellow-100 {input}">
+    Chapter 2
+  </h3>
+  
+  <p>Chapter 2 text starts here...</p>
+</div>`}
+            options={[
+              "break-after-auto",
+              "break-after-column",
+              "break-after-page",
+              "break-after-avoid",
+            ]}
+            correctOption="break-after-avoid"
+            renderPreview={(userClass) => (
+              <div className="w-full max-w-md h-64 border border-slate-200 dark:border-slate-800 rounded-lg p-6 bg-white dark:bg-slate-900 overflow-hidden relative">
+                <div className="absolute top-2 right-2 text-xs text-slate-400 font-mono">
+                  columns-2
+                </div>
+
+                <div className="columns-2 gap-6 h-full text-sm">
+                  {/* Filler content to push the heading down */}
+                  <p className="mb-4 text-slate-500">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                    do eiusmod tempor incididunt ut labore.
+                  </p>
+                  <p className="mb-4 text-slate-500">
+                    Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                    laboris nisi ut aliquip.
+                  </p>
+
+                  {/* The Target Element */}
+                  <div
+                    className={`font-bold text-lg text-slate-900 dark:text-white mb-2 p-2 rounded border-2 border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 ${userClass}`}
+                  >
+                    Chapter 2
+                  </div>
+
+                  <p className="text-slate-500">
+                    This content belongs to Chapter 2. It should never be
+                    separated from the Chapter 2 heading.{" "}
+                    {userClass === "break-after-avoid"
+                      ? "Great! They are together."
+                      : "Ideally, the heading should be here."}
+                  </p>
+                  <p className="mt-4 text-slate-500">More text continues...</p>
+                </div>
+              </div>
+            )}
           />
 
           {/* Common Mistakes */}
@@ -86,48 +154,80 @@ export default function BreakAfterPage() {
             mistakes={[
               {
                 title: "Using breaks without fragmentation context",
-                reason: "Break utilities only work in paginated contexts like columns, print, or multi-page layouts. Normal single-page flow ignores them.",
-                example: '<div class="break-after-column">Wont work</div>'
+                reason:
+                  "Break utilities only work in paginated contexts like columns, print, or multi-page layouts. Normal single-page flow ignores them.",
+                example: '<div class="break-after-column">Wont work</div>',
               },
               {
                 title: "Expecting exact break positions",
-                reason: "Browsers treat break hints as suggestions, not commands. They may ignore breaks if it would create orphaned content or violate other constraints.",
-                example: '<p class="break-after-page">May or may not break here</p>'
+                reason:
+                  "Browsers treat break hints as suggestions, not commands. They may ignore breaks if it would create orphaned content or violate other constraints.",
+                example:
+                  '<p class="break-after-page">May or may not break here</p>',
               },
               {
                 title: "Overusing break-after-page",
-                reason: "Forcing page breaks can create poor user experience with many short pages. Use sparingly for logical document boundaries.",
-                example: '<h3 class="break-after-page">Too many page breaks</h3>'
+                reason:
+                  "Forcing page breaks can create poor user experience with many short pages. Use sparingly for logical document boundaries.",
+                example:
+                  '<h3 class="break-after-page">Too many page breaks</h3>',
               },
               {
                 title: "Mixing break-before and break-after",
-                reason: "Applying both to adjacent elements creates conflicting break instructions that browsers must resolve unpredictably.",
-                example: '<p class="break-after-column"></p><p class="break-before-column"></p>'
-              }
+                reason:
+                  "Applying both to adjacent elements creates conflicting break instructions that browsers must resolve unpredictably.",
+                example:
+                  '<p class="break-after-column"></p><p class="break-before-column"></p>',
+              },
             ]}
           />
 
           {/* Comparison Table */}
           <ComparisonTable
             title="Break Utilities Comparison"
-            columns={["Utility", "Best For", "Context Required", "Common Use Case"]}
+            columns={[
+              "Utility",
+              "Best For",
+              "Context Required",
+              "Common Use Case",
+            ]}
             rows={[
               {
                 feature: "break-after-auto",
-                values: ["Default behavior", "General content", "None", "Regular text flow"]
+                values: [
+                  "Default behavior",
+                  "General content",
+                  "None",
+                  "Regular text flow",
+                ],
               },
               {
-                feature: "break-after-column", 
-                values: ["Multi-column layouts", "Magazine-style content", "columns-*", "Article layouts"]
+                feature: "break-after-column",
+                values: [
+                  "Multi-column layouts",
+                  "Magazine-style content",
+                  "columns-*",
+                  "Article layouts",
+                ],
               },
               {
                 feature: "break-after-page",
-                values: ["Print styles", "Document boundaries", "@media print", "Chapters/sections"]
+                values: [
+                  "Print styles",
+                  "Document boundaries",
+                  "@media print",
+                  "Chapters/sections",
+                ],
               },
               {
                 feature: "break-after-avoid",
-                values: ["Keeping content together", "Preventing awkward breaks", "Any", "Figures/captions"]
-              }
+                values: [
+                  "Keeping content together",
+                  "Preventing awkward breaks",
+                  "Any",
+                  "Figures/captions",
+                ],
+              },
             ]}
           />
 
@@ -155,11 +255,15 @@ export default function BreakAfterPage() {
               <div className="max-w-prose space-y-4">
                 <div className="border-b-2 border-dashed border-gray-300 pb-4">
                   <h2 className="text-xl font-bold">Chapter 1</h2>
-                  <p className="text-sm text-gray-600 mt-2">Chapter content...</p>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Chapter content...
+                  </p>
                 </div>
                 <div className="border-b-2 border-dashed border-gray-300 pb-4">
                   <h2 className="text-xl font-bold">Chapter 2</h2>
-                  <p className="text-sm text-gray-600 mt-2">Chapter content...</p>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Chapter content...
+                  </p>
                 </div>
               </div>
             </ExampleCard>
@@ -186,7 +290,10 @@ export default function BreakAfterPage() {
                   <div className="bg-gray-200 rounded h-24 mb-2"></div>
                   <p className="text-xs text-gray-600">Image caption</p>
                 </div>
-                <p className="text-sm">Article text continues flowing in the next column, demonstrating how break-after maintains visual cohesion.</p>
+                <p className="text-sm">
+                  Article text continues flowing in the next column,
+                  demonstrating how break-after maintains visual cohesion.
+                </p>
               </div>
             </ExampleCard>
 
@@ -207,8 +314,12 @@ export default function BreakAfterPage() {
             >
               <div className="border rounded p-4 max-w-sm">
                 <div className="bg-gray-200 rounded h-32 mb-3"></div>
-                <figcaption className="text-sm font-medium">Chart: Q4 Revenue Growth</figcaption>
-                <p className="text-xs text-gray-600 mt-2">This figure stays intact across page breaks</p>
+                <figcaption className="text-sm font-medium">
+                  Chart: Q4 Revenue Growth
+                </figcaption>
+                <p className="text-xs text-gray-600 mt-2">
+                  This figure stays intact across page breaks
+                </p>
               </div>
             </ExampleCard>
           </ExampleSection>
@@ -216,14 +327,38 @@ export default function BreakAfterPage() {
           {/* Tips Section */}
           <TipsSection
             tips={[
-              { bold: "Fragmentation context required:", text: "Break utilities only work in print, columns, or multi-page layouts" },
-              { bold: "Column breaks need:", text: "Parent with columns-* class to create fragmentation context" },
-              { bold: "Hints, not commands:", text: "Browsers may ignore breaks to avoid orphaned content" },
-              { bold: "Keep content together:", text: "Use break-after-avoid for figures, captions, and related elements" },
-              { bold: "Print-only behavior:", text: "break-after-page only works in print media or paged contexts" },
-              { bold: "Test properly:", text: "Use browser print preview, not screen rendering for validation" },
-              { bold: "Natural flow preferred:", text: "Avoid overusing breaks - let content flow naturally when possible" },
-              { bold: "Text flow control:", text: "Consider CSS widows/orphans properties for better typography" }
+              {
+                bold: "Fragmentation context required:",
+                text: "Break utilities only work in print, columns, or multi-page layouts",
+              },
+              {
+                bold: "Column breaks need:",
+                text: "Parent with columns-* class to create fragmentation context",
+              },
+              {
+                bold: "Hints, not commands:",
+                text: "Browsers may ignore breaks to avoid orphaned content",
+              },
+              {
+                bold: "Keep content together:",
+                text: "Use break-after-avoid for figures, captions, and related elements",
+              },
+              {
+                bold: "Print-only behavior:",
+                text: "break-after-page only works in print media or paged contexts",
+              },
+              {
+                bold: "Test properly:",
+                text: "Use browser print preview, not screen rendering for validation",
+              },
+              {
+                bold: "Natural flow preferred:",
+                text: "Avoid overusing breaks - let content flow naturally when possible",
+              },
+              {
+                bold: "Text flow control:",
+                text: "Consider CSS widows/orphans properties for better typography",
+              },
             ]}
           />
 
@@ -237,20 +372,29 @@ export default function BreakAfterPage() {
                   <ul className="text-sm space-y-1 text-muted-foreground">
                     <li className="flex items-start gap-2">
                       <span className="text-green-500 mt-0.5">✓</span>
-                      <span>Fragmentation context exists (columns, print, etc)</span>
+                      <span>
+                        Fragmentation context exists (columns, print, etc)
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-green-500 mt-0.5">✓</span>
-                      <span>Break points align with logical content boundaries</span>
+                      <span>
+                        Break points align with logical content boundaries
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-green-500 mt-0.5">✓</span>
-                      <span>No conflicting break-before/break-after on adjacent elements</span>
+                      <span>
+                        No conflicting break-before/break-after on adjacent
+                        elements
+                      </span>
                     </li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-medium text-sm mb-2">Content & Context</h4>
+                  <h4 className="font-medium text-sm mb-2">
+                    Content & Context
+                  </h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
                     <li className="flex items-start gap-2">
                       <span className="text-green-500 mt-0.5">✓</span>
@@ -271,7 +415,6 @@ export default function BreakAfterPage() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
-  )
+  );
 }

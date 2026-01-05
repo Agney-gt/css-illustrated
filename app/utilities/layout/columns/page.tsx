@@ -1,23 +1,24 @@
-"use client"
+"use client";
 
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { PageHero } from "@/components/shared/page-hero"
-import { UtilityGrid } from "@/components/shared/utility-grid"
-import { UtilityPlayground } from "@/components/shared/utility_playground"
-import { ExampleSection, ExampleCard } from "@/components/shared/example-section"
-import { TipsSection } from "@/components/shared/tips-section"
-import { CommonMistakesSection } from "@/components/shared/common-mistakes-section"
-import { MentalModelSection } from "@/components/shared/mental-model-section"
-import { ComparisonTable } from "@/components/shared/comparison-table"
+import { PageHero } from "@/components/shared/page-hero";
+import { UtilityGrid } from "@/components/shared/utility-grid";
+import { UtilityPlayground } from "@/components/shared/utility_playground";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
+import { TipsSection } from "@/components/shared/tips-section";
+import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
+import { MentalModelSection } from "@/components/shared/mental-model-section";
+import { ComparisonTable } from "@/components/shared/comparison-table";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 export default function ColumnsPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
-          <PageHero 
+          <PageHero
             title="Columns Utilities"
             description="Multi-column layout utilities for creating newspaper-style layouts. Understand how columns distribute content and when to use them versus flex/grid."
           />
@@ -31,7 +32,7 @@ export default function ColumnsPage() {
               "Column count is a Layout constraint that affects content flow",
               "Gap utilities control column separation",
               "Column-span allows elements to break out of flow",
-              "Responsive behavior through responsive prefixes"
+              "Responsive behavior through responsive prefixes",
             ]}
             layerAssignment="Layout Layer - Controls content flow and distribution structure"
             browserBehavior="Browser splits content into vertical columns, balancing height and automatically flowing text between column boundaries"
@@ -39,24 +40,50 @@ export default function ColumnsPage() {
 
           <ComparisonTable
             title="Columns vs Other Layout Systems"
-            columns={["Approach", "Best For", "Content Control", "Manual Placement", "Responsive Behavior"]}
+            columns={[
+              "Approach",
+              "Best For",
+              "Content Control",
+              "Manual Placement",
+              "Responsive Behavior",
+            ]}
             rows={[
               {
                 feature: "Columns",
-                values: ["Text-heavy content", "Automatic flow", "No", "Breakpoint-based count changes"]
+                values: [
+                  "Text-heavy content",
+                  "Automatic flow",
+                  "No",
+                  "Breakpoint-based count changes",
+                ],
               },
               {
                 feature: "Flexbox",
-                values: ["Component layouts", "Manual control", "Yes", "Direction changes, wrapping"]
+                values: [
+                  "Component layouts",
+                  "Manual control",
+                  "Yes",
+                  "Direction changes, wrapping",
+                ],
               },
               {
                 feature: "Grid",
-                values: ["2D layouts", "Precise control", "Yes", "Track definitions, auto-fit"]
+                values: [
+                  "2D layouts",
+                  "Precise control",
+                  "Yes",
+                  "Track definitions, auto-fit",
+                ],
               },
               {
                 feature: "Float (legacy)",
-                values: ["Simple side-by-side", "Limited", "Partial", "Media query overrides"]
-              }
+                values: [
+                  "Simple side-by-side",
+                  "Limited",
+                  "Partial",
+                  "Media query overrides",
+                ],
+              },
             ]}
           />
 
@@ -77,33 +104,110 @@ export default function ColumnsPage() {
               { cls: "columns-lg", desc: "Large columns (32rem)" },
               { cls: "columns-xl", desc: "Extra large columns (36rem)" },
               { cls: "columns-2xl", desc: "Very large columns (42rem)" },
-              { cls: "columns-3xl", desc: "Huge columns (48rem)" }
+              { cls: "columns-3xl", desc: "Huge columns (48rem)" },
             ]}
           />
 
           <UtilityPlayground
             title="Columns Playground"
             description="Experiment with column counts and see how text flows between columns. Notice how the browser balances content automatically."
-            options={["columns-1", "columns-2", "columns-3", "columns-4", "columns-auto"]}
+            options={[
+              "columns-1",
+              "columns-2",
+              "columns-3",
+              "columns-4",
+              "columns-auto",
+            ]}
             defaultValue="columns-2"
             buildMarkup={(columnClass, customClasses = "") => {
-              const classes = [columnClass, customClasses].filter(Boolean).join(" ")
+              const classes = [columnClass, customClasses]
+                .filter(Boolean)
+                .join(" ");
               return `<div class="${classes} gap-6">
   <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
   <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
   <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.</p>
-</div>`
+</div>`;
             }}
             renderPreview={(columnClass, customClasses = "") => {
               return (
-                <div className={`${columnClass} ${customClasses} gap-4 text-sm`}>
-                  <p className="bg-blue-500/20 p-3 rounded">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                  <p className="bg-blue-500/20 p-3 rounded">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-                  <p className="bg-blue-500/20 p-3 rounded">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-                  <p className="bg-blue-500/20 p-3 rounded">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <div
+                  className={`${columnClass} ${customClasses} gap-4 text-sm`}
+                >
+                  <p className="bg-blue-500/20 p-3 rounded">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                    do eiusmod tempor incididunt ut labore et dolore magna
+                    aliqua.
+                  </p>
+                  <p className="bg-blue-500/20 p-3 rounded">
+                    Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                    laboris nisi ut aliquip ex ea commodo consequat.
+                  </p>
+                  <p className="bg-blue-500/20 p-3 rounded">
+                    Duis aute irure dolor in reprehenderit in voluptate velit
+                    esse cillum dolore eu fugiat nulla pariatur.
+                  </p>
+                  <p className="bg-blue-500/20 p-3 rounded">
+                    Excepteur sint occaecat cupidatat non proident, sunt in
+                    culpa qui officia deserunt mollit anim id est laborum.
+                  </p>
                 </div>
-              )
+              );
             }}
+          />
+
+          <InteractiveChallenge
+            title="The Sliced Image"
+            description="You are building a photo gallery using columns. However, one of the images is landing exactly on a column break, causing it to be sliced in half! Apply the `break-inside-avoid` utility to the image container to force it to stay whole."
+            codeSnippet={`<div class="columns-3 gap-4">
+  <div class="mb-4 bg-slate-200 p-2">Item 1</div>
+  <div class="mb-4 bg-slate-200 p-2">Item 2</div>
+  
+  <div class="mb-4 bg-blue-100 p-4 rounded-lg {input}">
+    <img src="..." class="rounded" />
+    <p>Do not split me!</p>
+  </div>
+
+  <div class="mb-4 bg-slate-200 p-2">Item 4</div>
+</div>`}
+            options={["block", "break-inside-avoid", "overflow-hidden", "flex"]}
+            correctOption="break-inside-avoid"
+            renderPreview={(userClass) => (
+              <div className="w-full max-w-lg h-64 border border-slate-200 dark:border-slate-800 rounded-lg p-4 bg-white dark:bg-slate-900 overflow-hidden">
+                <div className="columns-3 gap-4 text-xs h-full">
+                  {/* Filler Items to force the break */}
+                  <div className="mb-4 p-4 bg-slate-100 dark:bg-slate-800 rounded">
+                    Story A
+                  </div>
+                  <div className="mb-4 p-12 bg-slate-100 dark:bg-slate-800 rounded">
+                    Story B (Long)
+                  </div>
+
+                  {/* The Target Item */}
+                  <div
+                    className={`mb-4 border-2 border-blue-500 bg-blue-50 dark:bg-blue-900/20 p-2 rounded ${userClass}`}
+                  >
+                    <div className="h-16 w-full bg-blue-200 dark:bg-blue-800 rounded mb-2 flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold">
+                      IMAGE
+                    </div>
+                    <p className="text-center text-blue-900 dark:text-blue-100 font-semibold">
+                      {userClass === "break-inside-avoid" ? "Safe!" : "Ouch!"}
+                    </p>
+                  </div>
+
+                  {/* More Filler */}
+                  <div className="mb-4 p-8 bg-slate-100 dark:bg-slate-800 rounded">
+                    Story C
+                  </div>
+                  <div className="mb-4 p-4 bg-slate-100 dark:bg-slate-800 rounded">
+                    Story D
+                  </div>
+                  <div className="mb-4 p-6 bg-slate-100 dark:bg-slate-800 rounded">
+                    Story E
+                  </div>
+                </div>
+              </div>
+            )}
           />
 
           <ExampleSection title="Real-World Examples">
@@ -119,11 +223,24 @@ export default function ColumnsPage() {
 </article>`}
             >
               <article className="columns-3 gap-6 text-justify max-h-64 overflow-hidden">
-                <h2 className="column-span-all text-lg font-bold mb-4">Breaking News</h2>
-                <p className="mb-3 text-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                <p className="mb-3 text-sm">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-                <p className="mb-3 text-sm">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-                <p className="text-sm text-muted-foreground">Article continues...</p>
+                <h2 className="column-span-all text-lg font-bold mb-4">
+                  Breaking News
+                </h2>
+                <p className="mb-3 text-sm">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>
+                <p className="mb-3 text-sm">
+                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                  laboris nisi ut aliquip ex ea commodo consequat.
+                </p>
+                <p className="mb-3 text-sm">
+                  Duis aute irure dolor in reprehenderit in voluptate velit esse
+                  cillum dolore eu fugiat nulla pariatur.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Article continues...
+                </p>
               </article>
             </ExampleCard>
 
@@ -181,13 +298,17 @@ export default function ColumnsPage() {
 </div>`}
             >
               <div className="columns-2 gap-4 max-h-48">
-                <h3 className="column-span-all text-base font-semibold mb-2">Getting Started</h3>
+                <h3 className="column-span-all text-base font-semibold mb-2">
+                  Getting Started
+                </h3>
                 <ul className="mb-3 text-sm space-y-1">
                   <li>• Installation</li>
                   <li>• Quick Start</li>
                   <li>• Basic Usage</li>
                 </ul>
-                <h3 className="column-span-all text-base font-semibold mb-2">Components</h3>
+                <h3 className="column-span-all text-base font-semibold mb-2">
+                  Components
+                </h3>
                 <ul className="text-sm space-y-1">
                   <li>• Buttons</li>
                   <li>• Forms</li>
@@ -247,68 +368,95 @@ export default function ColumnsPage() {
             mistakes={[
               {
                 title: "Using columns for component layouts",
-                reason: "Columns are designed for text flow, not precise component positioning. Components get unpredictably broken across column boundaries.",
+                reason:
+                  "Columns are designed for text flow, not precise component positioning. Components get unpredictably broken across column boundaries.",
                 example: `<div class="columns-2">
   <div class="card">Card gets split across columns</div>
   <div class="card">Another broken card</div>
 </div>`,
-                level: "critical"
+                level: "critical",
               },
               {
                 title: "Missing column-gap causing touching text",
-                reason: "Without explicit gap, columns touch each other creating poor readability and visual confusion.",
+                reason:
+                  "Without explicit gap, columns touch each other creating poor readability and visual confusion.",
                 example: `<div class="columns-2">
   <!-- Text touching between columns -->
   <p>Column one text</p>
   <p>Column two text</p>
 </div>`,
-                level: "warning"
+                level: "warning",
               },
               {
                 title: "Images breaking awkwardly across columns",
-                reason: "Images don't know column boundaries and can be split across columns unless explicitly prevented.",
+                reason:
+                  "Images don't know column boundaries and can be split across columns unless explicitly prevented.",
                 example: `<div class="columns-2">
   <img src="wide-image.jpg" /> <!-- Breaks across columns -->
 </div>`,
-                level: "warning"
+                level: "warning",
               },
               {
                 title: "Inline elements interfering with column flow",
-                reason: "Inline-block or floated elements inside columns can disrupt natural text flow and create uneven columns.",
+                reason:
+                  "Inline-block or floated elements inside columns can disrupt natural text flow and create uneven columns.",
                 example: `<div class="columns-2">
   <p>Text</p>
   <div class="inline-block">Disrupts flow</div>
   <p>More text</p>
 </div>`,
-                level: "warning"
+                level: "warning",
               },
               {
                 title: "Fixed height containers cutting off content",
-                reason: "Columns need vertical space to balance. Fixed height can truncate content before it flows to next column.",
+                reason:
+                  "Columns need vertical space to balance. Fixed height can truncate content before it flows to next column.",
                 example: `<div class="columns-2 h-32 overflow-hidden">
   <!-- Content gets clipped -->
 </div>`,
-                level: "critical"
-              }
+                level: "critical",
+              },
             ]}
           />
 
-          <TipsSection 
+          <TipsSection
             tips={[
-              { bold: "Use for text content:", text: "Columns excel at text-heavy layouts like articles, documentation, and news" },
-              { bold: "Prevent content breaks:", text: "Use break-inside-avoid on images, code blocks, and components that must stay together" },
-              { bold: "Span when needed:", text: "Use column-span-all for headings that should extend across all columns" },
-              { bold: "Set gaps explicitly:", text: "Always define column-gap to ensure readable separation between columns" },
-              { bold: "Test content variations:", text: "Columns behave differently with varying content lengths—test with realistic content" },
-              { bold: "Consider responsive needs:", text: "Use responsive prefixes to reduce column count on smaller screens" },
-              { bold: "Avoid for UI components:", text: "Use flexbox or grid for component layouts, columns for content flow" },
-              { bold: "Mind the overflow:", text: "Ensure containers have adequate height or use min-h-* for flexible column balancing" }
+              {
+                bold: "Use for text content:",
+                text: "Columns excel at text-heavy layouts like articles, documentation, and news",
+              },
+              {
+                bold: "Prevent content breaks:",
+                text: "Use break-inside-avoid on images, code blocks, and components that must stay together",
+              },
+              {
+                bold: "Span when needed:",
+                text: "Use column-span-all for headings that should extend across all columns",
+              },
+              {
+                bold: "Set gaps explicitly:",
+                text: "Always define column-gap to ensure readable separation between columns",
+              },
+              {
+                bold: "Test content variations:",
+                text: "Columns behave differently with varying content lengths—test with realistic content",
+              },
+              {
+                bold: "Consider responsive needs:",
+                text: "Use responsive prefixes to reduce column count on smaller screens",
+              },
+              {
+                bold: "Avoid for UI components:",
+                text: "Use flexbox or grid for component layouts, columns for content flow",
+              },
+              {
+                bold: "Mind the overflow:",
+                text: "Ensure containers have adequate height or use min-h-* for flexible column balancing",
+              },
             ]}
           />
-
         </div>
       </main>
-      <Footer />
     </div>
-  )
+  );
 }

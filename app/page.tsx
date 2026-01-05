@@ -12,7 +12,7 @@ export default function Home() {
   const categoriesRef = useRef<HTMLDivElement>(null)
 
   const categories = [
-    { title: "Layout", desc: "Columns, Display, Floats, Grid", href: "/utilities/columns", demoClass: "grid-cols-3" },
+    { title: "Layout", desc: "Columns, Display, Floats, Grid", href: "/utilities/layout/columns", demoClass: "grid-cols-3" },
     { title: "Spacing", desc: "Padding, Margin, Gap", href: "/utilities/spacing/padding", demoClass: "p-4" },
     { title: "Sizing", desc: "Width, Height, Min/Max", href: "/utilities/sizing/width", demoClass: "w-1/3" },
     { title: "Flexbox", desc: "Basis, Direction, Wrap, Grow, Order", href: "/utilities/flex", demoClass: "flex-1" },

@@ -1,26 +1,28 @@
-"use client"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { PageHero } from "@/components/shared/page-hero"
-import { UtilityGrid } from "@/components/shared/utility-grid"
-import { UtilityPlayground } from "@/components/shared/utility_playground"
-import { MentalModelSection } from "@/components/shared/mental-model-section"
-import { CommonMistakesSection } from "@/components/shared/common-mistakes-section"
-import { ComparisonTable } from "@/components/shared/comparison-table"
-import { ExampleSection, ExampleCard } from "@/components/shared/example-section"
-import { TipsSection } from "@/components/shared/tips-section"
+"use client";
+
+import { PageHero } from "@/components/shared/page-hero";
+import { UtilityGrid } from "@/components/shared/utility-grid";
+import { UtilityPlayground } from "@/components/shared/utility_playground";
+import { MentalModelSection } from "@/components/shared/mental-model-section";
+import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
+import { ComparisonTable } from "@/components/shared/comparison-table";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
+import { TipsSection } from "@/components/shared/tips-section";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 const breakInsideClasses = [
   { cls: "break-inside-auto", desc: "Auto break behavior" },
   { cls: "break-inside-avoid", desc: "Avoid breaking inside" },
   { cls: "break-inside-avoid-page", desc: "Avoid page break" },
   { cls: "break-inside-avoid-column", desc: "Avoid column break" },
-]
+];
 
 export default function BreakInsidePage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12">
           {/* Hero Section */}
@@ -37,7 +39,7 @@ export default function BreakInsidePage() {
               "Prevents element from being split across pages/columns",
               "Applied to wrapper elements that contain related content",
               "Only works in fragmentation contexts (print, columns, etc)",
-              "Essential for figures, tables, and grouped content"
+              "Essential for figures, tables, and grouped content",
             ]}
             layerAssignment="Layout layer - maintains content cohesion across pagination boundaries"
             browserBehavior="Browser treats element with break-inside-avoid as atomic unit during fragmentation, moving entire element if it would be split."
@@ -57,7 +59,7 @@ export default function BreakInsidePage() {
             options={[
               "break-inside-auto",
               "break-inside-avoid",
-              "break-inside-avoid-column"
+              "break-inside-avoid-column",
             ]}
             defaultValue="break-inside-auto"
             buildMarkup={(value) => `<div class="columns-2 gap-4 max-w-lg">
@@ -70,16 +72,101 @@ export default function BreakInsidePage() {
 </div>`}
             renderPreview={(value) => (
               <div className="columns-2 gap-4 max-w-lg">
-                <div className={`${value} border-2 border-blue-500 p-4 rounded`}>
+                <div
+                  className={`${value} border-2 border-blue-500 p-4 rounded`}
+                >
                   <h4 className="font-bold text-sm">Important Figure</h4>
-                  <p className="text-xs mt-1">This box stays together or moves entirely</p>
+                  <p className="text-xs mt-1">
+                    This box stays together or moves entirely
+                  </p>
                   <div className="w-full h-12 bg-gray-300 rounded mt-2"></div>
                 </div>
-                <p className="p-3 bg-slate-100 rounded text-sm">Regular content flows normally around the protected element.</p>
-                <p className="p-3 bg-slate-100 rounded text-sm">More content demonstrates normal fragmentation.</p>
+                <p className="p-3 bg-slate-100 rounded text-sm">
+                  Regular content flows normally around the protected element.
+                </p>
+                <p className="p-3 bg-slate-100 rounded text-sm">
+                  More content demonstrates normal fragmentation.
+                </p>
               </div>
             )}
-            optionLabel={(v) => v.replace('break-inside-', '')}
+            optionLabel={(v) => v.replace("break-inside-", "")}
+          />
+
+          <InteractiveChallenge
+            title="The Split Quote"
+            description="You have a testimonial card in a column layout. The user's photo is in one column, but their quote has spilled over to the next column, breaking the card in half. Apply `break-inside-avoid` to the card container to force the browser to keep the entire testimonial together."
+            codeSnippet={`<div class="columns-2 gap-6 h-64">
+  <div class="bg-gray-100 p-4 mb-4">Other content...</div>
+  
+  <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg shadow-sm {input}">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-10 h-10 rounded-full bg-blue-200"></div>
+      <div class="font-bold text-blue-800">Sarah J.</div>
+    </div>
+    <p class="text-blue-900">"This product completely changed our workflow. I can't imagine going back to the old way."</p>
+  </div>
+  
+  <div class="bg-gray-100 p-4">More content...</div>
+</div>`}
+            options={[
+              "break-inside-auto",
+              "break-inside-avoid",
+              "break-after-column",
+              "overflow-hidden",
+            ]}
+            correctOption="break-inside-avoid"
+            renderPreview={(userClass) => (
+              <div className="w-full max-w-lg h-80 border border-dashed border-slate-300 dark:border-slate-700 p-4 rounded-lg bg-white dark:bg-slate-950 overflow-hidden relative">
+                <div className="absolute top-2 right-2 text-xs text-slate-400">
+                  columns-2
+                </div>
+
+                <div className="columns-2 gap-4 h-full text-sm">
+                  {/* Filler to force the split position */}
+                  <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded mb-4 h-32">
+                    <p className="text-slate-500">
+                      Introductory content taking up space...
+                    </p>
+                  </div>
+
+                  {/* The Target Card */}
+                  <div
+                    className={`bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded shadow-sm mb-4 ${userClass}`}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-8 h-8 rounded-full bg-blue-200 dark:bg-blue-700 flex items-center justify-center text-xs font-bold text-blue-800 dark:text-blue-100">
+                        SJ
+                      </div>
+                      <div>
+                        <div className="font-bold text-slate-800 dark:text-slate-100">
+                          Sarah J.
+                        </div>
+                        <div className="text-[10px] text-slate-500">
+                          Verified Buyer
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-slate-700 dark:text-slate-300 text-xs italic">
+                      "This product is amazing.{" "}
+                      {userClass !== "break-inside-avoid" && (
+                        <span className="bg-red-100 text-red-800 px-1 rounded font-bold">
+                          [SPLIT HAPPENS HERE]
+                        </span>
+                      )}{" "}
+                      It changed everything."
+                    </p>
+                  </div>
+
+                  {/* More filler */}
+                  <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded mb-4 h-24">
+                    <p className="text-slate-500">Next section...</p>
+                  </div>
+                  <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded h-40">
+                    <p className="text-slate-500">Footer stuff...</p>
+                  </div>
+                </div>
+              </div>
+            )}
           />
 
           {/* Common Mistakes */}
@@ -87,24 +174,30 @@ export default function BreakInsidePage() {
             mistakes={[
               {
                 title: "Applying to single inline elements",
-                reason: "Break-inside affects element boundaries. Single inline elements don't have internal fragmentation to control.",
-                example: '<span class="break-inside-avoid">Wont help</span>'
+                reason:
+                  "Break-inside affects element boundaries. Single inline elements don't have internal fragmentation to control.",
+                example: '<span class="break-inside-avoid">Wont help</span>',
               },
               {
                 title: "Using on container with no fragmentation context",
-                reason: "Break-inside only works when parent creates fragmentation (columns, print, etc). Normal flow ignores these hints.",
-                example: '<div class="break-inside-avoid">No columns here</div>'
+                reason:
+                  "Break-inside only works when parent creates fragmentation (columns, print, etc). Normal flow ignores these hints.",
+                example:
+                  '<div class="break-inside-avoid">No columns here</div>',
               },
               {
                 title: "Overusing break-inside-avoid",
-                reason: "Keeping too many elements intact can create poor space utilization and awkward page breaks with large empty areas.",
-                example: '<p class="break-inside-avoid">Every paragraph</p>'
+                reason:
+                  "Keeping too many elements intact can create poor space utilization and awkward page breaks with large empty areas.",
+                example: '<p class="break-inside-avoid">Every paragraph</p>',
               },
               {
                 title: "Applying to self-contained text",
-                reason: "Short text blocks rarely need protection from fragmentation. Use for composite elements instead.",
-                example: '<div class="break-inside-avoid"><p>Short text</p></div>'
-              }
+                reason:
+                  "Short text blocks rarely need protection from fragmentation. Use for composite elements instead.",
+                example:
+                  '<div class="break-inside-avoid"><p>Short text</p></div>',
+              },
             ]}
           />
 
@@ -115,20 +208,36 @@ export default function BreakInsidePage() {
             rows={[
               {
                 feature: "break-inside-avoid",
-                values: ["Internal fragmentation", "Container elements", "Figures, tables, cards"]
+                values: [
+                  "Internal fragmentation",
+                  "Container elements",
+                  "Figures, tables, cards",
+                ],
               },
               {
                 feature: "break-before",
-                values: ["Fragmentation before", "Elements needing new start", "Chapters, sections"]
+                values: [
+                  "Fragmentation before",
+                  "Elements needing new start",
+                  "Chapters, sections",
+                ],
               },
               {
                 feature: "break-after",
-                values: ["Fragmentation after", "Elements needing clean end", "Chapter endings"]
+                values: [
+                  "Fragmentation after",
+                  "Elements needing clean end",
+                  "Chapter endings",
+                ],
               },
               {
                 feature: "break-inside-auto",
-                values: ["Default behavior", "All elements", "Normal content flow"]
-              }
+                values: [
+                  "Default behavior",
+                  "All elements",
+                  "Normal content flow",
+                ],
+              },
             ]}
           />
 
@@ -156,10 +265,14 @@ export default function BreakInsidePage() {
               description="Keeping figures and their captions together prevents awkward splits that disconnect data from its description."
             >
               <div className="columns-2 gap-4 max-w-lg border rounded p-4">
-                <p className="p-2 bg-gray-100 rounded text-sm mb-2">Analysis text...</p>
+                <p className="p-2 bg-gray-100 rounded text-sm mb-2">
+                  Analysis text...
+                </p>
                 <div className="border rounded p-3 col-span-2">
                   <div className="bg-gray-200 rounded h-20 mb-2"></div>
-                  <figcaption className="text-sm font-medium">Q4 Sales: 25% increase</figcaption>
+                  <figcaption className="text-sm font-medium">
+                    Q4 Sales: 25% increase
+                  </figcaption>
                 </div>
               </div>
             </ExampleCard>
@@ -200,7 +313,9 @@ export default function BreakInsidePage() {
                 </div>
                 <div className="border rounded p-3">
                   <div className="bg-gray-200 rounded h-16 mb-2"></div>
-                  <h3 className="font-semibold text-xs mb-1">Standard Widget</h3>
+                  <h3 className="font-semibold text-xs mb-1">
+                    Standard Widget
+                  </h3>
                   <p className="text-sm font-bold">$19.99</p>
                 </div>
               </div>
@@ -239,11 +354,20 @@ export default function BreakInsidePage() {
               <div className="border rounded p-4 max-w-sm">
                 <table className="w-full text-sm">
                   <thead className="bg-gray-100">
-                    <tr><th className="p-2 text-left">Name</th><th className="p-2 text-left">Score</th></tr>
+                    <tr>
+                      <th className="p-2 text-left">Name</th>
+                      <th className="p-2 text-left">Score</th>
+                    </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-t"><td className="p-2">Alice</td><td className="p-2">95</td></tr>
-                    <tr className="border-t"><td className="p-2">Bob</td><td className="p-2">87</td></tr>
+                    <tr className="border-t">
+                      <td className="p-2">Alice</td>
+                      <td className="p-2">95</td>
+                    </tr>
+                    <tr className="border-t">
+                      <td className="p-2">Bob</td>
+                      <td className="p-2">87</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -253,14 +377,38 @@ export default function BreakInsidePage() {
           {/* Tips Section */}
           <TipsSection
             tips={[
-              { bold: "Apply to containers:", text: "Use on wrapper elements that contain related content" },
-              { bold: "Figures and tables:", text: "Essential for keeping charts with captions and data with headers" },
-              { bold: "Product cards:", text: "Prevent images from separating from prices and descriptions" },
-              { bold: "Fragmentation context:", text: "Only works in columns, print, or paged layouts" },
-              { bold: "Space utilization:", text: "Balance protection with efficient use of page space" },
-              { bold: "Test boundaries:", text: "Verify behavior with content that exactly fits columns" },
-              { bold: "Combine with breaks:", text: "Use with break-before/after for complete control" },
-              { bold: "Content hierarchy:", text: "Protect important content more than generic text" }
+              {
+                bold: "Apply to containers:",
+                text: "Use on wrapper elements that contain related content",
+              },
+              {
+                bold: "Figures and tables:",
+                text: "Essential for keeping charts with captions and data with headers",
+              },
+              {
+                bold: "Product cards:",
+                text: "Prevent images from separating from prices and descriptions",
+              },
+              {
+                bold: "Fragmentation context:",
+                text: "Only works in columns, print, or paged layouts",
+              },
+              {
+                bold: "Space utilization:",
+                text: "Balance protection with efficient use of page space",
+              },
+              {
+                bold: "Test boundaries:",
+                text: "Verify behavior with content that exactly fits columns",
+              },
+              {
+                bold: "Combine with breaks:",
+                text: "Use with break-before/after for complete control",
+              },
+              {
+                bold: "Content hierarchy:",
+                text: "Protect important content more than generic text",
+              },
             ]}
           />
 
@@ -274,7 +422,9 @@ export default function BreakInsidePage() {
                   <ul className="text-sm space-y-1 text-muted-foreground">
                     <li className="flex items-start gap-2">
                       <span className="text-green-500 mt-0.5">✓</span>
-                      <span>Fragmentation context exists (columns, print, etc)</span>
+                      <span>
+                        Fragmentation context exists (columns, print, etc)
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-green-500 mt-0.5">✓</span>
@@ -282,12 +432,16 @@ export default function BreakInsidePage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-green-500 mt-0.5">✓</span>
-                      <span>Balance between protection and space utilization</span>
+                      <span>
+                        Balance between protection and space utilization
+                      </span>
                     </li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-medium text-sm mb-2">Content & Context</h4>
+                  <h4 className="font-medium text-sm mb-2">
+                    Content & Context
+                  </h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
                     <li className="flex items-start gap-2">
                       <span className="text-green-500 mt-0.5">✓</span>
@@ -308,7 +462,6 @@ export default function BreakInsidePage() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
-  )
+  );
 }
