@@ -1,367 +1,337 @@
-  "use client";
+"use client";
 
-  import { useState } from "react";
-  import Navbar from "@/components/navbar";
-  import Footer from "@/components/footer";
-  import CodeBlock from "@/app/utilities/components/code-block";
-  import { MentalModelSection } from "@/components/shared/mental-model-section";
-  import { ComparisonTable } from "@/components/shared/comparison-table";
-  import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
+import React from "react";
+import { PageHero } from "@/components/shared/page-hero";
+import { MentalModelSection } from "@/components/shared/mental-model-section";
+import { ComparisonTable } from "@/components/shared/comparison-table";
+import { UtilityGrid } from "@/components/shared/utility-grid";
+import { UtilityPlayground } from "@/components/shared/utility_playground";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
+import { TipsSection } from "@/components/shared/tips-section";
+import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
-  export default function ScreenReadersPage() {
-    const [activeType, setActiveType] = useState<"sr-only" | "not-sr-only">("sr-only");
-    const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+export default function ScreenReadersPage() {
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
+      <PageHero
+        title="Screen Readers"
+        description="Utilities for hiding content visually while keeping it accessible to screen readers. Essential for accessibility, allowing you to provide context to non-visual users without cluttering the UI."
+      />
 
-    const copyToClipboard = (text: string, index: number) => {
-      navigator.clipboard.writeText(text);
-      setCopiedIndex(index);
-      setTimeout(() => setCopiedIndex(null), 2000);
-    };
+      <MentalModelSection
+        title="The Invisible Layer"
+        description="Think of your webpage as having two parallel experiences: the Visual Experience (what is seen) and the Auditory Experience (what is heard via screen reader). The `sr-only` utility allows you to inject information exclusively into the Auditory Experience without affecting the layout or appearance of the Visual Experience."
+        features={[
+          "Hides elements visually but keeps them in the DOM",
+          "Ensures screen readers can still discover and read the content",
+          "Crucial for icon-only buttons, skip links, and form labels",
+          "Uses `clip` pattern to ensure zero visual footprint",
+          "Can be toggled on focus (e.g., `focus:not-sr-only`)",
+        ]}
+        layerAssignment="Accessibility Layer - Enhances the semantic tree without painting pixels"
+        browserBehavior="Applies absolute positioning, 1px dimensions, overflow hidden, and clipping to remove the element from the visual flow while keeping it readable by AT."
+      />
 
-    const types = ["sr-only", "not-sr-only"] as const;
+      <ComparisonTable
+        title="Hiding Techniques Compared"
+        columns={["Method", "Visual", "Screen Reader", "Layout Space"]}
+        rows={[
+          {
+            feature: "sr-only",
+            values: ["Hidden", "Visible (Read)", "None (Removed from flow)"],
+          },
+          {
+            feature: "display: none",
+            values: ["Hidden", "Hidden (Ignored)", "None"],
+          },
+          {
+            feature: "visibility: hidden",
+            values: ["Hidden", "Hidden (Ignored)", "Preserved (Blank space)"],
+          },
+          {
+            feature: "opacity-0",
+            values: ["Hidden", "Visible (Read)", "Preserved (Blank space)"],
+          },
+        ]}
+      />
 
-    const examplesData = 
-    {
+      <UtilityGrid
+        title="Screen Reader Utilities"
+        items={[
+          {
+            cls: "sr-only",
+            desc: "Hide visually but keep accessible to screen readers",
+          },
+          {
+            cls: "not-sr-only",
+            desc: "Undo sr-only (useful for focus states or breakpoints)",
+          },
+        ]}
+      />
 
-      "sr-only": [
-        {
-          title: "Visually Hidden Label",
-          note: "Use sr-only to hide a label visually but keep it readable for screen readers.",
-          code: `<label class="sr-only" for="email">Email address</label>
-          <input id="email" type="email" placeholder="Enter your email" />`,
-        },
-        {
-          title: "Screen Reader Only Text for Buttons",
-          note: "Provide extra description for icons for screen readers.",
-          code: `<button class="p-2 bg-blue-600 text-white rounded">
-    <svg class="w-5 h-5"><!-- icon --></svg>
-    <span class="sr-only">Submit Form</span>
-  </button>`,
-        },
-        {
-          title: "Live Region for Dynamic Updates",
-          note: "Announce dynamic content changes via aria-live and sr-only.",
-          code: `<div role="status" aria-live="polite" class="sr-only">
-    Form submitted successfully
-  </div>`,
-        },
-        {
-          title: "Skip Link for Keyboard Users",
-          note: "Provide a way to jump to main content for non-visual users.",
-          code: `<a href="#main-content" class="sr-only focus:not-sr-only">Skip to main content</a>
-  <main id="main-content"> ... </main>`,
-        },
-        {
-          title: "Hidden Instructions",
-          note: "Provide guidance for screen reader users without affecting layout.",
-          code: `<p class="sr-only">Use arrow keys to navigate the gallery</p>`,
-        },
-      ],
-      "not-sr-only": [
-        {
-          title: "Visible Label Example",
-          note: "Label is visible on the page for all users.",
-          code: `<label for="email">Email address</label>
-  <input id="email" type="email" placeholder="Enter your email" />`,
-        },
-        {
-          title: "Button with Text",
-          note: "Button shows text for both visual users and screen readers.",
-          code: `<button class="p-2 bg-blue-600 text-white rounded">Submit Form</button>`,
-        },
-        {
-          title: "Visible Notifications",
-          note: "Alerts that appear visually and for screen readers.",
-          code: `<div role="alert" class="bg-green-100 text-green-800 p-2 rounded">
-  Form submitted successfully
-  </div>`,
-        },
-        {
-          title: "Inline Instructions",
-          note: "Instructions visible directly to all users.",
-          code: `<p>Use arrow keys to navigate the gallery</p>`,
-        },
-        {
-          title: "Navigation Links",
-          note: "All navigation links visible for everyone.",
-          code: `<nav>
-    <a href="#home">Home</a>
-    <a href="#about">About</a>
-    <a href="#contact">Contact</a>
-  </nav>`,
-        },
-      ],
-    };
+      {/* Interactive Playground */}
+      <section className="space-y-4 border-t border-border pt-8">
+        <h2 className="text-3xl font-bold">Interactive playground</h2>
+        <p className="text-muted-foreground">
+          Observe how `sr-only` differs from `opacity-0` or `invisible`. Notice
+          how `sr-only` collapses the layout space, while others preserve it.
+        </p>
 
-    const CopyableCode = ({ code, index }: { code: string; index: number }) => (
-      <div
-        className="relative border border-border rounded-lg p-4 hover:bg-card/50 cursor-pointer group transition"
-        onClick={() => copyToClipboard(code, index)}
-      >
-        {copiedIndex === index && (
-          <div className="absolute top-2 left-2 px-2 py-0.5 text-xs text-white bg-green-600 rounded">
-            Copied!
-          </div>
-        )}
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 text-xs text-gray-700 bg-white rounded opacity-0 group-hover:opacity-100 transition">
-          Click to copy
-        </div>
-        <CodeBlock code={code} language="html" />
-      </div>
-    );
+        <UtilityPlayground
+          title="Visibility Playground"
+          description="Test different hiding utilities to see their effect on layout and visual appearance."
+          options={["sr-only", "not-sr-only", "invisible", "opacity-0"]}
+          defaultValue="sr-only"
+          buildMarkup={(option) => {
+            return `<div class="flex flex-col gap-2 border p-4">
+  <div class="bg-slate-200 p-2">Item 1 (Visible)</div>
+  
+  <div class="bg-blue-500 text-white p-2 ${option}">
+    Item 2 (${option})
+  </div>
 
-    const diagrams = {
-      "sr-only": (
-        <div className="border border-border rounded-lg p-6 bg-slate-900 text-white text-center">
-          <p className="font-semibold">This content is visually hidden but accessible to screen readers</p>
-          <div className="mt-4 flex justify-center items-center h-32">
-            <div className="sr-only bg-blue-500 w-32 h-16 flex items-center justify-center">
-              Screen Reader Only Block
-            </div>
-          </div>
-        </div>
-      ),
-      "not-sr-only": (
-        <div className="border border-border rounded-lg p-6 bg-slate-900 text-white text-center">
-          <p className="font-semibold">This content is visible to all users</p>
-          <div className="mt-4 flex justify-center items-center h-32">
-            <div className="bg-blue-500 w-32 h-16 flex items-center justify-center text-white font-semibold">
-              Visible Block
-            </div>
-          </div>
-        </div>
-      ),
-    };
-
-    const commonUseCases = {
-      "sr-only": [
-        "Use sr-only for labels, instructions, and dynamic updates",
-        "Keep content accessible without affecting visual layout",
-        "Combine with focus:not-sr-only for skip links",
-      ],
-      "not-sr-only": [
-        "Use visible content for all users",
-        "Display alerts, instructions, navigation links",
-        "Combine with sr-only when needed for accessibility",
-      ],
-    };
-
-    const benefits = {
-      "sr-only": [
-        "Helps comply with accessibility standards (WCAG)",
-        "Improves UX for visually impaired users",
-        "Maintains semantic HTML structure",
-      ],
-      "not-sr-only": [
-        "Visible to all users",
-        "Ensures clarity for non-visual users as well",
-        "Works with sr-only for enhanced accessibility",
-      ],
-    };
-
-    const commonMistakes = {
-      "sr-only": [
-        "Hiding content that should be visible",
-        "Forgetting focus:not-sr-only on skip links",
-        "Overusing sr-only unnecessarily",
-      ],
-      "not-sr-only": [
-        "Making content visible but forgetting accessibility labels",
-        "Not combining with sr-only for hidden instructions",
-      ],
-    };
-
-    return (
-
-      <div className="min-h-screen flex flex-col bg-background">
-        <Navbar />
-
-        <main className="flex-1 max-w-5xl px-8 py-12 space-y-12 text-left">
-
-
-          {/* Mental Model Section */}
-          <MentalModelSection
-            title="How Assistive Technology Works"
-            description="Screen readers read the DOM tree"
-            features={[
-              "Element types (button, heading, link)",
-              "Text content (including sr-only)",
-              "ARIA attributes and roles",
-              "Form labels and descriptions"
-            ]}
-            layerAssignment="Screen reader utilities belong to the Content layer - they control what information assistive technology can access without affecting visual layout or shape."
-          />
-
-          {/* Quick Comparison Table */}
-          <ComparisonTable
-            title="Quick Comparison: sr-only vs not-sr-only"
-            columns={["Feature", "sr-only", "not-sr-only"]}
-            rows={[
-              {
-                feature: "Visibility",
-                values: [
-                  "Hidden visually, readable by screen readers",
-                  "Visible to all users"
-                ]
-              },
-              {
-                feature: "Use Cases", 
-                values: [
-                  "Hidden labels, instructions, live updates",
-                  "Alerts, navigation, visible content"
-                ]
-              },
-              {
-                feature: "Accessibility",
-                values: [
-                  "Improves screen reader UX",
-                  "Works for all users"
-                ]
-              }
-            ]}
-          />
-
-          {/* Type Selector */}
-          <div className="flex gap-4 mb-6">
-            {types.map((type) => (
-              <button
-                key={type}
-                className={`px-4 py-2 rounded font-medium ${
-                  activeType === type
-                    ? "bg-blue-600 text-white shadow"
-                    : "bg-card/20 text-foreground hover:bg-card/30"
-                }`}
-                onClick={() => setActiveType(type)}
-              >
-                {type === "sr-only" ? "sr-only" : "not sr-only"}
-              </button>
-            ))}
-          </div>
-
-          {/* Selected Type Content */}
-          <div className="space-y-6">
-            {/* Diagram */}
-            {diagrams[activeType]}
-
-            {/* Explanation with Layer Context */}
-            <MentalModelSection
-              title=""
-              description=""
-              features={[]}
-              layerAssignment={activeType === "sr-only" 
-                ? "Content Layer (assistive technology information): The sr-only class hides content visually but keeps it accessible to screen readers. This creates a dual-layer experience where assistive technology receives information that doesn't affect the visual presentation layer."
-                : "Content Layer (assistive technology information): Visible content (not sr-only) serves both visual users and assistive technology. This is the default content layer behavior - information available to everyone through different channels."
-              }
-              browserBehavior="Screen readers ignore CSS display:none but read sr-only content, which uses clip:rect(0,0,0,0) to hide visually while remaining in the accessibility tree."
-            />
-
-            {/* Benefits Section */}
-            <section className="space-y-2 border border-border rounded-lg p-4 bg-card/30">
-              <h2 className="text-2xl font-semibold text-foreground">Benefits</h2>
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                {benefits[activeType].map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            </section>
-
-            {/* Cross-Reference to Related Concepts */}
-            <section className="space-y-2 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 bg-yellow-50/30 dark:bg-yellow-900/10">
-              <h2 className="text-xl font-semibold text-yellow-700 dark:text-yellow-400">Related Accessibility Concepts</h2>
-              <div className="text-sm text-muted-foreground space-y-2">
-                <p><strong>Screen reader utilities work with:</strong></p>
-                <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li><strong>ARIA attributes:</strong> Define roles, states, and properties</li>
-                  <li><strong>Semantic HTML:</strong> Use proper element types (button, nav, main)</li>
-                  <li><strong>Focus management:</strong> Tab order and keyboard navigation</li>
-                  <li><strong>Color contrast:</strong> Ensure text is readable (Text Color utilities)</li>
-                  <li><strong>Touch target size:</strong> Make interactive areas accessible (Spacing utilities)</li>
-                </ul>
-                <p className="mt-3 text-xs">Screen reader utilities are part of a complete accessibility strategy, not a standalone solution.</p>
-              </div>
-            </section>
-
-            {/* ❌ Common Mistakes & Why They Happen */}
-            <CommonMistakesSection
-              mistakes={[
-                {
-                  title: "Forgetting focus:not-sr-only on skip links",
-                  reason: "Screen reader users can't see when the link becomes visible during keyboard navigation.",
-                  example: `<a class="sr-only">Skip to content</a> // Never visible when focused`,
-                  level: 'critical'
-                },
-                {
-                  title: "Using sr-only for content that should be visible",
-                  reason: "You're hiding useful information from sighted users unnecessarily.",
-                  example: `<p class="sr-only">This form is required</p> // Why hide this warning?`,
-                  level: 'warning'
-                },
-                {
-                  title: "Adding sr-only to decorative content",
-                  reason: "Assistive technology users don't need to hear about decorative elements.",
-                  example: `<div class="sr-only">Beautiful background pattern</div> // Use aria-hidden instead`,
-                  level: 'info'
-                }
-              ]}
-            />
-
-            {/* Real World Examples */}
-            <section className="space-y-6">
-              <h2 className="text-2xl font-semibold text-foreground">Real World Examples</h2>
-              {examplesData[activeType].map((ex, idx) => (
-                <div key={idx} className="space-y-2 border border-border rounded-lg p-4 bg-card/20">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                    <h3 className="text-lg font-semibold text-foreground">{ex.title}</h3>
-                    <p className="text-sm text-muted-foreground">{ex.note}</p>
+  <div class="bg-slate-200 p-2">Item 3 (Visible)</div>
+</div>`;
+          }}
+          renderPreview={(option) => {
+            return (
+              <div className="w-64 border border-dashed border-slate-300 dark:border-slate-700 p-4 bg-white dark:bg-slate-900 rounded-lg">
+                <div className="flex flex-col gap-2">
+                  <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded text-center text-sm font-medium">
+                    Item 1
                   </div>
-                  <div className="text-xs text-muted-foreground mb-2">
-                    {activeType === "sr-only" ? "Content Layer: Information for assistive technology only" : "Content Layer: Information visible to all users"}
+
+                  <div
+                    className={`bg-blue-500 text-white p-3 rounded text-center text-sm font-medium transition-all ${option}`}
+                  >
+                    Item 2 ({option})
                   </div>
-                  <CopyableCode code={ex.code} index={idx} />
+
+                  <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded text-center text-sm font-medium">
+                    Item 3
+                  </div>
                 </div>
-              ))}
-            </section>
-
-
-            {/* Common Use Cases */}
-            <section className="space-y-2 border border-border rounded-lg p-4 bg-card/30">
-              <h2 className="text-2xl font-semibold text-foreground">Common Use Cases</h2>
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                {commonUseCases[activeType].map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            </section>
-
-            {/* Layer-Specific Rules */}
-            <section className="space-y-2 border border-blue-200 dark:border-blue-800 rounded-lg p-4 bg-blue-50/30 dark:bg-blue-900/10">
-              <h2 className="text-xl font-semibold text-blue-700 dark:text-blue-400">Content Layer Rules</h2>
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                <li><strong>sr-only</strong> must be used for content that screen readers need but sighted users don't</li>
-                <li><strong>not-sr-only</strong> is the default - use it for content everyone should access</li>
-                <li>Combine with <code className="bg-muted px-1 rounded">focus:not-sr-only</code> for interactive elements</li>
-                <li>Use <code className="bg-muted px-1 rounded">aria-hidden</code> for decorative elements, not sr-only</li>
-                <li>Screen reader content should complement, not duplicate, visible content</li>
-              </ul>
-            </section>
-
-            {/* Pre-Ship Checklist */}
-            <section className="space-y-2 border border-green-200 dark:border-green-800 rounded-lg p-4 bg-green-50/30 dark:bg-green-900/10">
-              <h2 className="text-xl font-semibold text-green-700 dark:text-green-400">Pre-Ship Checklist</h2>
-              <div className="text-sm space-y-2">
-                <div className="font-medium">Content Layer Verification:</div>
-                <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-4">
-                  <li>[ ] Does sr-only content provide unique value to assistive technology users?</li>
-                  <li>[ ] Are skip links focusable (focus:not-sr-only)?</li>
-                  <li>[ ] Is decorative content using aria-hidden instead of sr-only?</li>
-                  <li>[ ] Does visible content have adequate labels for screen readers?</li>
-                  <li>[ ] Are form inputs properly labeled (visible or sr-only)?</li>
-                </ul>
               </div>
-            </section>
+            );
+          }}
+        />
+      </section>
+
+      <InteractiveChallenge
+        title="The Mystery Button"
+        description="You have a search button represented only by a magnifying glass icon. A screen reader currently just announces 'Button' or nothing at all, confusing users. Add an `sr-only` span to give it a clear label of 'Search' without changing the design."
+        codeSnippet={`<button class="p-2 bg-blue-600 rounded-full text-white">
+        <svg class="w-5 h-5">...</svg> <span class="{input}">Search</span>
+        </button>`}
+        options={["hidden", "opacity-0", "sr-only", "block"]}
+        correctOption="sr-only"
+        renderPreview={(userClass) => {
+          // Simulate Screen Reader Output logic
+          let srOutput = "Button"; // Default for unlabeled button
+          let visualState = "Icon Only";
+
+          if (userClass === "sr-only") {
+            srOutput = "Button: 'Search'";
+            visualState = "Icon Only (Correct)";
+          } else if (userClass === "block") {
+            srOutput = "Button: 'Search'";
+            visualState = "Icon + Text (Design Broken)";
+          } else if (userClass === "hidden") {
+            srOutput = "Button"; // Hidden text is ignored
+            visualState = "Icon Only";
+          } else if (userClass === "opacity-0") {
+            srOutput = "Button: 'Search'"; // Opacity 0 is read
+            visualState = "Icon + Invisible Gap (Layout Broken)";
+          }
+
+          return (
+            <div className="flex flex-col items-center justify-center w-full h-full bg-slate-50 dark:bg-slate-950 p-8 rounded-lg gap-8">
+              {/* Visual Preview */}
+              <div className="text-center">
+                <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">
+                  Visual View
+                </p>
+                <div className="p-6 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                  <button className="p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center gap-2 transition-all">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                    <span
+                      className={userClass === "hidden" ? "hidden" : userClass}
+                    >
+                      Search
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Simulated SR Output */}
+              <div className="w-full max-w-xs">
+                <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">
+                  Screen Reader Output
+                </p>
+                <div
+                  className={`p-4 rounded-lg font-mono text-sm border-l-4 shadow-sm transition-all ${
+                    userClass === "sr-only"
+                      ? "bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-300"
+                      : "bg-slate-100 dark:bg-slate-800 border-slate-400 text-slate-600 dark:text-slate-400"
+                  }`}
+                >
+                  <span className="opacity-50">VoiceOver: </span>
+                  &quot;{srOutput}&quot;
+                </div>
+              </div>
+            </div>
+          );
+        }}
+      />
+      
+      <ExampleSection title="Real-World Examples">
+        <ExampleCard
+          title="Skip to Content Link"
+          description="A link hidden by default that becomes visible when focused via keyboard. Essential for power users to skip navigation."
+          code={`<a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-blue-600 focus:shadow-lg focus:rounded-md">
+  Skip to main content
+</a>`}
+        >
+          <div className="relative h-20 bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 flex items-center justify-center group">
+            <p className="text-sm text-slate-400">
+              Focus inside here and press Tab
+            </p>
+            <a
+              href="#"
+              onClick={(e) => e.preventDefault()}
+              className="sr-only focus:not-sr-only absolute top-4 left-4 z-10 px-4 py-2 bg-blue-600 text-white font-bold rounded-md shadow-xl transition-all outline-none ring-2 ring-white"
+            >
+              Skip to content
+            </a>
           </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
+        </ExampleCard>
+
+        <ExampleCard
+          title="Visually Hidden Form Label"
+          description="When a visual design (like a newsletter input) implies the label, use `sr-only` to keep it accessible without clutter."
+          code={`<form class="flex gap-2">
+  <label for="email" class="sr-only">Email Address</label>
+  <input id="email" type="email" placeholder="Enter your email..." class="px-4 py-2 rounded border" />
+  <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Subscribe</button>
+</form>`}
+        >
+          <div className="flex gap-2 max-w-sm">
+            <label htmlFor="demo-email" className="sr-only">
+              Email Address
+            </label>
+            <input
+              id="demo-email"
+              type="email"
+              placeholder="Enter your email..."
+              className="flex-1 px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm"
+            />
+            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md">
+              Subscribe
+            </button>
+          </div>
+        </ExampleCard>
+
+        <ExampleCard
+          title="Icon-Only Action Button"
+          description="Providing a text alternative for an icon button (e.g., Close Modal)."
+          code={`<button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
+  <span class="sr-only">Close menu</span>
+  <svg class="w-6 h-6">...</svg> </button>`}
+        >
+          <button className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+            <span className="sr-only">Close menu</span>
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </ExampleCard>
+
+        <ExampleCard
+          title="Live Region Status"
+          description="Announcing dynamic changes (like form submission success) to screen readers without requiring focus movement."
+          code={`<div role="status" aria-live="polite" class="sr-only">
+  Settings saved successfully.
+</div>`}
+        >
+          <div className="p-4 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-900 rounded-md">
+            <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              <span className="text-sm font-medium">Visual Status: Saved</span>
+            </div>
+            {/* The sr-only element below would be announced by the screen reader */}
+            <div className="sr-only">Settings saved successfully.</div>
+          </div>
+        </ExampleCard>
+      </ExampleSection>
+
+      <CommonMistakesSection
+        mistakes={[
+          {
+            title: "Hiding Focusable Elements Forever",
+            reason:
+              "If you hide a link with `sr-only` but don't add `focus:not-sr-only`, keyboard users will focus on an invisible element, which is very confusing.",
+            example: `<a class="sr-only">Skip Link (Bad)</a>`,
+            level: "critical",
+          },
+          {
+            title: "Using display:none for Accessibility",
+            reason:
+              "Using `hidden` (display: none) removes the element from the accessibility tree entirely. Screen readers will NOT read it.",
+            example: `<span class="hidden">Description (Ignored)</span>`,
+            level: "critical",
+          },
+          {
+            title: "Overusing sr-only",
+            reason:
+              "Don't hide content that would be useful for everyone. If an instruction is helpful, make it visible.",
+            example: `<p class="sr-only">Password must be 8 chars...</p>`,
+            level: "warning",
+          },
+        ]}
+      />
+
+      <TipsSection
+        tips={[
+          {
+            bold: "Skip Links:",
+            text: "Always use `sr-only focus:not-sr-only` for 'Skip to content' links to help keyboard users bypass navigation menus.",
+          },
+          {
+            bold: "Testing:",
+            text: "Use VoiceOver (Mac) or NVDA (Windows) to verify that your `sr-only` content is actually being read in the correct context.",
+          },
+          {
+            bold: "Charts & Graphs:",
+            text: "Use `sr-only` to provide a table or text summary of complex data visualizations.",
+          },
+        ]}
+      />
+    </div>
+  );
+}
