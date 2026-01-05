@@ -1,17 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 import { PageHero } from "@/components/shared/page-hero";
 import { UtilityGrid } from "@/components/shared/utility-grid";
 import { UtilityPlayground } from "@/components/shared/utility_playground";
-import { ExampleSection, ExampleCard } from "@/components/shared/example-section";
+import {
+  ExampleSection,
+  ExampleCard,
+} from "@/components/shared/example-section";
 import { TipsSection } from "@/components/shared/tips-section";
 import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
 import { MentalModelSection } from "@/components/shared/mental-model-section";
 import { ComparisonTable } from "@/components/shared/comparison-table";
 import CodeBlock from "@/app/utilities/components/code-block";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 type RadiusClass =
   | "rounded-none"
@@ -75,11 +77,9 @@ export default function BorderRadiusPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
-
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
-          <PageHero 
+          <PageHero
             title="Border Radius"
             description="Control element corner rounding — from sharp corners to pills and circles. This guide covers practical patterns, accessibility considerations, responsive radius, animation, and many real-world visuals."
           />
@@ -98,7 +98,7 @@ export default function BorderRadiusPage() {
               "Affects touch target perception and interaction affordances",
               "Combines with overflow:hidden for perfect circles and pills",
               "Responsive radius adapts to different screen sizes",
-              "Animation-friendly for smooth transitions between states"
+              "Animation-friendly for smooth transitions between states",
             ]}
             layerAssignment="Visual Enhancement Layer - Softens corners without affecting layout"
             browserBehavior="Border radius creates clipped corners using elliptical arcs, respecting content-overflow and border-box sizing"
@@ -108,28 +108,32 @@ export default function BorderRadiusPage() {
             mistakes={[
               {
                 title: "Inconsistent radius values",
-                reason: "Using different radius values for similar elements breaks visual rhythm",
+                reason:
+                  "Using different radius values for similar elements breaks visual rhythm",
                 example: "rounded-md on buttons, rounded-lg on similar cards",
-                level: "warning"
+                level: "warning",
               },
               {
                 title: "Forgetting overflow hidden",
-                reason: "Rounded corners don't clip content without overflow:hidden",
+                reason:
+                  "Rounded corners don't clip content without overflow:hidden",
                 example: "rounded-lg on div with overflowing content",
-                level: "critical"
+                level: "critical",
               },
               {
                 title: "Too small radius on large elements",
-                reason: "Small radius gets lost on large elements, looking like an error",
+                reason:
+                  "Small radius gets lost on large elements, looking like an error",
                 example: "rounded-sm on wide hero section",
-                level: "info"
+                level: "info",
               },
               {
                 title: "Missing responsive adjustments",
-                reason: "Fixed radius may not work well across different screen sizes",
+                reason:
+                  "Fixed radius may not work well across different screen sizes",
                 example: "rounded-2xl on mobile looking too large",
-                level: "info"
-              }
+                level: "info",
+              },
             ]}
           />
 
@@ -142,27 +146,53 @@ export default function BorderRadiusPage() {
               </div>
             </div>
 
-          <UtilityPlayground
-            title="Border Radius Playground"
-            description="Test different radius values on various elements and see how they affect visual design."
-            options={utilities.map(u => u.cls)}
-            defaultValue="rounded-md"
-            buildMarkup={(radiusClass, customClasses = "") => {
-              return `<div class="${radiusClass} ${customClasses} p-6 bg-slate-700">
+            <UtilityPlayground
+              title="Border Radius Playground"
+              description="Test different radius values on various elements and see how they affect visual design."
+              options={utilities.map((u) => u.cls)}
+              defaultValue="rounded-md"
+              buildMarkup={(radiusClass, customClasses = "") => {
+                return `<div class="${radiusClass} ${customClasses} p-6 bg-slate-700">
   Radius Preview
 </div>`;
-            }}
-            renderPreview={(radiusClass, customClasses = "") => {
-              return (
-                <div className={`${radiusClass} ${customClasses} p-6 bg-slate-700 text-white`}>
-                  Radius Preview
-                </div>
-              );
-            }}
-            optionLabel={(value) => value.replace("rounded-", "") || "none"}
-            defaultCustomClasses="border border-border"
-          />
+              }}
+              renderPreview={(radiusClass, customClasses = "") => {
+                return (
+                  <div
+                    className={`${radiusClass} ${customClasses} p-6 bg-slate-700 text-white`}
+                  >
+                    Radius Preview
+                  </div>
+                );
+              }}
+              optionLabel={(value) => value.replace("rounded-", "") || "none"}
+              defaultCustomClasses="border border-border"
+            />
           </section>
+
+          <InteractiveChallenge
+            title="The Sharp Button"
+            description="You are designing a modern, friendly app interface. The current 'Sign Up' button has sharp, square corners (`rounded-none`), making it feel harsh and dated. Change the radius to `rounded-full` to give it a soft, approachable 'pill' shape."
+            codeSnippet={`<button class="bg-indigo-600 text-white px-6 py-3 font-semibold shadow-lg hover:bg-indigo-700 transition-all {input}">
+  Sign Up Now
+</button>`}
+            options={[
+              "rounded-none",
+              "rounded-sm",
+              "rounded-lg",
+              "rounded-full",
+            ]}
+            correctOption="rounded-full"
+            renderPreview={(userClass) => (
+              <div className="flex items-center justify-center w-full h-full bg-slate-100 dark:bg-slate-950 p-8 rounded-lg">
+                <button
+                  className={`bg-indigo-600 text-white px-8 py-3 font-semibold shadow-lg hover:bg-indigo-700 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 ${userClass}`}
+                >
+                  Sign Up Now
+                </button>
+              </div>
+            )}
+          />
 
           <ExampleSection title="Real-World Examples">
             <ExampleCard
@@ -174,7 +204,9 @@ export default function BorderRadiusPage() {
 </div>`}
             >
               <div className="relative">
-                <div className="w-14 h-14 rounded-full bg-slate-700 flex items-center justify-center text-white">JD</div>
+                <div className="w-14 h-14 rounded-full bg-slate-700 flex items-center justify-center text-white">
+                  JD
+                </div>
                 <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full ring-2 ring-background"></span>
               </div>
             </ExampleCard>
@@ -184,7 +216,9 @@ export default function BorderRadiusPage() {
               description="Soft rounded corners create friendly conversational UI"
               code={`<div class="rounded-lg bg-slate-700 p-3 text-slate-200 max-w-xs">Hey there!</div>`}
             >
-              <div className="rounded-lg bg-slate-700 p-3 text-slate-200 max-w-xs">Hey there!</div>
+              <div className="rounded-lg bg-slate-700 p-3 text-slate-200 max-w-xs">
+                Hey there!
+              </div>
             </ExampleCard>
 
             <ExampleCard
@@ -192,7 +226,10 @@ export default function BorderRadiusPage() {
               description="Fully rounded inputs create modern search interfaces"
               code={`<input class="rounded-full px-4 py-2 bg-slate-700 text-white" placeholder="Search..." />`}
             >
-              <input className="rounded-full px-4 py-2 bg-slate-700 text-white w-full" placeholder="Search..." />
+              <input
+                className="rounded-full px-4 py-2 bg-slate-700 text-white w-full"
+                placeholder="Search..."
+              />
             </ExampleCard>
 
             <ExampleCard
@@ -207,7 +244,9 @@ export default function BorderRadiusPage() {
               <div className="rounded-xl bg-slate-700 p-6 max-w-xs">
                 <h3 className="text-xl font-bold text-slate-100">Pro</h3>
                 <p className="text-2xl font-bold text-slate-100">₹499</p>
-                <button className="mt-4 w-full rounded-lg bg-blue-600 text-white">Get Started</button>
+                <button className="mt-4 w-full rounded-lg bg-blue-600 text-white">
+                  Get Started
+                </button>
               </div>
             </ExampleCard>
 
@@ -226,10 +265,14 @@ export default function BorderRadiusPage() {
             >
               <div className="rounded-md ring ring-green-400 bg-slate-700 p-4 max-w-sm">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center text-white">✓</div>
+                  <div className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center text-white">
+                    ✓
+                  </div>
                   <div>
                     <div className="font-semibold text-slate-100">Success!</div>
-                    <div className="text-sm text-muted-foreground">Changes saved</div>
+                    <div className="text-sm text-muted-foreground">
+                      Changes saved
+                    </div>
                   </div>
                 </div>
               </div>
@@ -240,23 +283,38 @@ export default function BorderRadiusPage() {
               description="Perfect circles with shadows for primary actions"
               code={`<button class="rounded-full w-12 h-12 bg-blue-600 shadow-lg text-white">+</button>`}
             >
-              <button className="rounded-full w-12 h-12 bg-blue-600 shadow-lg text-white text-xl">+</button>
+              <button className="rounded-full w-12 h-12 bg-blue-600 shadow-lg text-white text-xl">
+                +
+              </button>
             </ExampleCard>
           </ExampleSection>
 
-          <TipsSection 
+          <TipsSection
             tips={[
-              { bold: "Design tokens:", text: "derive radii from a small set of tokens (none, sm, md, lg, full) for visual rhythm and consistency" },
-              { bold: "Combine with ring utilities:", text: "ring respects shape better than an outline reset" },
-              { bold: "Hover micro-interactions:", text: "small radius changes (hover:rounded-lg) add polish — keep transitions short" },
-              { bold: "Masonry / grid:", text: "when using row-span/fixed auto-rows, match rounding on items to avoid jagged edges between spans" },
-              { bold: "Touch targets:", text: "rounding doesn't change hit area — ensure padded areas meet accessibility targets (44–48px recommended)" }
+              {
+                bold: "Design tokens:",
+                text: "derive radii from a small set of tokens (none, sm, md, lg, full) for visual rhythm and consistency",
+              },
+              {
+                bold: "Combine with ring utilities:",
+                text: "ring respects shape better than an outline reset",
+              },
+              {
+                bold: "Hover micro-interactions:",
+                text: "small radius changes (hover:rounded-lg) add polish — keep transitions short",
+              },
+              {
+                bold: "Masonry / grid:",
+                text: "when using row-span/fixed auto-rows, match rounding on items to avoid jagged edges between spans",
+              },
+              {
+                bold: "Touch targets:",
+                text: "rounding doesn't change hit area — ensure padded areas meet accessibility targets (44–48px recommended)",
+              },
             ]}
           />
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }
