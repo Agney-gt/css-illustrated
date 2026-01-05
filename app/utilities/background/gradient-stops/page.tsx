@@ -12,6 +12,7 @@ import { CommonMistakesSection } from "@/components/shared/common-mistakes-secti
 import { MentalModelSection } from "@/components/shared/mental-model-section"
 import { ComparisonTable } from "@/components/shared/comparison-table"
 import { RealWorldExamples } from "@/components/shared/real-world-examples"
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge"
 import CodeBlock from "@/app/utilities/components/code-block"
 import { backgroundGradientStops } from "@/lib/utilities"
 
@@ -190,6 +191,71 @@ export default function GradientStopsPage() {
           />
 
           <ComparisonTable {...comparisonData} />
+
+          <InteractiveChallenge
+            title="The Harsh Transition"
+            description="This banner gradient jumps awkwardly from green to purple. The client wants a smoother blend in the middle. Pick the right class to add a transition color between the start and end."
+            codeSnippet={`<div class="bg-gradient-to-r from-emerald-400 {input} to-violet-600 p-8 rounded-xl text-white">
+  Premium Membership
+</div>`}
+            options={["from-cyan-500", "via-cyan-500", "to-cyan-500", "bg-cyan-500"]}
+            correctOption="via-cyan-500"
+            renderPreview={(userClass) => {
+              let gradientResult = "";
+              let statusText = "";
+              let isCorrect = false;
+
+              if (userClass === "via-cyan-500") {
+                gradientResult = "bg-gradient-to-r from-emerald-400 via-cyan-500 to-violet-600";
+                statusText = "Smooth three-color transition!";
+                isCorrect = true;
+              } else if (userClass === "from-cyan-500") {
+                gradientResult = "bg-gradient-to-r from-cyan-500 to-violet-600";
+                statusText = "Replaced the start color - green is gone!";
+              } else if (userClass === "to-cyan-500") {
+                gradientResult = "bg-gradient-to-r from-emerald-400 to-cyan-500";
+                statusText = "Replaced the end color - purple is gone!";
+              } else {
+                gradientResult = "bg-gradient-to-r from-emerald-400 to-violet-600";
+                statusText = "bg-* sets solid color, not gradient stops";
+              }
+
+              return (
+                <div className="flex flex-col items-center justify-center w-full h-full bg-slate-50 dark:bg-slate-950 p-8 rounded-lg gap-8">
+                  {/* Visual Preview */}
+                  <div className="text-center w-full max-w-md">
+                    <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">
+                      Banner Preview
+                    </p>
+                    <div className="p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                      <div
+                        className={`${gradientResult} p-6 rounded-xl text-white font-bold text-lg transition-all`}
+                      >
+                        Premium Membership
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Status Output */}
+                  <div className="w-full max-w-xs">
+                    <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">
+                      Result
+                    </p>
+                    <div
+                      className={`p-4 rounded-lg font-mono text-sm border-l-4 shadow-sm transition-all ${
+                        isCorrect
+                          ? "bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-300"
+                          : "bg-slate-100 dark:bg-slate-800 border-slate-400 text-slate-600 dark:text-slate-400"
+                      }`}
+                    >
+                      <span className="opacity-50">Status: </span>
+                      &quot;{statusText}&quot;
+                    </div>
+                  </div>
+                </div>
+              );
+            }}
+          />
 
           <RealWorldExamples 
             title="Real World Examples"

@@ -1,0 +1,122 @@
+{
+  "title": "Accessibility",
+  "diagrams": {
+    "sr-only": {
+      "title": "Screen Reader Only",
+      "classes": "flex items-center gap-4",
+      "description": "Content visible only to screen readers"
+    },
+    "not-sr-only": {
+      "title": "Not Screen Reader Only",
+      "classes": "flex items-center gap-4",
+      "description": "Content visible to all users"
+    },
+    "focus-visible": {
+      "title": "Focus Visible",
+      "classes": "flex flex-col gap-4",
+      "description": "Show focus ring only on keyboard navigation"
+    },
+    "focus-within": {
+      "title": "Focus Within",
+      "classes": "flex flex-col gap-4",
+      "description": "Style parent when child has focus"
+    }
+  },
+  "challenge": {
+    "utility": "accessibility",
+    "title": "Create Accessible Button",
+    "description": "Make an accessible button with proper focus states and screen reader text.",
+    "targetDescription": "Button should have visible focus ring and hidden label for screen readers",
+    "successMessage": "Great! You've created an accessible component!",
+    "hintMessage": "Combine focus-visible with sr-only for best accessibility",
+    "baseContainer": "flex items-center justify-center border-2 border-gray-600 rounded-lg bg-gray-800/30 p-8 h-80 w-full",
+    "boxClasses": "w-32 h-32 bg-indigo-500 rounded-lg cursor-pointer",
+    "numberOfBoxes": 1,
+    "boxContent": ["🔍"],
+    "solution": {
+      "focusState": "focus-visible:ring-4",
+      "srText": "sr-only"
+    },
+    "controls": [
+      {
+        "property": "focusState",
+        "title": "Focus State",
+        "options": [
+          { "label": "None", "value": "" },
+          { "label": "Focus Ring", "value": "focus:ring-4" },
+          { "label": "Focus Visible Ring", "value": "focus-visible:ring-4" },
+          { "label": "Focus Within", "value": "focus-within:ring-4" }
+        ]
+      },
+      {
+        "property": "srText",
+        "title": "Screen Reader Text",
+        "options": [
+          { "label": "None", "value": "" },
+          { "label": "Screen Reader Only", "value": "sr-only" },
+          { "label": "Not SR Only", "value": "not-sr-only" }
+        ]
+      }
+    ]
+  },
+  "editorProperties": [
+    {
+      "name": "backgroundColor",
+      "label": "Background Color",
+      "type": "color"
+    },
+    {
+      "name": "color",
+      "label": "Text Color",
+      "type": "color"
+    },
+    {
+      "name": "width",
+      "label": "Width",
+      "type": "range",
+      "min": 40,
+      "max": 200,
+      "unit": "px"
+    },
+    {
+      "name": "height",
+      "label": "Height",
+      "type": "range",
+      "min": 40,
+      "max": 200,
+      "unit": "px"
+    },
+    {
+      "name": "borderRadius",
+      "label": "Border Radius",
+      "type": "range",
+      "min": 0,
+      "max": 50,
+      "unit": "px"
+    },
+    {
+      "name": "padding",
+      "label": "Padding",
+      "type": "text"
+    },
+    {
+      "name": "fontSize",
+      "label": "Font Size",
+      "type": "range",
+      "min": 12,
+      "max": 32,
+      "unit": "px"
+    },
+    {
+      "name": "fontWeight",
+      "label": "Font Weight",
+      "type": "select",
+      "options": [
+        { "label": "Normal", "value": "400" },
+        { "label": "Medium", "value": "500" },
+        { "label": "Semi Bold", "value": "600" },
+        { "label": "Bold", "value": "700" }
+      ]
+    }
+  ]
+}

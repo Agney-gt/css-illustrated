@@ -1,0 +1,83 @@
+{
+  "title": "Align Content",
+  "diagrams": {
+    "start": {
+      "title": "align-content: start",
+      "classes": "flex flex-wrap content-start",
+      "description": "Both rows are packed at the top of the container. Remaining vertical space stays at the bottom."
+    },
+    "center": {
+      "title": "align-content: center",
+      "classes": "flex flex-wrap content-center",
+      "description": "The two rows are grouped together and centered vertically as a unit."
+    },
+    "end": {
+      "title": "align-content: end",
+      "classes": "flex flex-wrap content-end",
+      "description": "Both rows move to the bottom of the container, leaving empty space above."
+    },
+    "between": {
+      "title": "align-content: space-between",
+      "classes": "flex flex-wrap content-between",
+      "description": "The first row sticks to the top, the second row sticks to the bottom. Space exists only between rows."
+    },
+    "around": {
+      "title": "align-content: space-around",
+      "classes": "flex flex-wrap content-around",
+      "description": "Equal vertical space appears above the first row, between the rows, and below the second row."
+    },
+    "stretch": {
+      "title": "align-content: stretch",
+      "classes": "flex flex-wrap content-stretch",
+      "description": "Both rows stretch vertically to fill the container height, making each row taller."
+    }
+  },
+  "challenge": {
+    "utility": "align-content",
+    "title": "Distribute Flex Rows",
+    "description": "This challenge checks whether you understand how flex lines (rows) are distributed vertically.",
+    "targetDescription": "One row should touch the top, the other should touch the bottom.",
+    "successMessage": "Perfect! You correctly distributed the flex rows.",
+    "hintMessage": "Think about which value pushes the first row up and the last row down.",
+    "baseContainer": "flex flex-wrap border-2 border-gray-600 rounded-lg bg-gray-800/30 p-4 h-80 w-full",
+    "boxClasses": "w-20 h-16 bg-indigo-500 rounded-lg m-2",
+    "numberOfBoxes": 6,
+    "solution": {
+      "alignContent": "content-between"
+    },
+    "controls": [
+      {
+        "property": "alignContent",
+        "title": "Align Content",
+        "options": [
+          { "label": "Start", "value": "content-start" },
+          { "label": "Center", "value": "content-center" },
+          { "label": "End", "value": "content-end" },
+          { "label": "Between", "value": "content-between" },
+          { "label": "Around", "value": "content-around" },
+          { "label": "Stretch", "value": "content-stretch" }
+        ]
+      }
+    ]
+  },
+  "editorProperties": [
+    { "name": "backgroundColor", "label": "Background Color", "type": "color" },
+    { "name": "color", "label": "Text Color", "type": "color" },
+    { "name": "width", "label": "Width", "type": "range", "min": 40, "max": 200, "unit": "px" },
+    { "name": "height", "label": "Height", "type": "range", "min": 40, "max": 200, "unit": "px" },
+    { "name": "borderRadius", "label": "Border Radius", "type": "range", "min": 0, "max": 50, "unit": "px" },
+    { "name": "margin", "label": "Margin", "type": "text" },
+    { "name": "fontSize", "label": "Font Size", "type": "range", "min": 12, "max": 32, "unit": "px" },
+    {
+      "name": "fontWeight",
+      "label": "Font Weight",
+      "type": "select",
+      "options": [
+        { "label": "Normal", "value": "400" },
+        { "label": "Medium", "value": "500" },
+        { "label": "Semi Bold", "value": "600" },
+        { "label": "Bold", "value": "700" }
+      ]
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import { MentalModelSection } from "@/components/shared/mental-model-section";
 import { ComparisonTable } from "@/components/shared/comparison-table";
 import { CommonMistakesSection } from "@/components/shared/common-mistakes-section";
 import { utilitiesContent } from "@/app/utilities/data/utilities";
+import IntegratedPlayground from "@/app/utilities/components/integrated-playground";
 
 const NAV_GROUPS: Record<string, { label: string; slug: string }[]> = {
   align: [
@@ -26,6 +27,7 @@ export default function UtilityPage() {
   const slugArray = Array.isArray(params?.slug) ? params.slug : [];
   const lastSegmentKey = slugArray.at(-1) ?? "";
   const joinedKey = slugArray.join("-");
+  
   const slugKey = utilitiesContent[lastSegmentKey]
     ? lastSegmentKey
     : utilitiesContent[joinedKey]
@@ -76,7 +78,7 @@ export default function UtilityPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
-      <main className="flex-1 max-w-5xl px-8 py-12 space-y-12 text-left">
+      <main className="flex-1 max-w-5xl mx-auto px-8 py-12 space-y-12 text-left w-full">
         {/* Top Navigation */}
         {navItems.length > 0 && (
           <div className="flex gap-3">
@@ -113,7 +115,12 @@ export default function UtilityPage() {
         {/* Comparison Table */}
         {data.comparisonTable && <ComparisonTable {...data.comparisonTable} />}
 
-        {/* Type Selector */}
+        {/* INTEGRATED PLAYGROUND - No type selector here */}
+        <IntegratedPlayground 
+          utilityName={slugKey}
+        />
+
+        {/* Type Selector - Moved after playground */}
         <div className="flex gap-4 mb-6">
           {data.types.map((type) => (
             <button
@@ -128,28 +135,6 @@ export default function UtilityPage() {
               {type}
             </button>
           ))}
-        </div>
-
-        {/* Interactive Playground */}
-        <div className="border rounded-lg p-6 bg-slate-900 text-white text-center">
-          <p className="font-semibold">{data.diagrams[activeType]?.title}</p>
-          <div
-            className={`mt-4 flex h-32 items-center justify-center gap-4 ${data.diagrams[activeType]?.classes}`}
-          >
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="w-16 h-16 bg-blue-500 flex items-center justify-center text-white font-bold rounded shadow"
-              >
-                {i}
-              </div>
-            ))}
-          </div>
-          {data.diagrams[activeType]?.description && (
-            <p className="mt-4 text-sm text-gray-300">
-              {data.diagrams[activeType]?.description}
-            </p>
-          )}
         </div>
 
         {/* Benefits */}
@@ -208,38 +193,6 @@ export default function UtilityPage() {
             </ul>
           </section>
         ))}
-
-        {/* Interactive Tools Section */}
-        <section className="space-y-4 border border-border rounded-xl p-6 bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
-          <div>
-            <h2 className="text-2xl font-semibold text-foreground mb-2">🚀 Interactive Learning Tools</h2>
-            <p className="text-sm text-muted-foreground">
-              Practice and master {data.title} with hands-on tools and challenges
-            </p>
-          </div>
-          
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={() => router.push(`/challenge?utility=${slugKey}`)}
-              className="flex items-center gap-2 px-5 py-3 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Take Challenge
-            </button>
-            
-            <button
-              onClick={() => router.push('/visualeditor')}
-              className="flex items-center gap-2 px-5 py-3 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-              Visual Editor
-            </button>
-          </div>
-        </section>
       </main>
       <Footer />
     </div>

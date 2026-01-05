@@ -1,0 +1,117 @@
+{
+  "title": "Align Items",
+  "diagrams": {
+    "start": {
+      "title": "Items Start",
+      "classes": "flex items-start",
+      "description": "Items aligned to the start of the cross axis"
+    },
+    "center": {
+      "title": "Items Center",
+      "classes": "flex items-center",
+      "description": "Items centered along the cross axis"
+    },
+    "end": {
+      "title": "Items End",
+      "classes": "flex items-end",
+      "description": "Items aligned to the end of the cross axis"
+    },
+    "baseline": {
+      "title": "Items Baseline",
+      "classes": "flex items-baseline",
+      "description": "Items aligned along their baseline"
+    },
+    "stretch": {
+      "title": "Items Stretch",
+      "classes": "flex items-stretch",
+      "description": "Items stretched to fill the container"
+    }
+  },
+  "challenge": {
+    "utility": "align-items",
+    "title": "Vertical Center Alignment",
+    "description": "Align all items to the center of the container vertically.",
+    "targetDescription": "All boxes should be centered vertically",
+    "successMessage": "Excellent! You've centered the items perfectly!",
+    "hintMessage": "Use items-center to vertically center all flex items",
+    "baseContainer": "flex border-2 border-gray-600 rounded-lg bg-gray-800/30 p-4 h-80 w-full gap-4",
+    "boxClasses": "w-20 h-20 bg-indigo-500 rounded-lg",
+    "numberOfBoxes": 4,
+    "solution": {
+      "alignItems": "items-center"
+    },
+    "controls": [
+      {
+        "property": "alignItems",
+        "title": "Align Items",
+        "options": [
+          { "label": "Start", "value": "items-start" },
+          { "label": "Center", "value": "items-center" },
+          { "label": "End", "value": "items-end" },
+          { "label": "Baseline", "value": "items-baseline" },
+          { "label": "Stretch", "value": "items-stretch" }
+        ]
+      }
+    ]
+  },
+  "editorProperties": [
+    {
+      "name": "backgroundColor",
+      "label": "Background Color",
+      "type": "color"
+    },
+    {
+      "name": "color",
+      "label": "Text Color",
+      "type": "color"
+    },
+    {
+      "name": "width",
+      "label": "Width",
+      "type": "range",
+      "min": 40,
+      "max": 200,
+      "unit": "px"
+    },
+    {
+      "name": "height",
+      "label": "Height",
+      "type": "range",
+      "min": 40,
+      "max": 200,
+      "unit": "px"
+    },
+    {
+      "name": "borderRadius",
+      "label": "Border Radius",
+      "type": "range",
+      "min": 0,
+      "max": 50,
+      "unit": "px"
+    },
+    {
+      "name": "margin",
+      "label": "Margin",
+      "type": "text"
+    },
+    {
+      "name": "fontSize",
+      "label": "Font Size",
+      "type": "range",
+      "min": 12,
+      "max": 32,
+      "unit": "px"
+    },
+    {
+      "name": "fontWeight",
+      "label": "Font Weight",
+      "type": "select",
+      "options": [
+        { "label": "Normal", "value": "400" },
+        { "label": "Medium", "value": "500" },
+        { "label": "Semi Bold", "value": "600" },
+        { "label": "Bold", "value": "700" }
+      ]
+    }
+  ]
+}

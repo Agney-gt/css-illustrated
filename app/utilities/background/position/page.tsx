@@ -12,6 +12,7 @@ import { CommonMistakesSection } from "@/components/shared/common-mistakes-secti
 import { MentalModelSection } from "@/components/shared/mental-model-section"
 import { ComparisonTable } from "@/components/shared/comparison-table"
 import { RealWorldExamples } from "@/components/shared/real-world-examples"
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge"
 import CodeBlock from "@/app/utilities/components/code-block"
 import { backgroundPositionUtilities } from "@/lib/utilities"
 
@@ -79,7 +80,6 @@ export default function BackgroundPositionPage() {
     ]
   }
 
-  // Map Tailwind background positions to block alignment
   const positionMap: Record<string, string> = {
     "bg-left": "top-1/2 left-2 -translate-y-1/2",
     "bg-center": "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
@@ -244,6 +244,153 @@ export default function BackgroundPositionPage() {
           </section>
 
           <ComparisonTable {...comparisonData} />
+
+          <InteractiveChallenge
+            title="The Misplaced Watermark"
+            description="A photography portfolio displays images with a brand watermark. The watermark should appear in the bottom-right corner, but it's currently showing in the top-left. Which position class will move it to the correct corner?"
+            codeSnippet={`<div class="relative w-full h-64 bg-no-repeat bg-contain {input}"
+     style="background-image: url('watermark.png')">
+  <img src="photo.jpg" class="w-full h-full object-cover" />
+</div>`}
+            options={["bg-left-top", "bg-right-top", "bg-left-bottom", "bg-right-bottom"]}
+            correctOption="bg-right-bottom"
+            renderPreview={(userClass) => {
+              let statusText = ""
+              let isCorrect = false
+              let positionLabel = ""
+
+              const watermarkPosition: Record<string, string> = {
+                "bg-left-top": "top-2 left-2",
+                "bg-right-top": "top-2 right-2",
+                "bg-left-bottom": "bottom-2 left-2",
+                "bg-right-bottom": "bottom-2 right-2",
+              }
+
+              const cornerLabels: Record<string, string> = {
+                "bg-left-top": "↖ Top Left",
+                "bg-right-top": "↗ Top Right",
+                "bg-left-bottom": "↙ Bottom Left",
+                "bg-right-bottom": "↘ Bottom Right",
+              }
+
+              if (userClass === "bg-right-bottom") {
+                statusText = "Perfect! Watermark is in the bottom-right corner."
+                positionLabel = cornerLabels[userClass]
+                isCorrect = true
+              } else if (userClass === "bg-left-top") {
+                statusText = "Watermark is top-left (default) — not the target corner"
+                positionLabel = cornerLabels[userClass]
+              } else if (userClass === "bg-right-top") {
+                statusText = "Close! Right side, but wrong vertical position"
+                positionLabel = cornerLabels[userClass]
+              } else if (userClass === "bg-left-bottom") {
+                statusText = "Bottom is correct, but wrong horizontal side"
+                positionLabel = cornerLabels[userClass]
+              } else {
+                statusText = "Select an option to position the watermark"
+                positionLabel = "—"
+              }
+
+              return (
+                <div className="flex flex-col items-center justify-center w-full h-full bg-slate-50 dark:bg-slate-950 p-6 rounded-lg gap-6">
+                  <div className="text-center w-full max-w-lg">
+                    <p className="text-xs font-bold text-slate-400 mb-3 uppercase tracking-widest">
+                      Portfolio Image Preview
+                    </p>
+                    <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
+                      {/* Simulated photo */}
+                      <div 
+                        className="w-full h-48 bg-cover bg-center"
+                        style={{
+                          backgroundImage: "url('https://picsum.photos/600/400?random=landscape')"
+                        }}
+                      >
+                        {/* Watermark overlay */}
+                        <div className="relative w-full h-full">
+                          <div 
+                            className={`absolute transition-all duration-500 ease-out ${watermarkPosition[userClass] || watermarkPosition["bg-left-top"]}`}
+                          >
+                            <div className={`px-3 py-1.5 rounded text-xs font-bold shadow-lg transition-colors ${
+                              isCorrect 
+                                ? "bg-green-500 text-white" 
+                                : "bg-white/90 text-slate-700"
+                            }`}>
+                              📷 PHOTO CO.
+                            </div>
+                          </div>
+                          
+                          {/* Target indicator */}
+                          {!isCorrect && (
+                            <div className="absolute bottom-2 right-2 px-3 py-1.5 rounded border-2 border-dashed border-green-400/60 text-xs text-green-600 dark:text-green-400 bg-green-50/50 dark:bg-green-900/20">
+                              Target ↘
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Photo info bar */}
+                      <div className="px-4 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">sunset_mountains.jpg</span>
+                        <span className="text-xs text-slate-400">{positionLabel}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Corner position guide */}
+                  <div className="w-full max-w-lg">
+                    <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">
+                      Position Grid
+                    </p>
+                    <div className="grid grid-cols-3 gap-1 bg-slate-200 dark:bg-slate-800 rounded-lg p-1 text-xs">
+                      <div className={`p-2 rounded text-center transition-colors ${userClass === "bg-left-top" ? "bg-blue-500 text-white" : "bg-white dark:bg-slate-900 text-slate-500"}`}>
+                        ↖ TL
+                      </div>
+                      <div className="p-2 rounded text-center bg-white dark:bg-slate-900 text-slate-500">
+                        ↑ T
+                      </div>
+                      <div className={`p-2 rounded text-center transition-colors ${userClass === "bg-right-top" ? "bg-blue-500 text-white" : "bg-white dark:bg-slate-900 text-slate-500"}`}>
+                        ↗ TR
+                      </div>
+                      <div className="p-2 rounded text-center bg-white dark:bg-slate-900 text-slate-500">
+                        ← L
+                      </div>
+                      <div className="p-2 rounded text-center bg-white dark:bg-slate-900 text-slate-500">
+                        ⊕ C
+                      </div>
+                      <div className="p-2 rounded text-center bg-white dark:bg-slate-900 text-slate-500">
+                        → R
+                      </div>
+                      <div className={`p-2 rounded text-center transition-colors ${userClass === "bg-left-bottom" ? "bg-blue-500 text-white" : "bg-white dark:bg-slate-900 text-slate-500"}`}>
+                        ↙ BL
+                      </div>
+                      <div className="p-2 rounded text-center bg-white dark:bg-slate-900 text-slate-500">
+                        ↓ B
+                      </div>
+                      <div className={`p-2 rounded text-center transition-colors ${userClass === "bg-right-bottom" ? "bg-green-500 text-white font-bold" : "bg-white dark:bg-slate-900 text-slate-500"}`}>
+                        ↘ BR ✓
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="w-full max-w-lg">
+                    <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">
+                      Result
+                    </p>
+                    <div
+                      className={`p-4 rounded-lg font-mono text-sm border-l-4 shadow-sm transition-all ${
+                        isCorrect
+                          ? "bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-300"
+                          : "bg-slate-100 dark:bg-slate-800 border-slate-400 text-slate-600 dark:text-slate-400"
+                      }`}
+                    >
+                      <span className="opacity-50">Status: </span>
+                      &quot;{statusText}&quot;
+                    </div>
+                  </div>
+                </div>
+              )
+            }}
+          />
 
           <RealWorldExamples 
             title="Real World Examples"

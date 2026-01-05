@@ -12,6 +12,7 @@ import { CommonMistakesSection } from "@/components/shared/common-mistakes-secti
 import { MentalModelSection } from "@/components/shared/mental-model-section"
 import { ComparisonTable } from "@/components/shared/comparison-table"
 import { RealWorldExamples } from "@/components/shared/real-world-examples"
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge"
 import CodeBlock from "@/app/utilities/components/code-block"
 import { backgroundImageUtilities } from "@/lib/utilities"
 
@@ -200,6 +201,76 @@ export default function BackgroundImagePage() {
           />
 
           <ComparisonTable {...comparisonData} />
+
+          <InteractiveChallenge
+            title="The Sideways Hero"
+            description="A developer built a hero section with colors set, but the gradient flows top-to-bottom. The designer wants it to flow left-to-right instead. Pick the right direction class to fix it."
+            codeSnippet={`<section class="{input} from-indigo-600 to-pink-500 text-white py-16">
+  <h1 class="text-3xl font-bold">Welcome</h1>
+</section>`}
+            options={["bg-gradient-to-b", "bg-gradient-to-r", "bg-gradient-to-t", "from-indigo-600"]}
+            correctOption="bg-gradient-to-r"
+            renderPreview={(userClass) => {
+              let gradientResult = ""
+              let statusText = ""
+              let isCorrect = false
+              let directionLabel = ""
+
+              if (userClass === "bg-gradient-to-r") {
+                gradientResult = "bg-gradient-to-r from-indigo-600 to-pink-500"
+                statusText = "Gradient flows left to right!"
+                directionLabel = "→ Left to Right"
+                isCorrect = true
+              } else if (userClass === "bg-gradient-to-b") {
+                gradientResult = "bg-gradient-to-b from-indigo-600 to-pink-500"
+                statusText = "Gradient flows top to bottom (current behavior)"
+                directionLabel = "↓ Top to Bottom"
+              } else if (userClass === "bg-gradient-to-t") {
+                gradientResult = "bg-gradient-to-t from-indigo-600 to-pink-500"
+                statusText = "Now it's bottom-to-top, not left-to-right"
+                directionLabel = "↑ Bottom to Top"
+              } else {
+                gradientResult = "bg-gradient-to-b from-indigo-600 to-pink-500"
+                statusText = "Gradient flows top to bottom (current behavior)"
+                directionLabel = "↓ Top to Bottom"
+              }
+
+              return (
+                <div className="flex flex-col items-center justify-center w-full h-full bg-slate-50 dark:bg-slate-950 p-8 rounded-lg gap-8">
+                  <div className="text-center w-full max-w-md">
+                    <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">
+                      Hero Preview
+                    </p>
+                    <div className="p-3 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                      <section
+                        className={`${gradientResult} text-white py-8 px-6 rounded-lg transition-all`}
+                      >
+                        <h1 className="text-xl font-bold mb-1">Welcome</h1>
+                        <p className="text-sm text-white/80">Your journey starts here</p>
+                      </section>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-2 font-medium">{directionLabel}</p>
+                  </div>
+
+                  <div className="w-full max-w-xs">
+                    <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">
+                      Result
+                    </p>
+                    <div
+                      className={`p-4 rounded-lg font-mono text-sm border-l-4 shadow-sm transition-all ${
+                        isCorrect
+                          ? "bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-300"
+                          : "bg-slate-100 dark:bg-slate-800 border-slate-400 text-slate-600 dark:text-slate-400"
+                      }`}
+                    >
+                      <span className="opacity-50">Status: </span>
+                      "{statusText}"
+                    </div>
+                  </div>
+                </div>
+              )
+            }}
+          />
 
           <RealWorldExamples 
             title="Real World Examples"

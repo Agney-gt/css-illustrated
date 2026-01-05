@@ -1,0 +1,118 @@
+{
+  "title": "Align Self",
+  "diagrams": {
+    "auto": {
+      "title": "Self Auto",
+      "classes": "flex items-center",
+      "description": "Item follows the parent's align-items value"
+    },
+    "start": {
+      "title": "Self Start",
+      "classes": "flex items-center",
+      "description": "Individual item aligned to the start"
+    },
+    "center": {
+      "title": "Self Center",
+      "classes": "flex items-start",
+      "description": "Individual item centered independently"
+    },
+    "end": {
+      "title": "Self End",
+      "classes": "flex items-center",
+      "description": "Individual item aligned to the end"
+    },
+    "stretch": {
+      "title": "Self Stretch",
+      "classes": "flex items-center",
+      "description": "Individual item stretched to fill"
+    }
+  },
+  "challenge": {
+    "utility": "align-self",
+    "title": "Mixed Vertical Alignment",
+    "description": "Make the middle box align to the center while others stay at the start.",
+    "targetDescription": "Box 1 at start, Box 2 at center, Box 3 at start",
+    "successMessage": "Perfect! You understand align-self overrides!",
+    "hintMessage": "Apply self-center to the middle box only",
+    "baseContainer": "flex items-start border-2 border-gray-600 rounded-lg bg-gray-800/30 p-4 h-80 w-full gap-4",
+    "boxClasses": "w-20 h-20 bg-indigo-500 rounded-lg",
+    "numberOfBoxes": 3,
+    "boxContent": ["1", "2", "3"],
+    "solution": {
+      "box2Align": "self-center"
+    },
+    "controls": [
+      {
+        "property": "box2Align",
+        "title": "Middle Box Alignment",
+        "options": [
+          { "label": "Auto", "value": "self-auto" },
+          { "label": "Start", "value": "self-start" },
+          { "label": "Center", "value": "self-center" },
+          { "label": "End", "value": "self-end" },
+          { "label": "Stretch", "value": "self-stretch" }
+        ]
+      }
+    ]
+  },
+  "editorProperties": [
+    {
+      "name": "backgroundColor",
+      "label": "Background Color",
+      "type": "color"
+    },
+    {
+      "name": "color",
+      "label": "Text Color",
+      "type": "color"
+    },
+    {
+      "name": "width",
+      "label": "Width",
+      "type": "range",
+      "min": 40,
+      "max": 200,
+      "unit": "px"
+    },
+    {
+      "name": "height",
+      "label": "Height",
+      "type": "range",
+      "min": 40,
+      "max": 200,
+      "unit": "px"
+    },
+    {
+      "name": "borderRadius",
+      "label": "Border Radius",
+      "type": "range",
+      "min": 0,
+      "max": 50,
+      "unit": "px"
+    },
+    {
+      "name": "margin",
+      "label": "Margin",
+      "type": "text"
+    },
+    {
+      "name": "fontSize",
+      "label": "Font Size",
+      "type": "range",
+      "min": 12,
+      "max": 32,
+      "unit": "px"
+    },
+    {
+      "name": "fontWeight",
+      "label": "Font Weight",
+      "type": "select",
+      "options": [
+        { "label": "Normal", "value": "400" },
+        { "label": "Medium", "value": "500" },
+        { "label": "Semi Bold", "value": "600" },
+        { "label": "Bold", "value": "700" }
+      ]
+    }
+  ]
+}
