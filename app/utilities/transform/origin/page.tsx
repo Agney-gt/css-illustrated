@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 import CodeBlock from "@/app/utilities/components/code-block";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 type OriginClass =
   | "origin-top-left"
@@ -127,8 +126,6 @@ export default function OriginPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
-
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
           <div className="space-y-4">
@@ -536,6 +533,75 @@ export default function OriginPage() {
             </div>
           </section>
 
+          <InteractiveChallenge
+            title="The Swinging Sign"
+            description="You have an 'Open' sign hanging from a chain. Currently, the sign rotates from its center (`origin-center`), spinning unnaturally like a wheel. Change the origin to `origin-top` so it swings realistically from where the chain connects."
+            codeSnippet={`<div class="relative">
+  <div class="h-8 w-1 bg-gray-400 mx-auto"></div>
+  
+  <div class="bg-amber-100 border-4 border-amber-800 p-4 rounded shadow-lg animate-swing {input}">
+    OPEN
+  </div>
+</div>`}
+            options={[
+              "origin-center",
+              "origin-top",
+              "origin-bottom",
+              "origin-left",
+            ]}
+            correctOption="origin-top"
+            renderPreview={(userClass) => (
+              <div className="flex flex-col items-center justify-center w-full h-full bg-slate-50 dark:bg-slate-950 p-8 rounded-lg perspective-1000">
+                {/* Ceiling/Chain fixture */}
+                <div className="w-full h-2 bg-slate-300 dark:bg-slate-700 rounded-full mb-0 relative z-10"></div>
+
+                {/* Chains */}
+                <div className="flex gap-16 mb-[-4px] relative z-0">
+                  <div className="w-1 h-12 bg-slate-400 dark:bg-slate-600"></div>
+                  <div className="w-1 h-12 bg-slate-400 dark:bg-slate-600"></div>
+                </div>
+
+                {/* The Sign */}
+                <div
+                  className={`
+                w-48 h-24 bg-[#f8f5e6] dark:bg-[#3d342b] border-4 border-[#8b5e3c] rounded-lg shadow-xl
+                flex items-center justify-center
+                ${userClass} 
+              `}
+                  style={{
+                    // We use a custom animation here to simulate the swinging physics
+                    // The key is that the animation applies ROTATION, but the USER CLASS controls the ORIGIN.
+                    animation: "swing 2s infinite ease-in-out alternate",
+                  }}
+                >
+                  <span className="text-3xl font-black tracking-widest text-[#8b5e3c] border-2 border-[#8b5e3c] px-4 py-1 rounded">
+                    OPEN
+                  </span>
+
+                  {/* Visualizing the Pivot Point */}
+                  <div
+                    className="absolute w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-sm z-50 transition-all duration-300"
+                    style={
+                      originDotMap[userClass] || originDotMap["origin-center"]
+                    }
+                  ></div>
+                </div>
+
+                {/* Inline styles for the swing animation specifically for this demo */}
+                <style jsx>{`
+                  @keyframes swing {
+                    from {
+                      transform: rotate(-15deg);
+                    }
+                    to {
+                      transform: rotate(15deg);
+                    }
+                  }
+                `}</style>
+              </div>
+            )}
+          />
+
           {/* Real-world examples */}
           <section className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Real-World Examples</h2>
@@ -845,7 +911,6 @@ export default function OriginPage() {
           </section>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 import CodeBlock from "@/app/utilities/components/code-block";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 type SkewClass =
   | "skew-x-0"
@@ -101,8 +100,6 @@ export default function SkewPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
-
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
           <div className="space-y-4">
@@ -407,6 +404,50 @@ export default function SkewPage() {
             </div>
           </section>
 
+          <InteractiveChallenge
+            title="The Edgy Ribbon"
+            description="You are designing a 'Best Value' ribbon for a pricing card. Currently, it's just a rotated rectangle, which looks a bit plain. Add `-skew-x-12` to give it that dynamic, angled shear look characteristic of sale ribbons."
+            codeSnippet={`<div class="relative overflow-hidden w-64 h-64 bg-slate-900 rounded-xl shadow-2xl border border-slate-800">
+  <div class="absolute top-4 right-4 text-white p-4">
+    <div class="bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold py-1 px-8 shadow-lg transform rotate-45 translate-x-8 -translate-y-2 {input}">
+      BEST VALUE
+    </div>
+  </div>
+  </div>`}
+            options={["skew-x-0", "skew-x-6", "skew-y-12", "-skew-x-12"]}
+            correctOption="-skew-x-12"
+            renderPreview={(userClass) => (
+              <div className="flex items-center justify-center w-full h-full bg-slate-50 dark:bg-slate-950 p-12 rounded-lg">
+                <div className="relative w-56 h-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                  {/* Card Content Placeholder */}
+                  <div className="p-6 space-y-4">
+                    <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/3"></div>
+                    <div className="h-8 bg-slate-100 dark:bg-slate-800 rounded w-2/3"></div>
+                    <div className="space-y-2 pt-4">
+                      <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+                      <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded w-5/6"></div>
+                      <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded w-4/6"></div>
+                    </div>
+                  </div>
+
+                  {/* The Ribbon */}
+                  <div className="absolute top-0 right-0">
+                    <div
+                      className={`
+                        bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-[10px] font-bold py-1 px-10 shadow-md 
+                        transform rotate-45 translate-x-[30%] -translate-y-[10%] origin-center
+                        transition-transform duration-500
+                        ${userClass}
+                      `}
+                    >
+                      BEST VALUE
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          />
+
           {/* Real-world examples (expanded) */}
           <section className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Real-World Examples</h2>
@@ -648,7 +689,6 @@ export default function SkewPage() {
                 </div>
               </article>
 
-
               {/* Skewed CTA badge */}
               <article className="md:col-span-2 border border-border rounded-lg p-4 bg-card/20">
                 <div className="mb-3 flex items-baseline justify-between">
@@ -736,7 +776,6 @@ export default function SkewPage() {
           </section>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

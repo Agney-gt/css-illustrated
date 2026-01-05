@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 import CodeBlock from "@/app/utilities/components/code-block";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 type TranslateClass =
   | "translate-x-0"
@@ -101,7 +100,6 @@ export default function TranslatePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
 
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
@@ -410,6 +408,96 @@ export default function TranslatePage() {
             </div>
           </section>
 
+          <InteractiveChallenge
+            title="The Tactile Lift"
+            description="You are designing a clickable feature card. To make it feel interactive, it should physically rise up slightly when hovered. Use `-translate-y-2` (negative Y moves up) to create this lifting effect, separating it from the page surface."
+            codeSnippet={`<div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 hover:{input} cursor-pointer">
+  <div class="h-10 w-10 bg-indigo-100 rounded-lg mb-4"></div>
+  <h3 class="font-bold text-slate-800">Smart Automation</h3>
+</div>`}
+            options={[
+              "translate-y-2",
+              "-translate-y-2",
+              "translate-x-2",
+              "translate-y-0",
+            ]}
+            correctOption="-translate-y-2"
+            renderPreview={(userClass) => {
+              // Determine visuals based on selection
+              const isLift = userClass === "-translate-y-2";
+              const isSink = userClass === "translate-y-2";
+              const isSlide = userClass === "translate-x-2";
+
+              return (
+                <div className="flex items-center justify-center w-full h-full bg-slate-100 dark:bg-slate-950 p-8 perspective-1000">
+                  {/* The Card */}
+                  <div
+                    className={`
+            group relative bg-white dark:bg-slate-900 p-6 rounded-xl w-64 border border-slate-200 dark:border-slate-800 cursor-pointer
+            transition-all duration-500 ease-in-out
+            ${
+              // Simulate "Hover" state constantly or based on selection for demo purposes
+              // We apply the user's class directly to show the effect "active"
+              userClass
+            }
+            ${
+              isLift
+                ? "shadow-xl shadow-indigo-500/10 border-indigo-200 dark:border-indigo-900"
+                : "shadow-sm"
+            }
+          `}
+                  >
+                    {/* Icon */}
+                    <div className="h-10 w-10 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg mb-4 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                      <svg
+                        className="w-6 h-6"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                      </svg>
+                    </div>
+
+                    <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-1">
+                      Smart Automation
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Automate your workflow with one click.
+                    </p>
+
+                    {/* Feedback Indicators */}
+                    <div className="absolute -right-28 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+                      {isLift && (
+                        <div className="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded animate-in fade-in slide-in-from-left-2">
+                          ✨ Lifted Up
+                        </div>
+                      )}
+                      {isSink && (
+                        <div className="text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded animate-in fade-in slide-in-from-left-2">
+                          👇 Sinking Down
+                        </div>
+                      )}
+                      {isSlide && (
+                        <div className="text-xs font-bold text-orange-600 bg-orange-100 px-2 py-1 rounded animate-in fade-in slide-in-from-left-2">
+                          👉 Sliding Right
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Floor shadow reference to emphasize movement */}
+                  <div className="absolute bottom-16 w-56 h-4 bg-black/5 blur-md rounded-full pointer-events-none"></div>
+                </div>
+              );
+            }}
+          />
+
           {/* Real-world examples */}
           <section className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Real-World Examples</h2>
@@ -702,7 +790,6 @@ export default function TranslatePage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

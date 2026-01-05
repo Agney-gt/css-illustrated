@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 import CodeBlock from "@/app/utilities/components/code-block";
+import { InteractiveChallenge } from "@/components/shared/challenge/interactive-challenge";
 
 type ScaleClass =
   | "scale-50"
@@ -112,7 +111,6 @@ export default function ScalePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
 
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
@@ -439,6 +437,52 @@ export default function ScalePage() {
             </div>
           </section>
 
+          <InteractiveChallenge
+            title="The Hover Lift"
+            description="You want to create a 'lift' effect for a product card when the user hovers over it. The current card feels static. Add `hover:scale-105` to the card to make it slightly grow on hover, giving it a tactile, interactive feel."
+            codeSnippet={`<div class="bg-white rounded-xl shadow-md p-6 transform transition-all duration-300 {input} cursor-pointer">
+  <div class="h-32 bg-gray-200 rounded-lg mb-4"></div>
+  <h3 class="font-bold text-lg">Product Card</h3>
+  <p class="text-gray-500 text-sm">Hover me to see the effect!</p>
+</div>`}
+            options={[
+              "hover:scale-90",
+              "hover:scale-100",
+              "hover:scale-105",
+              "hover:scale-150",
+            ]}
+            correctOption="hover:scale-105"
+            renderPreview={(userClass) => (
+              <div className="flex items-center justify-center w-full h-full bg-slate-50 dark:bg-slate-950 p-12 rounded-lg">
+                <div
+                  className={`bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 w-64 transform transition-all duration-300 cursor-pointer border border-slate-200 dark:border-slate-800 ${userClass} hover:shadow-xl`}
+                >
+                  <div className="h-32 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg mb-4 flex items-center justify-center text-white">
+                    <svg
+                      className="w-12 h-12 opacity-50"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-1">
+                    Premium Plan
+                  </h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">
+                    Hover to see the lift effect
+                  </p>
+                </div>
+              </div>
+            )}
+          />
+
           {/* Real-world examples (expanded & more informative) */}
           <section className="space-y-6 border-t border-border pt-8">
             <h2 className="text-3xl font-bold">Real-World Examples</h2>
@@ -593,7 +637,6 @@ export default function ScalePage() {
                   />
                 </div>
               </article>
-
 
               {/* CTA press effect */}
               <article className="border border-border rounded-lg p-4 bg-card/20">
@@ -869,7 +912,6 @@ export default function ScalePage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }
