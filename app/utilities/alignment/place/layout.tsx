@@ -13,19 +13,19 @@ export default function PlaceLayout({
           <h2 className="text-lg font-semibold text-foreground mb-3">Place Utilities</h2>
           <div className="flex gap-2 flex-wrap">
             <Link
-              href="/utilities/place/content"
+              href="/utilities/alignment/place/content"
               className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
             >
               Content
             </Link>
             <Link
-              href="/utilities/place/items"
+              href="/utilities/alignment/place/items"
               className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
             >
               Items
             </Link>
             <Link
-              href="/utilities/place/self"
+              href="/utilities/alignment/place/self"
               className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
             >
               Self

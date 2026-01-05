@@ -13,19 +13,19 @@ export default function AlignLayout({
           <h2 className="text-lg font-semibold text-foreground mb-3">Align Utilities</h2>
           <div className="flex gap-2 flex-wrap">
             <Link
-              href="/utilities/align/content"
+              href="/utilities/alignment/align/content"
               className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
             >
               Content
             </Link>
             <Link
-              href="/utilities/align/items"
+              href="/utilities/alignment/align/items"
               className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
             >
               Items
             </Link>
             <Link
-              href="/utilities/align/self"
+              href="/utilities/alignment/align/self"
               className="px-3 py-1 text-sm border border-border rounded hover:bg-card transition"
             >
               Self
