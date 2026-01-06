@@ -12,17 +12,18 @@ export default function Home() {
   const categoriesRef = useRef<HTMLDivElement>(null)
 
   const categories = [
-    { title: "Layout", desc: "Columns, Display, Floats, Grid", href: "/utilities/columns", demoClass: "grid-cols-3" },
+    { title: "Layout", desc: "Columns, Display, Floats, Grid", href: "/utilities/layout/columns", demoClass: "grid-cols-3" },
     { title: "Spacing", desc: "Padding, Margin, Gap", href: "/utilities/spacing/padding", demoClass: "p-4" },
     { title: "Sizing", desc: "Width, Height, Min/Max", href: "/utilities/sizing/width", demoClass: "w-1/3" },
     { title: "Flexbox", desc: "Basis, Direction, Wrap, Grow, Order", href: "/utilities/flex", demoClass: "flex-1" },
     { title: "Grid", desc: "Auto Flow, Rows, Columns", href: "/utilities/grid/auto-flow", demoClass: "grid-cols-3" },
-    { title: "Alignment", desc: "Justify, Align, Place", href: "/utilities/justify/content", demoClass: "justify-center" },
+    { title: "Alignment", desc: "Justify, Align, Place", href: "/utilities/alignment/justify/content", demoClass: "justify-center" },
     { title: "Backgrounds", desc: "Colors, Gradients, Position", href: "/utilities/background/position", demoClass: "bg-gradient-to-r" },
     { title: "Borders", desc: "Radius, Width, Color, Style", href: "/utilities/border/radius", demoClass: "rounded-lg" },
     { title: "Effects", desc: "Shadow, Ring, Outline", href: "/utilities/effects/ring/color", demoClass: "shadow-lg" },
     { title: "Transforms", desc: "Scale, Rotate, Translate, Skew", href: "/utilities/transform/scale", demoClass: "scale-110" },
     { title: "Interactivity", desc: "Cursor, Pointer, Scroll", href: "/utilities/interactivity/cursor", demoClass: "cursor-pointer" },
+    { title: "Typography", desc:"Font, Size, Color",href:"/utilities/typography/font/family",demoClass:"font-light"},
     { title: "Accessibility", desc: "Screen Readers", href: "/utilities/accessibility/screen-readers", demoClass: "sr-only" },
   ]
 

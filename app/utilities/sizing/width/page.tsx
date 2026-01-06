@@ -1,7 +1,5 @@
 "use client";
 import React from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 
 import { UtilityGrid } from "@/components/shared/utility-grid";
 import { TipsSection } from "@/components/shared/tips-section";
@@ -104,7 +102,6 @@ const widthComparisonTable = {
 export default function WidthPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
 
       <main className="flex-1 px-4 py-12">
         <div className="max-w-7xl mx-auto space-y-16">
@@ -217,7 +214,6 @@ export default function WidthPage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

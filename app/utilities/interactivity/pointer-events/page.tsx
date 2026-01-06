@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 import { PageHero } from "@/components/shared/page-hero";
 import {
   POINTER_HERO,
@@ -18,8 +16,6 @@ import { InteractiveChallenge } from "@/components/shared/challenge/interactive-
 export default function PointerEventsPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
-
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
           <PageHero {...POINTER_HERO} />
@@ -138,8 +134,6 @@ export default function PointerEventsPage() {
           <TipsSection tips={POINTER_TIPS} />
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

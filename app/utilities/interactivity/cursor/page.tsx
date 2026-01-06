@@ -1,8 +1,6 @@
 "use client"
 
 import React from "react";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 
 import { Metadata } from "next";
 import { CursorPlayground } from "@/components/cursor/cursor-playground";
@@ -18,7 +16,7 @@ import { InteractiveChallenge } from "@/components/shared/challenge/interactive-
 export default function CursorPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
+    
 
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-12 space-y-12 text-foreground">
@@ -113,7 +111,6 @@ export default function CursorPage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

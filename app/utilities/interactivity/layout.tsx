@@ -1,5 +1,7 @@
 import type React from "react"
 import Link from "next/link"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
 
 type InteractivityLink = {
   href: string
@@ -53,6 +55,7 @@ export default function InteractivityLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <Navbar />
       <div className="border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <h2 className="text-lg font-semibold text-foreground mb-3">Interactivity Utilities</h2>
@@ -62,6 +65,7 @@ export default function InteractivityLayout({
         </div>
       </div>
       <main className="flex-1">{children}</main>
+      <Footer />
     </div>
   )
 }
