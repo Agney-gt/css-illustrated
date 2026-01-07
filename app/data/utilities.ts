@@ -1,60 +1,22 @@
 export const categories = [
   {
-    name: "Layout",
+    name: "Accessibility",
     utilities: [
-      { name: "Columns", href: "/utilities/layout/columns" },
-      { name: "Break After", href: "/utilities/layout/break/break-after" },
-      { name: "Break Before", href: "/utilities/layout/break/break-before" },
-      { name: "Break Inside", href: "/utilities/layout/break/break-inside" },
-      { name: "Box", href: "/utilities/layout/box" },
-      { name: "Display", href: "/utilities/layout/display" },
-      { name: "Floats & Clear", href: "/utilities/layout/flows" },
-      { name: "Object Fit", href: "/utilities/layout/object/fit" },
-      { name: "Object Position", href: "/utilities/layout/object/position" },
-      { name: "Overflow", href: "/utilities/layout/overflow" },
-    ],
-  },
-  {
-    name: "Spacing & Sizing",
-    utilities: [
-      { name: "Padding", href: "/utilities/spacing/padding" },
-      { name: "Margin", href: "/utilities/spacing/margin" },
-      { name: "Width", href: "/utilities/sizing/width" },
-      { name: "Min Width", href: "/utilities/sizing/min-width" },
-      { name: "Max Width", href: "/utilities/sizing/max-width" },
-      { name: "Height", href: "/utilities/sizing/height" },
-    ],
-  },
-  {
-    name: "Flexbox",
-    utilities: [
-      { name: "Flex Basis", href: "/utilities/flex/basis" },
-      { name: "Flex Direction", href: "/utilities/flex/direction" },
-      { name: "Flex Wrap", href: "/utilities/flex/wrap" },
-      { name: "Flex Sizing", href: "/utilities/flex/sizing" },
-      { name: "Flex Order", href: "/utilities/flex/order" },
-      { name: "Flex Grow", href: "/utilities/flex/grow" },
-      { name: "Flex Shrink", href: "/utilities/flex/shrink" },
-    ],
-  },
-  {
-    name: "Grid",
-    utilities: [
-      { name: "Grid Auto Flow", href: "/utilities/grid/auto-flow" },
-      { name: "Grid Auto Columns", href: "/utilities/grid/auto-columns" },
-      { name: "Grid Auto Rows", href: "/utilities/grid/auto-rows" },
-      { name: "Gap", href: "/utilities/grid/gap" },
+      {
+        name: "Screen-readers",
+        href: "/utilities/accessibility/screen-readers",
+      },
     ],
   },
   {
     name: "Alignment",
     utilities: [
-      { name: "Justify Content", href: "/utilities/alignment/justify/content" },
-      { name: "Justify Items", href: "/utilities/alignment/justify/items" },
-      { name: "Justify Self", href: "/utilities/alignment/justify/self" },
       { name: "Align Content", href: "/utilities/alignment/align/content" },
       { name: "Align Items", href: "/utilities/alignment/align/items" },
       { name: "Align Self", href: "/utilities/alignment/align/self" },
+      { name: "Justify Content", href: "/utilities/alignment/justify/content" },
+      { name: "Justify Items", href: "/utilities/alignment/justify/items" },
+      { name: "Justify Self", href: "/utilities/alignment/justify/self" },
       { name: "Place Content", href: "/utilities/alignment/place/content" },
       { name: "Place Items", href: "/utilities/alignment/place/items" },
       { name: "Place Self", href: "/utilities/alignment/place/self" },
@@ -63,32 +25,23 @@ export const categories = [
   {
     name: "Background",
     utilities: [
-      { name: "Background Position", href: "/utilities/background/position" },
       { name: "Background Color", href: "/utilities/background/color" },
+      { name: "Background Image", href: "/utilities/background/image" },
+      { name: "Background Position", href: "/utilities/background/position" },
       { name: "Background Repeat", href: "/utilities/background/repeat" },
       { name: "Background Size", href: "/utilities/background/size" },
-      { name: "Background Image", href: "/utilities/background/image" },
       { name: "Gradient Stops", href: "/utilities/background/gradient-stops" },
     ],
   },
   {
     name: "Border",
     utilities: [
+      { name: "Border Color", href: "/utilities/border/color" },
       { name: "Border Divide Style", href: "/utilities/border/divide/style" },
       { name: "Border Divide Width", href: "/utilities/border/divide/width" },
       { name: "Border Radius", href: "/utilities/border/radius" },
-      { name: "Border Width", href: "/utilities/border/width" },
-      { name: "Border Color", href: "/utilities/border/color" },
       { name: "Border Style", href: "/utilities/border/style" },
-    ],
-  },
-  {
-    name: "Accessibility",
-    utilities: [
-      {
-        name: "Screen-readers",
-        href: "/utilities/accessibility/screen-readers",
-      },
+      { name: "Border Width", href: "/utilities/border/width" },
     ],
   },
   {
@@ -110,25 +63,114 @@ export const categories = [
     ],
   },
   {
-    name:"Interactivity",
-    utilities:[
-      {name:"Accent Color",href:"/utilities/interactivity/accent-color"},
-      {name:"Appearance",href:"/utilities/interactivity/appearance"},
-      {name:"Caret Color",href:"/utilities/interactivity/caret-color"},
-      {name:"Color Scheme",href:"/utilities/interactivity/color-scheme"},
-      {name:"Cursor",href:"/utilities/interactivity/cursor"},
-      {name:"Field Sizing",href:"/utilities/interactivity/field-sizing"},
-      {name:"Pointer Events",href:"/utilities/interactivity/pointer-events"},
-      {name:"Resize",href:"/utilities/interactivity/resize"},
-      {name:"Scroll Behaviour",href:"/utilities/interactivity/scroll-behaviour"},
-      {name:"Scroll Margin",href:"/utilities/interactivity/scroll-margin"},
-      {name:"Scroll Padding",href:"/utilities/interactivity/scroll-padding"},
-      {name:"Scroll Snap Align",href:"/utilities/interactivity/scroll-snap-align"},
-      {name:"Scroll Snap Stop",href:"/utilities/interactivity/scroll-snap-stop"},
-      {name:"Scroll Snap Type",href:"/utilities/interactivity/scroll-snap-type"},
-      {name:"Touch Action",href:"/utilities/interactivity/touch-action"},
-      {name:"User Select",href:"/utilities/interactivity/user-select"},
-      {name:"Will Change",href:"/utilities/interactivity/will-change"}
-    ]
+    name: "Flexbox",
+    utilities: [
+      { name: "Flex Basis", href: "/utilities/flex/basis" },
+      { name: "Flex Direction", href: "/utilities/flex/direction" },
+      { name: "Flex Grow", href: "/utilities/flex/grow" },
+      { name: "Flex Order", href: "/utilities/flex/order" },
+      { name: "Flex Shrink", href: "/utilities/flex/shrink" },
+      { name: "Flex Sizing", href: "/utilities/flex/sizing" },
+      { name: "Flex Wrap", href: "/utilities/flex/wrap" },
+    ],
+  },
+  {
+    name: "Grid",
+    utilities: [
+      { name: "Grid Auto Columns", href: "/utilities/grid/auto-columns" },
+      { name: "Grid Auto Flow", href: "/utilities/grid/auto-flow" },
+      { name: "Grid Auto Rows", href: "/utilities/grid/auto-rows" },
+    ],
+  },
+  {
+    name: "Interactivity",
+    utilities: [
+      { name: "Accent Color", href: "/utilities/interactivity/accent-color" },
+      { name: "Appearance", href: "/utilities/interactivity/appearance" },
+      { name: "Caret Color", href: "/utilities/interactivity/caret-color" },
+      { name: "Color Scheme", href: "/utilities/interactivity/color-scheme" },
+      { name: "Cursor", href: "/utilities/interactivity/cursor" },
+      { name: "Field Sizing", href: "/utilities/interactivity/field-sizing" },
+      {
+        name: "Pointer Events",
+        href: "/utilities/interactivity/pointer-events",
+      },
+      { name: "Resize", href: "/utilities/interactivity/resize" },
+      {
+        name: "Scroll Behaviour",
+        href: "/utilities/interactivity/scroll-behaviour",
+      },
+      { name: "Scroll Margin", href: "/utilities/interactivity/scroll-margin" },
+      {
+        name: "Scroll Padding",
+        href: "/utilities/interactivity/scroll-padding",
+      },
+      {
+        name: "Scroll Snap Align",
+        href: "/utilities/interactivity/scroll-snap-align",
+      },
+      {
+        name: "Scroll Snap Stop",
+        href: "/utilities/interactivity/scroll-snap-stop",
+      },
+      {
+        name: "Scroll Snap Type",
+        href: "/utilities/interactivity/scroll-snap-type",
+      },
+      { name: "Touch Action", href: "/utilities/interactivity/touch-action" },
+      { name: "User Select", href: "/utilities/interactivity/user-select" },
+      { name: "Will Change", href: "/utilities/interactivity/will-change" },
+    ],
+  },
+  {
+    name: "Layout",
+    utilities: [
+      { name: "Box", href: "/utilities/layout/box" },
+      { name: "Break After", href: "/utilities/layout/break-after" },
+      { name: "Break Before", href: "/utilities/layout/break-before" },
+      { name: "Break Inside", href: "/utilities/layout/break-inside" },
+      { name: "Columns", href: "/utilities/layout/columns" },
+      { name: "Display", href: "/utilities/layout/display" },
+      { name: "Floats", href: "/utilities/layout/floats" },
+      { name: "Object Fit", href: "/utilities/layout/object/fit" },
+      { name: "Object Position", href: "/utilities/layout/object/position" },
+      { name: "Overflow", href: "/utilities/layout/overflow" },
+    ],
+  },
+  {
+    name: "Sizing",
+    utilities: [
+      { name: "Height", href: "/utilities/sizing/height" },
+      { name: "Max Width", href: "/utilities/sizing/max-width" },
+      { name: "Min Width", href: "/utilities/sizing/min-width" },
+      { name: "Width", href: "/utilities/sizing/width" },
+    ],
+  },
+  {
+    name: "Spacing",
+    utilities: [
+      { name: "Gap", href: "/utilities/spacing/gap" },
+      { name: "Margin", href: "/utilities/spacing/margin" },
+      { name: "Padding", href: "/utilities/spacing/padding" },
+    ],
+  },
+  {
+    name: "Transform",
+    utilities: [
+      { name: "Origin", href: "/utilities/transform/origin" },
+      { name: "Rotate", href: "/utilities/transform/rotate" },
+      { name: "Scale", href: "/utilities/transform/scale" },
+      { name: "Skew", href: "/utilities/transform/skew" },
+      { name: "Translate", href: "/utilities/transform/translate" },
+    ],
+  },
+  {
+    name: "Typography",
+    utilities: [
+      { name: "Font Family", href: "/utilities/typography/font-family" },
+      { name: "Font Size", href: "/utilities/typography/font-size" },
+      { name: "Font Weight", href: "/utilities/typography/font-weight" },
+      { name: "Text Color", href: "/utilities/typography/font-color" },
+    ],
   },
 ];
