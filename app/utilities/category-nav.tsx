@@ -25,7 +25,6 @@ export function CategoryNav() {
           </span>
         </h2>
 
-        {/* CHANGED HERE: Removed overflow-x-auto, added flex-wrap */}
         <div className="flex flex-wrap gap-2">
           {navItems.map((item) => {
             const isActive = pathname === item.href;

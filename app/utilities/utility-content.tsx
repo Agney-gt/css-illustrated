@@ -2,13 +2,10 @@
 
 import React from "react";
 import { notFound } from "next/navigation";
-// Make sure your file is named .tsx so it resolves correctly!
 import { allUtilities } from "@/app/lib/utilities-data";
 import { SectionRenderer } from "@/components/shared/section-renderer";
 
 export function UtilityContent({ slug }: { slug: string[] }) {
-  // We import the data DIRECTLY here on the client.
-  // This bypasses the "server-to-client" serialization issue entirely.
   const pageData = allUtilities.find(
     (page) => JSON.stringify(page.slug) === JSON.stringify(slug)
   );
