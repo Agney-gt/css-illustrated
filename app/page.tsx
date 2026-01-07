@@ -15,7 +15,7 @@ export default function Home() {
     { title: "Layout", desc: "Columns, Display, Floats, Grid", href: "/utilities/layout/columns", demoClass: "grid-cols-3" },
     { title: "Spacing", desc: "Padding, Margin, Gap", href: "/utilities/spacing/padding", demoClass: "p-4" },
     { title: "Sizing", desc: "Width, Height, Min/Max", href: "/utilities/sizing/width", demoClass: "w-1/3" },
-    { title: "Flexbox", desc: "Basis, Direction, Wrap, Grow, Order", href: "/utilities/flex", demoClass: "flex-1" },
+    { title: "Flexbox", desc: "Basis, Direction, Wrap, Grow, Order", href: "/utilities/flex/basis", demoClass: "flex-1" },
     { title: "Grid", desc: "Auto Flow, Rows, Columns", href: "/utilities/grid/auto-flow", demoClass: "grid-cols-3" },
     { title: "Alignment", desc: "Justify, Align, Place", href: "/utilities/alignment/justify/content", demoClass: "justify-center" },
     { title: "Backgrounds", desc: "Colors, Gradients, Position", href: "/utilities/background/position", demoClass: "bg-gradient-to-r" },

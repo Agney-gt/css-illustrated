@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+
 export interface UtilityItem {
   cls: string;
   desc: string;
@@ -12,11 +13,12 @@ interface UtilityGridProps {
   items: UtilityItem[];
   prefix?: string;
 }
+
 export function UtilityGrid({
   title = "Utilities",
   items,
   prefix = "",
-}:UtilityGridProps) {
+}: UtilityGridProps) {
   const { copiedText, copy } = useCopyToClipboard();
 
   return (
@@ -31,6 +33,20 @@ export function UtilityGrid({
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {items.map((u) => {
           const isCopied = copiedText === u.cls;
+
+          // 1. Identify if this class would make the element invisible.
+          // We use exact matching to avoid false positives (like 'not-sr-only')
+          const dangerousClasses = [
+            "sr-only",
+            "invisible",
+            "hidden",
+            "opacity-0",
+          ];
+          const isHiddenClass = dangerousClasses.includes(u.cls);
+
+          // 2. If it's a hiding class, DO NOT apply it to the preview div.
+          // If it's a normal class (like 'text-center'), apply it so we see the effect.
+          const previewClass = isHiddenClass ? "" : u.cls;
 
           return (
             <div
@@ -55,14 +71,16 @@ export function UtilityGrid({
               <div className="w-full max-w-full overflow-hidden rounded-md border bg-slate-100 p-2">
                 <div
                   className={`
-                    ${u.cls}
+                    ${previewClass} 
                     bg-slate-700 text-white
                     text-xs font-mono
                     px-3 py-2
                     rounded
                     max-w-full
+                    flex items-center justify-center
                   `}
                 >
+                  {/* 3. ALWAYS show the class name text, never "(Hidden)" */}
                   {u.cls.replace(prefix, "")}
                 </div>
               </div>
