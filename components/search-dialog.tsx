@@ -1,132 +1,132 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Search, X, Hash, LayoutGrid } from "lucide-react";
+import { categories } from "@/app/data/utilities";
 
-interface SearchResult {
-  name: string
-  href: string
-  category: string
+interface SearchDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-const SEARCH_DATA: SearchResult[] = [
-  { name: "Columns", href: "/utilities/columns", category: "Layout" },
-  { name: "Display", href: "/utilities/display", category: "Layout" },
-  { name: "Overflow", href: "/utilities/overflow", category: "Layout" },
-  { name: "Flex", href: "/utilities/flex", category: "Flexbox" },
-  { name: "Flex Direction", href: "/utilities/flex/direction", category: "Flexbox" },
-  { name: "Flex Wrap", href: "/utilities/flex/wrap", category: "Flexbox" },
-  { name: "Flex Order", href: "/utilities/flex/order", category: "Flexbox" },
-  { name: "Grid", href: "/utilities/grid/auto-flow", category: "Grid" },
-  { name: "Gap", href: "/utilities/grid/gap", category: "Grid" },
-  { name: "Justify Content", href: "/utilities/justify/content", category: "Alignment" },
-  { name: "Align Items", href: "/utilities/align/items", category: "Alignment" },
-  { name: "Padding", href: "/utilities/spacing/padding", category: "Spacing" },
-  { name: "Margin", href: "/utilities/spacing/margin", category: "Spacing" },
-  { name: "Width", href: "/utilities/sizing/width", category: "Sizing" },
-  { name: "Height", href: "/utilities/sizing/height", category: "Sizing" },
-  { name: "Border Radius", href: "/utilities/border/radius", category: "Borders" },
-  { name: "Border Width", href: "/utilities/border/width", category: "Borders" },
-  { name: "Border Color", href: "/utilities/border/color", category: "Borders" },
-  { name: "Ring Width", href: "/utilities/ring/width", category: "Effects" },
-  { name: "Outline", href: "/utilities/outline/width", category: "Effects" },
-  { name: "Scale", href: "/utilities/transform/scale", category: "Transforms" },
-  { name: "Rotate", href: "/utilities/transform/rotate", category: "Transforms" },
-  { name: "Translate", href: "/utilities/transform/translate", category: "Transforms" },
-  { name: "Cursor", href: "/utilities/interactivity/cursor", category: "Interactivity" },
-  { name: "Font Size", href: "/utilities/font/size", category: "Typography" },
-  { name: "Font Weight", href: "/utilities/font/weight", category: "Typography" },
-  { name: "Screen Readers", href: "/utilities/accessibility/screen-readers", category: "Accessibility" },
-]
-
-export default function SearchDialog() {
-  const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState("")
-  const [results, setResults] = useState<SearchResult[]>([])
+export default function SearchDialog({
+  open,
+  onOpenChange,
+}: SearchDialogProps) {
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "/" && !open) {
-        e.preventDefault()
-        setOpen(true)
-      }
-      if (e.key === "Escape") {
-        setOpen(false)
-      }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onOpenChange(false);
+    };
+    if (open) {
+      document.addEventListener("keydown", handleKeyDown);
+     
+      document.body.style.overflow = "hidden";
     }
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "unset";
+    };
+  }, [open, onOpenChange]);
 
-    document.addEventListener("keydown", down)
-    return () => document.removeEventListener("keydown", down)
-  }, [open])
+  if (!open) return null;
 
-  useEffect(() => {
-    if (query.length === 0) {
-      setResults([])
-      return
-    }
-
-    const filtered = SEARCH_DATA.filter(
-      (item) =>
-        item.name.toLowerCase().includes(query.toLowerCase()) ||
-        item.category.toLowerCase().includes(query.toLowerCase()),
-    ).slice(0, 8)
-
-    setResults(filtered)
-  }, [query])
-
-  if (!open) return null
+  const filteredCategories = query
+    ? categories
+        .map((category) => ({
+          ...category,
+          utilities: category.utilities.filter((item) =>
+            item.name.toLowerCase().includes(query.toLowerCase())
+          ),
+        }))
+        .filter((category) => category.utilities.length > 0)
+    : []; 
 
   return (
-    <>
-      {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setOpen(false)} />
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] px-4">
+     
+      <div
+        className="absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity"
+        onClick={() => onOpenChange(false)}
+      />
 
-      {/* Dialog */}
-      <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 w-full max-w-md">
-        <div className="bg-card border border-border rounded-lg shadow-xl overflow-hidden">
-          {/* Search Input */}
-          <div className="p-4 border-b border-border">
-            <input
-              autoFocus
-              type="text"
-              placeholder="Search utilities... (press / to focus)"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-full bg-background border border-border rounded px-3 py-2 text-foreground placeholder-muted-foreground focus:outline-none focus:border-accent"
-            />
-          </div>
+      <div className="relative w-full max-w-lg bg-card border border-border rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+        <div className="flex items-center border-b border-border px-4 py-3">
+          <Search className="w-5 h-5 text-muted-foreground mr-3" />
+          <input
+            autoFocus
+            type="text"
+            placeholder="Search utilities (e.g. 'flex', 'color', 'grid')..."
+            className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground text-base"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <button
+            onClick={() => onOpenChange(false)}
+            className="p-1 bg-muted rounded hover:bg-muted/80 text-xs text-muted-foreground ml-2"
+          >
+            ESC
+          </button>
+        </div>
 
-          {/* Results */}
-          <div className="max-h-64 overflow-y-auto">
-            {results.length === 0 && query.length > 0 ? (
-              <div className="p-4 text-center text-muted-foreground text-sm">No results found for "{query}"</div>
-            ) : results.length === 0 ? (
-              <div className="p-4 text-center text-muted-foreground text-sm">Start typing to search utilities</div>
-            ) : (
-              results.map((result) => (
-                <Link
-                  key={result.href}
-                  href={result.href}
-                  onClick={() => setOpen(false)}
-                  className="flex items-center justify-between p-3 border-b border-border hover:bg-card/80 transition last:border-0"
-                >
-                  <div>
-                    <p className="text-foreground font-medium text-sm">{result.name}</p>
-                    <p className="text-muted-foreground text-xs">{result.category}</p>
+        <div className="max-h-[60vh] overflow-y-auto p-2">
+          {query === "" ? (
+            <div className="py-12 text-center text-muted-foreground text-sm">
+              <LayoutGrid className="w-10 h-10 mx-auto mb-3 opacity-20" />
+              <p>
+                Type to search across{" "}
+                {categories.reduce((acc, cat) => acc + cat.utilities.length, 0)}{" "}
+                utilities.
+              </p>
+            </div>
+          ) : filteredCategories.length > 0 ? (
+            <div className="space-y-4">
+              {filteredCategories.map((category) => (
+                <div key={category.name}>
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2 mt-2">
+                    {category.name}
+                  </h3>
+                  <div className="space-y-1">
+                    {category.utilities.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => onOpenChange(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors group"
+                      >
+                        <div className="p-1.5 bg-muted rounded-md group-hover:bg-background transition-colors">
+                          <Hash className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                        <span className="text-sm font-medium">{item.name}</span>
+                      </Link>
+                    ))}
                   </div>
-                  <span className="text-accent text-xs">→</span>
-                </Link>
-              ))
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-12 text-center text-muted-foreground text-sm">
+              <p>
+                No results found for{" "}
+                <span className="text-foreground font-medium">"{query}"</span>
+              </p>
+              <p className="mt-1">
+                Try searching for a CSS property or utility name.
+              </p>
+            </div>
+          )}
+        </div>
 
-          {/* Footer */}
-          <div className="p-3 bg-card/50 border-t border-border text-xs text-muted-foreground flex justify-between">
-            <span>Press ESC to close</span>
-            <span>↵ to select</span>
-          </div>
+        <div className="bg-muted/50 border-t border-border px-4 py-2 text-xs text-muted-foreground flex justify-between">
+          <span>Select to navigate</span>
+          <span className="hidden sm:inline">
+            Use arrows to move (coming soon)
+          </span>
         </div>
       </div>
-    </>
-  )
+    </div>
+  );
 }
