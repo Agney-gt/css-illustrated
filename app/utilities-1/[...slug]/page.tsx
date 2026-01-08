@@ -1,5 +1,5 @@
 import { allUtilities } from "@/app/lib/utilities-data";
-import { UtilityContent } from "@/app/utilities/utility-content";
+import { UtilityContent } from "@/app/utilities-1/utility-content";
 
 interface PageProps {
   params: Promise<{

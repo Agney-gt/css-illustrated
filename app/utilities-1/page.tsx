@@ -1,5 +1,3 @@
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
 import Link from "next/link";
 import { categories } from "../data/utilities"; 
 
@@ -7,7 +5,6 @@ export default function UtilitiesIndex() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
 
       <main className="flex-1 px-4 py-12 max-w-7xl mx-auto w-full">
         <div className="space-y-12">
@@ -45,7 +42,6 @@ export default function UtilitiesIndex() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

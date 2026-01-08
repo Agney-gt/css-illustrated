@@ -1,7 +1,7 @@
 import type React from "react";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import { CategoryNav } from "@/app/utilities/category-nav";
+import { CategoryNav } from "@/app/utilities-1/category-nav";
 
 export default function UtilitiesLayout({
   children,
