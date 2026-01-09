@@ -12,19 +12,19 @@ export default function Home() {
   const categoriesRef = useRef<HTMLDivElement>(null)
 
   const categories = [
-    { title: "Layout", desc: "Columns, Display, Floats, Grid", href: "/utilities/layout/columns", demoClass: "grid-cols-3" },
-    { title: "Spacing", desc: "Padding, Margin, Gap", href: "/utilities/spacing/padding", demoClass: "p-4" },
-    { title: "Sizing", desc: "Width, Height, Min/Max", href: "/utilities/sizing/width", demoClass: "w-1/3" },
-    { title: "Flexbox", desc: "Basis, Direction, Wrap, Grow, Order", href: "/utilities/flex/basis", demoClass: "flex-1" },
-    { title: "Grid", desc: "Auto Flow, Rows, Columns", href: "/utilities/grid/auto-flow", demoClass: "grid-cols-3" },
-    { title: "Alignment", desc: "Justify, Align, Place", href: "/utilities/alignment/justify/content", demoClass: "justify-center" },
-    { title: "Backgrounds", desc: "Colors, Gradients, Position", href: "/utilities/background/position", demoClass: "bg-gradient-to-r" },
-    { title: "Borders", desc: "Radius, Width, Color, Style", href: "/utilities/border/radius", demoClass: "rounded-lg" },
-    { title: "Effects", desc: "Shadow, Ring, Outline", href: "/utilities/effects/ring/color", demoClass: "shadow-lg" },
-    { title: "Transforms", desc: "Scale, Rotate, Translate, Skew", href: "/utilities/transform/scale", demoClass: "scale-110" },
-    { title: "Interactivity", desc: "Cursor, Pointer, Scroll", href: "/utilities/interactivity/cursor", demoClass: "cursor-pointer" },
-    { title: "Typography", desc:"Font, Size, Color",href:"/utilities/typography/font-family",demoClass:"font-light"},
-    { title: "Accessibility", desc: "Screen Readers", href: "/utilities/accessibility/screen-readers", demoClass: "sr-only" },
+    { title: "Layout", desc: "Columns, Display, Floats, Grid", href: "/utilities-1/layout/columns", demoClass: "grid-cols-3" },
+    { title: "Spacing", desc: "Padding, Margin, Gap", href: "/utilities-1/spacing/padding", demoClass: "p-4" },
+    { title: "Sizing", desc: "Width, Height, Min/Max", href: "/utilities-1/sizing/width", demoClass: "w-1/3" },
+    { title: "Flexbox", desc: "Basis, Direction, Wrap, Grow, Order", href: "/utilities-1/flex/basis", demoClass: "flex-1" },
+    { title: "Grid", desc: "Auto Flow, Rows, Columns", href: "/utilities-1/grid/auto-flow", demoClass: "grid-cols-3" },
+    { title: "Alignment", desc: "Justify, Align, Place", href: "/utilities-1/alignment/justify/content", demoClass: "justify-center" },
+    { title: "Backgrounds", desc: "Colors, Gradients, Position", href: "/utilities-1/background/position", demoClass: "bg-gradient-to-r" },
+    { title: "Borders", desc: "Radius, Width, Color, Style", href: "/utilities-1/border/radius", demoClass: "rounded-lg" },
+    { title: "Effects", desc: "Shadow, Ring, Outline", href: "/utilities-1/effects/ring/color", demoClass: "shadow-lg" },
+    { title: "Transforms", desc: "Scale, Rotate, Translate, Skew", href: "/utilities-1/transform/scale", demoClass: "scale-110" },
+    { title: "Interactivity", desc: "Cursor, Pointer, Scroll", href: "/utilities-1/interactivity/cursor", demoClass: "cursor-pointer" },
+    { title: "Typography", desc:"Font, Size, Color",href:"/utilities-1/typography/font-family",demoClass:"font-light"},
+    { title: "Accessibility", desc: "Screen Readers", href: "/utilities-1/accessibility/screen-readers", demoClass: "sr-only" },
   ]
 
   const copyToClipboard = (text: string) => {
