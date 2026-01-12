@@ -120,7 +120,6 @@ export const categories = [
   {
     name: "Flexbox",
     utilities: [
-      { name: "Flex", href: "/utilities-1/flex/flex" },
       { name: "Flex Basis", href: "/utilities-1/flex/basis" },
       { name: "Flex Direction", href: "/utilities-1/flex/direction" },
       { name: "Flex Grow", href: "/utilities-1/flex/grow" },
@@ -128,7 +127,6 @@ export const categories = [
       { name: "Flex Shrink", href: "/utilities-1/flex/shrink" },
       { name: "Flex Sizing", href: "/utilities-1/flex/sizing" },
       { name: "Flex Wrap", href: "/utilities-1/flex/wrap" },
-      { name: "Order", href: "/utilities-1/flex/order" },
     ],
   },
   {
@@ -359,7 +357,6 @@ export const categories = [
       },
       { name: "Overflow Wrap", href: "/utilities-1/typography/overflow-wrap" },
       { name: "Text Align", href: "/utilities-1/typography/text-align" },
-      { name: "Text Color", href: "/utilities-1/typography/font-color" },
       {
         name: "Text Decoration Color",
         href: "/utilities-1/typography/text-decoration-color",
