@@ -1,4 +1,5 @@
 import { UtilityPageData } from "@/app/types/utility-page";
+import React from "react";
 
 export const allUtilities: UtilityPageData[] = [
   {
@@ -17324,7 +17325,7 @@ export const allUtilities: UtilityPageData[] = [
         props: {
           title: "Understanding Touch Action",
           description:
-            "When a user touches the screen, the browser normally captures that gesture for scrolling or zooming. `touch-action` tells the browser: 'Ignore these specific gestures, I will handle them myself with JavaScript'.  This is essential for preventing the page from moving while a user interacts with a map or game.",
+            "When a user touches the screen, the browser normally captures that gesture for scrolling or zooming. `touch-action` tells the browser: 'Ignore these specific gestures, I will handle them myself with JavaScript'. This is essential for preventing the page from moving while a user interacts with a map or game.",
           features: [
             "Applied to the INTERACTIVE CONTAINER (e.g., map, canvas)",
             "Prevents 'pull-to-refresh' or scrolling interference",
@@ -17407,9 +17408,9 @@ export const allUtilities: UtilityPageData[] = [
             return (
               <div
                 className={`
-                w-full h-48 bg-slate-50 dark:bg-slate-900 flex items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg touch-action-demo
-                ${touchClass}
-              `}
+              w-full h-48 bg-slate-50 dark:bg-slate-900 flex items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg touch-action-demo
+              ${touchClass}
+            `}
               >
                 <div className="text-center p-4">
                   <p className="text-slate-500 dark:text-slate-400 font-medium">
@@ -17456,73 +17457,61 @@ export const allUtilities: UtilityPageData[] = [
           ],
           correctOption: "touch-none",
           renderPreview: (userClass: string) => {
-            // Inner component to handle drawing state
-            const DrawingCanvas = () => {
-              const [points, setPoints] = React.useState<string>("");
-              const [isDrawing, setIsDrawing] = React.useState(false);
-              const [scrollWarning, setScrollWarning] = React.useState(false);
-              const containerRef = React.useRef<HTMLDivElement>(null);
+            const [points, setPoints] = React.useState("");
+            const [isDrawing, setIsDrawing] = React.useState(false);
+            const [scrollWarning, setScrollWarning] = React.useState(false);
+            const containerRef = React.useRef(null);
 
-              // Reset drawing when class changes
-              React.useEffect(() => {
-                setPoints("");
-                setScrollWarning(false);
-              }, [userClass]);
+            React.useEffect(() => {
+              setPoints("");
+              setScrollWarning(false);
+            }, [userClass]);
 
-              const getCoordinates = (
-                e: React.MouseEvent | React.TouchEvent
-              ) => {
-                const clientX =
-                  "touches" in e
-                    ? e.touches[0].clientX
-                    : (e as React.MouseEvent).clientX;
-                const clientY =
-                  "touches" in e
-                    ? e.touches[0].clientY
-                    : (e as React.MouseEvent).clientY;
+            const getCoordinates = (e: any) => {
+              let clientX, clientY;
+              if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+              } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+              }
 
-                if (containerRef.current) {
-                  const rect = containerRef.current.getBoundingClientRect();
-                  return {
-                    x: clientX - rect.left,
-                    y: clientY - rect.top,
-                  };
-                }
-                return { x: 0, y: 0 };
-              };
+              if (containerRef.current) {
+                // @ts-ignore
+                const rect = containerRef.current.getBoundingClientRect();
+                return { x: clientX - rect.left, y: clientY - rect.top };
+              }
+              return { x: 0, y: 0 };
+            };
 
-              const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
-                if (userClass !== "touch-none") {
-                  setScrollWarning(true);
-                  setTimeout(() => setScrollWarning(false), 1000);
-                  return;
-                }
+            const handleStart = (e: any) => {
+              if (userClass !== "touch-none") {
+                setScrollWarning(true);
+                setTimeout(() => setScrollWarning(false), 1000);
+              }
+              setIsDrawing(true);
+              const { x, y } = getCoordinates(e);
+              setPoints(`M ${x} ${y}`);
+            };
 
-                setIsDrawing(true);
-                const { x, y } = getCoordinates(e);
-                setPoints(`M ${x} ${y}`);
-              };
+            const handleMove = (e: any) => {
+              if (!isDrawing) return;
+              const { x, y } = getCoordinates(e);
+              setPoints((prev) => prev + ` L ${x} ${y}`);
+            };
 
-              const handleMove = (e: React.MouseEvent | React.TouchEvent) => {
-                if (!isDrawing) return;
-                const { x, y } = getCoordinates(e);
-                setPoints((prev) => prev + ` L ${x} ${y}`);
-              };
+            const handleEnd = () => setIsDrawing(false);
 
-              const handleEnd = () => {
-                setIsDrawing(false);
-              };
-
-              return (
+            return (
+              <div className="flex items-center justify-center w-full h-full bg-slate-100 dark:bg-slate-950 p-8 rounded-lg">
                 <div className="flex flex-col items-center gap-4 relative select-none">
-                  {/* Fake Toolbar */}
                   <div className="bg-white dark:bg-slate-800 p-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-700 flex gap-2">
-                    <div className="w-4 h-4 rounded-full bg-black border border-slate-300"></div>
+                    <div className="w-4 h-4 rounded-full bg-black border border-slate-300 dark:border-slate-600"></div>
                     <div className="w-4 h-4 rounded-full bg-red-500"></div>
                     <div className="w-4 h-4 rounded-full bg-blue-500"></div>
                   </div>
 
-                  {/* Canvas Area */}
                   <div
                     ref={containerRef}
                     onMouseDown={handleStart}
@@ -17533,7 +17522,8 @@ export const allUtilities: UtilityPageData[] = [
                     onTouchMove={handleMove}
                     onTouchEnd={handleEnd}
                     className={`
-                    w-64 h-64 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-xl shadow-inner relative overflow-hidden cursor-crosshair group
+                    w-64 h-64 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 
+                    rounded-xl shadow-inner relative overflow-hidden cursor-crosshair group
                     ${userClass}
                   `}
                   >
@@ -17555,9 +17545,8 @@ export const allUtilities: UtilityPageData[] = [
                       </div>
                     )}
 
-                    {/* Scroll Warning Overlay */}
                     {scrollWarning && (
-                      <div className="absolute inset-0 bg-red-50/90 dark:bg-red-900/50 flex flex-col items-center justify-center text-red-600 dark:text-red-200 text-center p-4 animate-in fade-in zoom-in duration-200 pointer-events-none">
+                      <div className="absolute inset-0 bg-red-50/90 dark:bg-red-900/80 flex flex-col items-center justify-center text-red-600 dark:text-red-200 text-center p-4 animate-in fade-in zoom-in duration-200 pointer-events-none">
                         <span className="text-2xl mb-2">↕️</span>
                         <span className="text-xs font-bold">
                           Browser Scrolled Page Instead!
@@ -17566,23 +17555,16 @@ export const allUtilities: UtilityPageData[] = [
                     )}
                   </div>
 
-                  {/* Status Indicator */}
-                  {userClass === "touch-none" ? (
-                    <div className="absolute -bottom-10 bg-green-100 text-green-700 text-xs font-bold px-3 py-1.5 rounded-full animate-in fade-in zoom-in border border-green-200 shadow-sm flex items-center gap-2">
+                  {userClass.includes("touch-none") ? (
+                    <div className="absolute -bottom-10 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 text-xs font-bold px-3 py-1.5 rounded-full animate-in fade-in zoom-in border border-green-200 dark:border-green-800 shadow-sm flex items-center gap-2">
                       <span>✅</span> Drawing Enabled
                     </div>
                   ) : (
-                    <div className="absolute -bottom-10 bg-red-100 text-red-700 text-xs font-bold px-3 py-1.5 rounded-full animate-in fade-in border border-red-200 shadow-sm flex items-center gap-2">
+                    <div className="absolute -bottom-10 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 text-xs font-bold px-3 py-1.5 rounded-full animate-in fade-in border border-red-200 dark:border-red-800 shadow-sm flex items-center gap-2">
                       <span>❌</span> Gestures Not Blocked
                     </div>
                   )}
                 </div>
-              );
-            };
-
-            return (
-              <div className="flex items-center justify-center w-full h-full bg-slate-100 dark:bg-slate-950 p-8 rounded-lg">
-                <DrawingCanvas />
               </div>
             );
           },
@@ -17632,7 +17614,7 @@ export const allUtilities: UtilityPageData[] = [
                       <div key={i} className="border border-slate-400"></div>
                     ))}
                   </div>
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-slate-400 font-bold pointer-events-none">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-slate-400 font-bold pointer-events-none text-center">
                     INTERACTIVE MAP
                   </div>
                   <div className="absolute bottom-2 right-2 bg-white dark:bg-slate-700 p-1 rounded shadow-md flex flex-col gap-1">
@@ -26354,6 +26336,28970 @@ const example = () => {
             {
               bold: "Design System:",
               text: "Stick to your theme's palette (e.g., `text-primary`, `text-muted`) rather than arbitrary hex values for consistency.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["accessibility", "forced-color-adjust"],
+
+    title: "Forced Color Adjust",
+
+    description:
+      "Control how elements respond to forced colors mode for accessibility. Useful for ensuring UI components remain legible and visually consistent in high-contrast or system color override scenarios.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Forced Color Adjust",
+
+          description:
+            "This utility determines whether an element's styles are overridden in forced colors mode, such as high-contrast themes on Windows. It helps maintain legibility and proper visual hierarchy when system-level color adjustments are applied.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Maintaining Visual Integrity in Forced Colors Mode",
+
+          description:
+            "Forced color adjust controls whether an element respects system-imposed high-contrast or forced colors. Use it to prevent elements from becoming unreadable or losing semantic meaning when users enable accessibility color schemes.",
+
+          features: [
+            "Controls system forced-color adjustments",
+
+            "Preserves contrast and readability",
+
+            "Prevents visual elements from being overridden",
+
+            "Supports high-contrast accessibility scenarios",
+
+            "Works with both text and UI components",
+          ],
+
+          layerAssignment: "Accessibility / Visual Layer",
+
+          browserBehavior:
+            "Maps directly to the CSS `forced-color-adjust` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "forced-color-adjust-auto",
+              desc: "Default behavior; allows system forced colors",
+            },
+
+            {
+              cls: "forced-color-adjust-none",
+              desc: "Prevents system forced colors from overriding element styles",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Forced Color Adjust Playground",
+
+          description:
+            "Experiment with `auto` and `none` to see how forced colors affect elements in high-contrast mode.",
+
+          options: ["forced-color-adjust-auto", "forced-color-adjust-none"],
+
+          defaultValue: "forced-color-adjust-auto",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} p-4 border">Accessible content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Preview Content
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken UI",
+
+          description:
+            "A button is invisible in Windows high-contrast mode. Use the correct `forced-color-adjust` class to preserve its visual style.",
+
+          codeSnippet:
+            '<button class="p-2 bg-blue-600 text-white {input}">Click Me</button>',
+
+          options: [
+            "forced-color-adjust-auto",
+            "forced-color-adjust-none",
+            "wrong-class-1",
+            "wrong-class-2",
+          ],
+
+          correctOption: "forced-color-adjust-none",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <button
+                className={`transition-all duration-500 p-4 bg-blue-600 text-white ${userClass}`}
+              >
+                Click Me
+              </button>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Accessible Button",
+
+              description:
+                "Prevent high-contrast mode from altering the button colors.",
+
+              code: `<button class="forced-color-adjust-none bg-blue-600 text-white p-2 rounded">Submit</button>`,
+
+              preview: (
+                <button className="forced-color-adjust-none bg-blue-600 text-white p-2 rounded">
+                  Submit
+                </button>
+              ),
+            },
+
+            {
+              title: "Card Component",
+
+              description:
+                "Ensures card background and text are not overridden.",
+
+              code: `<div class="forced-color-adjust-none bg-white text-slate-900 p-4 rounded shadow">Card Content</div>`,
+
+              preview: (
+                <div className="forced-color-adjust-none bg-white text-slate-900 p-4 rounded shadow">
+                  Card Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Icon Visibility",
+
+              description: "Preserves icon color in forced colors mode.",
+
+              code: `<svg class="forced-color-adjust-none text-red-600 w-6 h-6"><path d="..." /></svg>`,
+
+              preview: (
+                <svg className="forced-color-adjust-none text-red-600 w-6 h-6">
+                  <path d="M0 0h24v24H0z" />
+                </svg>
+              ),
+            },
+
+            {
+              title: "Form Input",
+
+              description:
+                "Text input remains readable under high-contrast schemes.",
+
+              code: `<input class="forced-color-adjust-none border p-2" placeholder="Enter name" />`,
+
+              preview: (
+                <input
+                  className="forced-color-adjust-none border p-2"
+                  placeholder="Enter name"
+                />
+              ),
+            },
+
+            {
+              title: "Navigation Link",
+
+              description:
+                "Links keep their brand colors intact in accessibility modes.",
+
+              code: `<a href="#" class="forced-color-adjust-none text-blue-600 underline">Home</a>`,
+
+              preview: (
+                <a
+                  href="#"
+                  className="forced-color-adjust-none text-blue-600 underline"
+                >
+                  Home
+                </a>
+              ),
+            },
+
+            {
+              title: "Alert Message",
+
+              description: "Warning message colors preserved for clarity.",
+
+              code: `<div class="forced-color-adjust-none bg-yellow-200 text-yellow-800 p-3 rounded">Warning!</div>`,
+
+              preview: (
+                <div className="forced-color-adjust-none bg-yellow-200 text-yellow-800 p-3 rounded">
+                  Warning!
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Ignoring High-Contrast Mode",
+              reason:
+                "Without this utility, elements may become unreadable in forced colors mode.",
+              example: `<button class="bg-blue-600 text-white p-2">Submit</button>`,
+              level: "critical",
+            },
+
+            {
+              title: "Using Nonexistent Classes",
+              reason:
+                "Applying a wrong utility name has no effect and reduces maintainability.",
+              example: `<div class="forced-color-adjust-wrong">Content</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overriding on Child Elements",
+              reason:
+                "Applying to child elements unnecessarily can break inheritance of forced color behavior.",
+              example: `<span class="forced-color-adjust-none">Text</span>`,
+              level: "info",
+            },
+
+            {
+              title: "Ignoring System Defaults",
+              reason:
+                "Setting `none` universally may reduce accessibility for users relying on system color adjustments.",
+              example: `<div class="forced-color-adjust-none">Content</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use sparingly:",
+              text: "Apply only to elements that must retain exact colors.",
+            },
+
+            {
+              bold: "Combine with Dark Mode:",
+              text: "Ensure dark/light variants still maintain contrast.",
+            },
+
+            {
+              bold: "Test across platforms:",
+              text: "Check Windows high-contrast and macOS/Chrome forced color modes.",
+            },
+
+            {
+              bold: "Preserve semantic meaning:",
+              text: "Don’t disable forced colors for critical accessibility cues.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["background", "background-attachment"],
+
+    title: "Background Attachment",
+
+    description:
+      "Control how a background image is fixed relative to its container. Use this utility to create parallax effects or to keep a background stationary during scrolling, ensuring a dynamic visual experience without extra JavaScript.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Background Attachment",
+
+          description:
+            "Control whether a background image scrolls with the content or stays fixed. This utility is commonly used to create parallax effects or keep important imagery visible as the user scrolls.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Background Anchor",
+
+          description:
+            "Background attachment utilities determine if the image moves with the element's content or remains stationary relative to the viewport. Think of it as pinning the background in place while the content flows over it.",
+
+          features: [
+            "Supports fixed and local scrolling behavior",
+
+            "Useful for parallax and immersive design",
+
+            "Simple toggle without JavaScript",
+
+            "Works with any background image or gradient",
+          ],
+
+          layerAssignment: "Background Layer",
+
+          browserBehavior:
+            "Maps directly to the CSS `background-attachment` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "bg-fixed", desc: "Background fixed relative to viewport" },
+
+            {
+              cls: "bg-local",
+              desc: "Background scrolls with element content",
+            },
+
+            { cls: "bg-scroll", desc: "Background scrolls normally (default)" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Background Attachment Playground",
+
+          description:
+            "Experiment with different attachment modes and observe how the background behaves relative to scrolling content.",
+
+          options: ["bg-fixed", "bg-local", "bg-scroll"],
+
+          defaultValue: "bg-scroll",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} h-64 bg-center bg-no-repeat bg-cover">Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg overflow-hidden h-64 ${value} bg-[url('https://tailwindcss.com/_next/static/media/tailwindcss-mark.3f59b4b0.svg')] bg-center bg-no-repeat bg-cover flex items-center justify-center text-white font-bold`}
+            >
+              Preview Content{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Scrolling Background",
+
+          description:
+            "The hero section background scrolls with the content, but the design requires it to stay fixed for a parallax effect. Choose the correct utility.",
+
+          codeSnippet:
+            "<div class=\"h-64 bg-[url('/hero.jpg')] {input} bg-center bg-cover\">...</div>",
+
+          options: ["bg-scroll", "bg-local", "bg-fixed", "bg-repeat"],
+
+          correctOption: "bg-fixed",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg overflow-hidden flex items-center justify-center">
+              <div
+                className={`h-64 w-full bg-[url('https://tailwindcss.com/_next/static/media/tailwindcss-mark.3f59b4b0.svg')] bg-center bg-cover ${userClass} flex items-center justify-center text-white font-bold transition-all duration-500`}
+              >
+                Hero Section{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Parallax Hero",
+
+              description:
+                "Keep a hero image fixed while text scrolls over it to create depth.",
+
+              code: `<section class="h-96 bg-fixed bg-center bg-cover">  <h1 class="text-white text-3xl font-bold p-8">Welcome</h1></section>`,
+
+              preview: (
+                <div className="h-96 bg-[url('https://tailwindcss.com/_next/static/media/tailwindcss-mark.3f59b4b0.svg')] bg-fixed bg-center bg-cover flex items-end p-8 text-white font-bold">
+                  Welcome
+                </div>
+              ),
+            },
+
+            {
+              title: "Scrolling Card Background",
+
+              description:
+                "Allow the background to scroll with a container for natural movement inside cards.",
+
+              code: `<div class="h-64 bg-local bg-center bg-cover overflow-auto">  <p>Scrollable content...</p></div>`,
+
+              preview: (
+                <div className="h-64 bg-[url('https://tailwindcss.com/_next/static/media/tailwindcss-mark.3f59b4b0.svg')] bg-local bg-center bg-cover overflow-auto p-4 text-white font-medium">
+                  Scrollable content...
+                </div>
+              ),
+            },
+
+            {
+              title: "Default Scroll Behavior",
+
+              description:
+                "Background scrolls normally with content, the default for standard layouts.",
+
+              code: `<div class="h-64 bg-scroll bg-center bg-cover">Content</div>`,
+
+              preview: (
+                <div className="h-64 bg-[url('https://tailwindcss.com/_next/static/media/tailwindcss-mark.3f59b4b0.svg')] bg-scroll bg-center bg-cover flex items-center justify-center text-white font-medium">
+                  Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Parallax Section",
+
+              description:
+                "Combine `bg-fixed` with overlay text for parallax landing sections.",
+
+              code: `<section class="h-80 bg-fixed bg-center bg-cover">  <h2 class="text-white text-2xl p-4">Featured</h2></section>`,
+
+              preview: (
+                <div className="h-80 bg-[url('https://tailwindcss.com/_next/static/media/tailwindcss-mark.3f59b4b0.svg')] bg-fixed bg-center bg-cover flex items-start p-4 text-white font-bold">
+                  Featured
+                </div>
+              ),
+            },
+
+            {
+              title: "Fixed Background Banner",
+
+              description:
+                "Use a fixed background for banners that remain visible during scroll.",
+
+              code: `<div class="h-48 bg-fixed bg-center bg-cover">Banner</div>`,
+
+              preview: (
+                <div className="h-48 bg-[url('https://tailwindcss.com/_next/static/media/tailwindcss-mark.3f59b4b0.svg')] bg-fixed bg-center bg-cover flex items-center justify-center text-white font-bold">
+                  Banner
+                </div>
+              ),
+            },
+
+            {
+              title: "Scrolling Feature Section",
+
+              description:
+                "Allow feature images to scroll with content for a dynamic list effect.",
+
+              code: `<section class="h-64 bg-local bg-center bg-cover">Feature Section</section>`,
+
+              preview: (
+                <div className="h-64 bg-[url('https://tailwindcss.com/_next/static/media/tailwindcss-mark.3f59b4b0.svg')] bg-local bg-center bg-cover flex items-center justify-center text-white font-medium">
+                  Feature Section
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using bg-fixed on small containers",
+              reason: "Fixed backgrounds may appear cut off in small elements.",
+              example: `<div class="bg-fixed h-16">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overusing bg-fixed",
+              reason: "Too many fixed backgrounds can hurt scroll performance.",
+              example: `<div class="bg-fixed bg-fixed">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Forgetting default bg-scroll",
+              reason:
+                "Assuming a background is fixed when it's not can cause layout issues.",
+              example: `<div class="bg-center bg-cover">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Combining incompatible properties",
+              reason:
+                "Using `bg-local` with certain overflow settings can break layout.",
+              example: `<div class="bg-local overflow-hidden">...</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Performance Tip:",
+              text: "Use `bg-fixed` sparingly on large pages to avoid jank.",
+            },
+
+            {
+              bold: "Parallax Design:",
+              text: "Pair `bg-fixed` with overlay text or gradients for depth effects.",
+            },
+
+            {
+              bold: "Layer Composition:",
+              text: "Combine with `bg-center` and `bg-cover` for consistent scaling.",
+            },
+
+            {
+              bold: "Fallbacks:",
+              text: "Provide solid background colors for mobile devices that may not support fixed backgrounds.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["background", "background-clip"],
+
+    title: "Background Clip",
+
+    description:
+      "Control the painting area of a background. Background-clip utilities define whether a background extends into the border or padding of an element, enabling precise layering effects.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Background Clip",
+
+          description:
+            "Background-clip utilities determine the area where a background is visible. This allows you to confine backgrounds to content-box, padding-box, or border-box, giving fine control over layered visual designs.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Clipping the Canvas",
+
+          description:
+            "Think of background-clip as a mask that limits the area your background can paint. It ensures that backgrounds respect boundaries, whether for rounded corners, borders, or content padding.",
+
+          features: [
+            "Limits background painting region",
+
+            "Supports content, padding, and border boxes",
+
+            "Works with borders and rounded corners",
+
+            "Useful for layered UI effects",
+
+            "Compatible with gradients and images",
+          ],
+
+          layerAssignment: "Visual Layer - Background Painting",
+
+          browserBehavior:
+            "Maps directly to the CSS `background-clip` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "bg-clip-border",
+              desc: "Background extends to border edge",
+            },
+
+            {
+              cls: "bg-clip-padding",
+              desc: "Background confined to padding area",
+            },
+
+            {
+              cls: "bg-clip-content",
+              desc: "Background confined to content box",
+            },
+
+            {
+              cls: "bg-clip-text",
+              desc: "Background clips to text foreground",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Background Clip Playground",
+
+          description:
+            "Experiment with different background-clip values to see how backgrounds respect padding, borders, or text shapes.",
+
+          options: [
+            "bg-clip-border",
+
+            "bg-clip-padding",
+
+            "bg-clip-content",
+
+            "bg-clip-text",
+          ],
+
+          defaultValue: "bg-clip-border",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} p-8 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg">Sample</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="p-8 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold text-center">
+                Preview Content
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Background Overflow",
+
+          description:
+            "The background is bleeding into the border radius. Adjust the background-clip to restrict it to the padding area.",
+
+          codeSnippet:
+            '<div class="rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 {input} p-6 text-white">Button</div>',
+
+          options: [
+            "bg-clip-border",
+
+            "bg-clip-padding",
+
+            "bg-clip-content",
+
+            "bg-clip-text",
+          ],
+
+          correctOption: "bg-clip-padding",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`rounded-lg p-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white transition-all duration-500 ${userClass}`}
+              >
+                Button{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Card Background Confined",
+
+              description:
+                "Restrict the card background to its padding for clean borders.",
+
+              code: `<div class="bg-clip-padding bg-gradient-to-r from-green-400 to-blue-500 p-6 rounded-lg text-white">Card Content</div>`,
+
+              preview: (
+                <div className="p-4 bg-gradient-to-r from-green-400 to-blue-500 bg-clip-padding rounded-lg text-white">
+                  Card Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Text Gradient",
+
+              description:
+                "Clip background gradients to text using `bg-clip-text`.",
+
+              code: `<h1 class="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-yellow-500 font-bold text-4xl">Gradient Text</h1>`,
+
+              preview: (
+                <h1 className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-yellow-500 font-bold text-4xl">
+                  Gradient Text
+                </h1>
+              ),
+            },
+
+            {
+              title: "Border-Aware Background",
+
+              description:
+                "Keep backgrounds within the border using `bg-clip-border`.",
+
+              code: `<div class="bg-clip-border bg-blue-500 border-4 border-gray-300 p-4 rounded-lg text-white">Bordered Box</div>`,
+
+              preview: (
+                <div className="bg-clip-border bg-blue-500 border-4 border-gray-300 p-4 rounded-lg text-white">
+                  Bordered Box
+                </div>
+              ),
+            },
+
+            {
+              title: "Content Box Only",
+
+              description:
+                "Limit background to the content area for minimal padding effects.",
+
+              code: `<div class="bg-clip-content bg-purple-500 p-6 rounded-lg text-white">Content Only</div>`,
+
+              preview: (
+                <div className="bg-clip-content bg-purple-500 p-6 rounded-lg text-white">
+                  Content Only
+                </div>
+              ),
+            },
+
+            {
+              title: "Button Highlight",
+
+              description:
+                "Use padding-clip to ensure button gradients respect padding space.",
+
+              code: `<button class="bg-clip-padding bg-gradient-to-r from-pink-500 to-purple-600 p-4 rounded-lg text-white">Click Me</button>`,
+
+              preview: (
+                <button className="bg-clip-padding bg-gradient-to-r from-pink-500 to-purple-600 p-4 rounded-lg text-white">
+                  Click Me
+                </button>
+              ),
+            },
+
+            {
+              title: "Avatar Overlay",
+
+              description:
+                "Apply content-clipped background for avatar effects inside circular masks.",
+
+              code: `<div class="bg-clip-content bg-green-400 rounded-full w-24 h-24"></div>`,
+
+              preview: (
+                <div className="bg-clip-content bg-green-400 rounded-full w-24 h-24"></div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using bg-clip-border for Text",
+
+              reason:
+                "Text backgrounds require `bg-clip-text`; using border or padding clip has no effect.",
+
+              example: `<h1 class="bg-clip-border text-transparent bg-gradient-to-r from-red-500 to-yellow-500">Oops</h1>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overlapping Padding",
+
+              reason:
+                "Failing to clip to padding can cause background to extend into borders.",
+
+              example: `<div class="bg-clip-content bg-blue-500 p-6 border-4 border-gray-300">Box</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Rounded Corners",
+
+              reason:
+                "Background extends beyond corners if clip is not set appropriately.",
+
+              example: `<div class="bg-clip-padding bg-red-500 rounded-full">Avatar</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Gradient on Wrong Clip",
+
+              reason:
+                "Gradients on text need `bg-clip-text`; other values won't display correctly.",
+
+              example: `<span class="bg-clip-padding text-transparent bg-gradient-to-r from-blue-500 to-green-500">Text</span>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Text Gradients:",
+              text: "Always pair `bg-clip-text` with `text-transparent` for gradient text.",
+            },
+
+            {
+              bold: "Layering:",
+              text: "Use `bg-clip-padding` to prevent backgrounds from overlapping borders.",
+            },
+
+            {
+              bold: "Performance:",
+              text: "Clipping backgrounds is lightweight and does not affect layout.",
+            },
+
+            {
+              bold: "Composition:",
+              text: "Combine with rounded corners and borders for polished UI effects.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["background", "background-origin"],
+
+    title: "Background Origin",
+
+    description:
+      "Control the position area of background images relative to an element's box. Use these utilities to adjust whether backgrounds are painted inside the padding box, border box, or content box, which is critical for precise layering and visual composition.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Background Origin",
+
+          description:
+            "Background origin utilities determine which box the background image is anchored to: content-box, padding-box, or border-box. This is essential for aligning patterns, gradients, or images accurately in complex layouts.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Anchoring the Background",
+
+          description:
+            "Think of the element as nested boxes: content, padding, and border. Background origin sets which of these boxes the background image is painted relative to, affecting layout and clipping.",
+
+          features: [
+            "Supports content, padding, and border boxes",
+
+            "Affects alignment of images and gradients",
+
+            "Useful for layered UI components",
+
+            "Works with responsive designs",
+
+            "Integrates with background-size and position",
+          ],
+
+          layerAssignment:
+            "Layout Layer - Controls painting origin of background",
+
+          browserBehavior:
+            "Sets the CSS `background-origin` property directly.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "bg-origin-border",
+              desc: "Background relative to border box",
+            },
+
+            {
+              cls: "bg-origin-padding",
+              desc: "Background relative to padding box",
+            },
+
+            {
+              cls: "bg-origin-content",
+              desc: "Background relative to content box",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Playground",
+
+          description:
+            "Experiment with different background origins to see how the image position changes relative to element boxes.",
+
+          options: [
+            "bg-origin-border",
+            "bg-origin-padding",
+            "bg-origin-content",
+          ],
+
+          defaultValue: "bg-origin-padding",
+
+          buildMarkup: (value: string) =>
+            `<div class="w-64 h-32 bg-gradient-to-r from-blue-400 to-purple-500 ${value} border-4 border-slate-300">Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <div
+                className={`w-64 h-32 ${value} bg-gradient-to-r from-blue-400 to-purple-500 border-4 border-slate-300 rounded flex items-center justify-center text-white font-medium`}
+              >
+                Preview Content
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Background Alignment",
+
+          description:
+            "A hero banner shows misaligned background gradient. Correct the background origin so it fills the padding area as intended.",
+
+          codeSnippet: `<div class="w-64 h-32 bg-gradient-to-r from-green-400 to-blue-600 border-4 border-slate-300 {input}">Banner</div>`,
+
+          options: [
+            "bg-origin-content",
+            "bg-origin-border",
+            "bg-origin-padding",
+          ],
+
+          correctOption: "bg-origin-padding",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-64 h-32 transition-all duration-500 ${userClass} bg-gradient-to-r from-green-400 to-blue-600 border-4 border-slate-300 flex items-center justify-center text-white font-medium`}
+              >
+                Target Element
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Button Gradients",
+              description:
+                "Align gradient inside padding area for consistent button visuals.",
+              code: `<button class="bg-origin-padding bg-gradient-to-r from-purple-500 to-pink-500 p-4 rounded">Click Me</button>`,
+              preview: (
+                <button className="bg-origin-padding bg-gradient-to-r from-purple-500 to-pink-500 p-4 rounded text-white font-medium">
+                  Click Me
+                </button>
+              ),
+            },
+
+            {
+              title: "Card Backgrounds",
+              description:
+                "Ensure background fills border box when borders are present.",
+              code: `<div class="bg-origin-border bg-gradient-to-br from-green-400 to-teal-500 border-4 p-4 rounded">Card Content</div>`,
+              preview: (
+                <div className="bg-origin-border bg-gradient-to-br from-green-400 to-teal-500 border-4 p-4 rounded text-white font-medium">
+                  Card Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Content Box Patterns",
+              description: "Clip decorative background to content area only.",
+              code: `<div class="bg-origin-content bg-gradient-to-r from-yellow-400 to-orange-500 p-4 border-4 rounded">Content Box</div>`,
+              preview: (
+                <div className="bg-origin-content bg-gradient-to-r from-yellow-400 to-orange-500 p-4 border-4 rounded text-white font-medium">
+                  Content Box
+                </div>
+              ),
+            },
+
+            {
+              title: "Overlay Panels",
+              description:
+                "Precise alignment of panel overlays using padding box origin.",
+              code: `<div class="bg-origin-padding bg-gradient-to-t from-gray-700 to-black p-6 rounded">Overlay Panel</div>`,
+              preview: (
+                <div className="bg-origin-padding bg-gradient-to-t from-gray-700 to-black p-6 rounded text-white font-medium">
+                  Overlay Panel
+                </div>
+              ),
+            },
+
+            {
+              title: "Hero Sections",
+              description: "Full bleed background using border-box origin.",
+              code: `<section class="bg-origin-border bg-gradient-to-r from-blue-500 to-indigo-600 border-8 p-8">Hero Section</section>`,
+              preview: (
+                <section className="bg-origin-border bg-gradient-to-r from-blue-500 to-indigo-600 border-8 p-8 text-white font-medium">
+                  Hero Section
+                </section>
+              ),
+            },
+
+            {
+              title: "Patterned Dividers",
+              description:
+                "Apply background patterns confined to content area for decorative dividers.",
+              code: `<div class="bg-origin-content bg-repeat bg-[url('/pattern.svg')] p-2">Divider</div>`,
+              preview: (
+                <div className="bg-origin-content bg-repeat bg-[url('/pattern.svg')] p-2 text-white font-medium">
+                  Divider
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Ignoring Borders",
+              reason:
+                "Using border-box origin when padding-box is required can misalign backgrounds.",
+              example: `<div class="bg-origin-border ...">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overlapping Content",
+              reason:
+                "Setting content-box origin may clip background unexpectedly.",
+              example: `<div class="bg-origin-content ...">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Mixing with Background Clip",
+              reason:
+                "Confusing `background-origin` with `background-clip` can produce visual artifacts.",
+              example: `<div class="bg-origin-padding bg-clip-border ...">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Forgetting Responsive Adjustments",
+              reason:
+                "Background may shift at different screen sizes if origin not reconsidered.",
+              example: `<div class="bg-origin-padding sm:bg-origin-content ...">...</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use with Gradients:",
+              text: "Ensure the background origin matches intended padding or border alignment for consistent visual results.",
+            },
+
+            {
+              bold: "Combine with Background Clip:",
+              text: "Use `bg-clip-` utilities alongside `bg-origin-` to control both painting and clipping.",
+            },
+
+            {
+              bold: "Layered UI:",
+              text: "Adjust origin when stacking multiple backgrounds for precise positioning.",
+            },
+
+            {
+              bold: "Test Responsively:",
+              text: "Check background alignment across breakpoints, especially when using padding or border variations.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["effects", "background-blend-mode"],
+
+    title: "Background Blend Mode",
+
+    description:
+      "Control how background images and colors blend with each other. Useful for creating overlays, textures, or artistic visual effects without extra markup. Applies directly to the CSS `background-blend-mode` property.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Background Blend Mode",
+
+          description:
+            "Background blend mode utilities define how multiple background layers interact visually. Use these to create subtle overlays, textures, or color effects without additional elements.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Layered Paint Analogy",
+
+          description:
+            "Think of background layers as transparent sheets stacked on top of each other. Background blend modes control how colors from different layers mix to produce a combined visual effect.",
+
+          features: [
+            "Controls visual blending of backgrounds",
+
+            "Supports multiple background layers",
+
+            "Responsive with hover/focus modifiers",
+
+            "Works with gradients and images",
+
+            "Non-destructive visual effect",
+          ],
+
+          layerAssignment: "Visual Effects Layer - Background composition",
+
+          browserBehavior:
+            "Maps directly to the CSS `background-blend-mode` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "bg-blend-normal", desc: "Default blending, no effect" },
+
+            {
+              cls: "bg-blend-multiply",
+              desc: "Multiply layers for darker result",
+            },
+
+            {
+              cls: "bg-blend-screen",
+              desc: "Screen layers for lighter result",
+            },
+
+            {
+              cls: "bg-blend-overlay",
+              desc: "Overlay combines multiply & screen",
+            },
+
+            {
+              cls: "bg-blend-darken",
+              desc: "Keeps the darker color of layers",
+            },
+
+            {
+              cls: "bg-blend-lighten",
+              desc: "Keeps the lighter color of layers",
+            },
+
+            {
+              cls: "bg-blend-color-dodge",
+              desc: "Brightens base color to reflect blend",
+            },
+
+            {
+              cls: "bg-blend-color-burn",
+              desc: "Darkens base color to reflect blend",
+            },
+
+            { cls: "bg-blend-hard-light", desc: "Intense overlay effect" },
+
+            { cls: "bg-blend-soft-light", desc: "Soft subtle lighting effect" },
+
+            {
+              cls: "bg-blend-difference",
+              desc: "Subtracts darker from lighter",
+            },
+
+            {
+              cls: "bg-blend-exclusion",
+              desc: "Similar to difference but softer",
+            },
+
+            { cls: "bg-blend-hue", desc: "Applies hue of top layer" },
+
+            {
+              cls: "bg-blend-saturation",
+              desc: "Applies saturation of top layer",
+            },
+
+            {
+              cls: "bg-blend-color",
+              desc: "Applies hue and saturation of top layer",
+            },
+
+            {
+              cls: "bg-blend-luminosity",
+              desc: "Applies luminosity of top layer",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Background Blend Mode Playground",
+
+          description:
+            "Experiment with different blend modes using background images and colors. Observe how the visual effect changes dynamically.",
+
+          options: [
+            "bg-blend-normal",
+            "bg-blend-multiply",
+            "bg-blend-screen",
+            "bg-blend-overlay",
+          ],
+
+          defaultValue: "bg-blend-normal",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} bg-gradient-to-r from-blue-500 to-pink-500 h-32 w-full"></div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="w-full h-32 bg-gradient-to-r from-blue-500 to-pink-500 rounded shadow text-center flex items-center justify-center">
+                {" "}
+                <p className="text-white font-medium">Preview Content</p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Overlay Effect",
+
+          description:
+            "A design requires a darker overlay over a colorful image. Currently it looks washed out. Choose the correct blend mode to achieve the desired effect.",
+
+          codeSnippet:
+            '<div class="bg-pink-500 bg-blend-{input} h-32 w-full">...</div>',
+
+          options: [
+            "bg-blend-normal",
+            "bg-blend-screen",
+            "bg-blend-multiply",
+            "bg-blend-lighten",
+          ],
+
+          correctOption: "bg-blend-multiply",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-32 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-full h-32 bg-pink-500 bg-gradient-to-r from-blue-500 to-purple-500 ${userClass} rounded`}
+              ></div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Dark Overlay",
+              description:
+                "Use `bg-blend-multiply` to darken an image for text overlay.",
+              code: `<div class="bg-blue-500 bg-blend-multiply ...">Content</div>`,
+              preview: (
+                <div className="p-4 bg-blue-500 bg-blend-multiply text-white rounded">
+                  Dark Overlay Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Soft Light Effect",
+              description:
+                "Apply `bg-blend-soft-light` for subtle texture enhancement.",
+              code: `<div class="bg-gradient-to-r from-pink-500 to-yellow-500 bg-blend-soft-light ...">Content</div>`,
+              preview: (
+                <div className="p-4 bg-gradient-to-r from-pink-500 to-yellow-500 bg-blend-soft-light text-black rounded">
+                  Soft Light Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Vibrant Colors",
+              description:
+                "Use `bg-blend-screen` to lighten and brighten backgrounds.",
+              code: `<div class="bg-blend-screen bg-red-500 ...">Content</div>`,
+              preview: (
+                <div className="p-4 bg-red-500 bg-blend-screen text-white rounded">
+                  Screen Blend
+                </div>
+              ),
+            },
+
+            {
+              title: "Artistic Hue",
+              description:
+                "Apply `bg-blend-hue` to impose color tones across layers.",
+              code: `<div class="bg-blend-hue bg-gradient-to-r ...">Content</div>`,
+              preview: (
+                <div className="p-4 bg-gradient-to-r from-green-500 to-blue-500 bg-blend-hue text-white rounded">
+                  Hue Blend
+                </div>
+              ),
+            },
+
+            {
+              title: "Luminosity Adjustment",
+              description:
+                "Use `bg-blend-luminosity` to transfer brightness without changing hue.",
+              code: `<div class="bg-blend-luminosity bg-yellow-500 ...">Content</div>`,
+              preview: (
+                <div className="p-4 bg-yellow-500 bg-blend-luminosity text-black rounded">
+                  Luminosity Blend
+                </div>
+              ),
+            },
+
+            {
+              title: "Color Dodge Highlight",
+              description:
+                "Apply `bg-blend-color-dodge` for intensified highlights.",
+              code: `<div class="bg-blend-color-dodge bg-purple-500 ...">Content</div>`,
+              preview: (
+                <div className="p-4 bg-purple-500 bg-blend-color-dodge text-white rounded">
+                  Color Dodge
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using Single Background",
+              reason:
+                "Blend modes have no effect with only one background layer.",
+              example: `<div class="bg-blend-multiply bg-blue-500">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Unreadable Text",
+              reason:
+                "Applying a strong blend without adjusting text color can reduce readability.",
+              example: `<div class="bg-blend-multiply bg-red-500 text-red-500">Text</div>`,
+              level: "critical",
+            },
+
+            {
+              title: "Unsupported Browser Effects",
+              reason:
+                "Older browsers may not render certain blend modes correctly.",
+              example: `<div class="bg-blend-overlay ...">...</div>`,
+              level: "info",
+            },
+
+            {
+              title: "Overuse of Multiple Modes",
+              reason:
+                "Combining too many blend layers can create visually confusing results.",
+              example: `<div class="bg-blend-screen bg-blend-overlay ...">...</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Gradients:",
+              text: "Combine with gradients to create smooth visual transitions.",
+            },
+
+            {
+              bold: "Text Contrast:",
+              text: "Always ensure text remains legible over blended backgrounds.",
+            },
+
+            {
+              bold: "Layer Management:",
+              text: "Minimize layers for performance and clarity.",
+            },
+
+            {
+              bold: "Responsive Design:",
+              text: "Test blend effects across devices, as perception may vary with screen brightness.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["effects", "box-shadow"],
+
+    title: "Box Shadow",
+
+    description:
+      "Apply shadow effects to elements for depth and emphasis. Box shadow utilities help create visual hierarchy, simulate elevation, and separate content layers subtly or prominently.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Box Shadow",
+
+          description:
+            "Box shadow utilities apply configurable shadows around elements, enhancing depth perception and focus. They are commonly used for cards, modals, buttons, and other UI components requiring visual separation.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Elevation Layer",
+
+          description:
+            "Box shadow utilities map directly to the CSS `box-shadow` property. Think of them as virtual lights casting shadows behind elements, giving the impression of height above the page surface.",
+
+          features: [
+            "Supports multiple shadow presets",
+
+            "Responsive shadow adjustments",
+
+            "Composes well with borders and rounded corners",
+
+            "Enhances visual hierarchy",
+
+            "Non-intrusive performance impact",
+          ],
+
+          layerAssignment: "Layout Layer - Visual depth and separation",
+
+          browserBehavior:
+            "Sets the `box-shadow` property. Shadows do not affect layout but are rendered visually behind the element.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "shadow-sm", desc: "Small subtle shadow" },
+
+            { cls: "shadow", desc: "Default medium shadow" },
+
+            { cls: "shadow-md", desc: "Moderate shadow for elevation" },
+
+            { cls: "shadow-lg", desc: "Prominent shadow for focus" },
+
+            {
+              cls: "shadow-xl",
+              desc: "Extra large shadow for strong emphasis",
+            },
+
+            { cls: "shadow-2xl", desc: "Very pronounced shadow" },
+
+            { cls: "shadow-inner", desc: "Inset shadow inside element" },
+
+            { cls: "shadow-none", desc: "Removes any shadow" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Box Shadow Playground",
+
+          description:
+            "Experiment with different shadow intensities and inset effects. Observe how `shadow-inner` contrasts with standard shadows and how larger shadows impact perceived depth.",
+
+          options: [
+            "shadow-sm",
+            "shadow",
+            "shadow-md",
+            "shadow-lg",
+            "shadow-xl",
+            "shadow-2xl",
+            "shadow-inner",
+            "shadow-none",
+          ],
+
+          defaultValue: "shadow",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} p-6 bg-white rounded-lg">Sample Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <div
+                className={`bg-white dark:bg-slate-800 p-6 rounded-lg ${value}`}
+              >
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium text-center">
+                  Preview Content
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken Card Shadow",
+
+          description:
+            "A card element lacks depth against the background. Apply the correct shadow utility to make it appear elevated.",
+
+          codeSnippet:
+            '<div class="p-6 bg-white rounded-lg {input}">Card Content</div>',
+
+          options: ["shadow-none", "shadow-sm", "shadow-lg", "shadow-inner"],
+
+          correctOption: "shadow-lg",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`p-6 bg-white dark:bg-slate-800 rounded-lg transition-all duration-500 ${userClass}`}
+              >
+                Elevated Card{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Card Elevation",
+
+              description:
+                "Apply moderate shadows to cards for visual separation from the background.",
+
+              code: `<div class="shadow-md p-4 rounded-lg bg-white">Card Content</div>`,
+
+              preview: (
+                <div className="shadow-md p-4 rounded-lg bg-white">
+                  Card Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Modal Dialog",
+
+              description:
+                "Use a large shadow to make modals pop above other content.",
+
+              code: `<div class="shadow-xl p-6 bg-white rounded-lg">Modal Content</div>`,
+
+              preview: (
+                <div className="shadow-xl p-6 bg-white rounded-lg">
+                  Modal Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Button Hover",
+
+              description:
+                "Enhance button hover states with a subtle shadow increase.",
+
+              code: `<button class="shadow hover:shadow-lg px-4 py-2 rounded bg-blue-600 text-white">Click Me</button>`,
+
+              preview: (
+                <button className="shadow hover:shadow-lg px-4 py-2 rounded bg-blue-600 text-white">
+                  Click Me
+                </button>
+              ),
+            },
+
+            {
+              title: "Inset Panel",
+
+              description:
+                "Use `shadow-inner` for inset panels or inputs to create depth inside the element.",
+
+              code: `<div class="shadow-inner p-4 bg-gray-100 rounded-lg">Inset Content</div>`,
+
+              preview: (
+                <div className="shadow-inner p-4 bg-gray-100 rounded-lg">
+                  Inset Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Minimal Shadow",
+
+              description: "Subtle shadows for lightweight cards or sections.",
+
+              code: `<div class="shadow-sm p-4 bg-white rounded">Light Card</div>`,
+
+              preview: (
+                <div className="shadow-sm p-4 bg-white rounded">Light Card</div>
+              ),
+            },
+
+            {
+              title: "No Shadow",
+
+              description:
+                "Remove shadows completely when layering or flattening UI.",
+
+              code: `<div class="shadow-none p-4 bg-white rounded">Flat Section</div>`,
+
+              preview: (
+                <div className="shadow-none p-4 bg-white rounded">
+                  Flat Section
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Overusing Large Shadows",
+
+              reason:
+                "Excessive shadows can clutter the UI and reduce readability.",
+
+              example: `<div class="shadow-2xl p-4">Too heavy</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Shadow on Transparent Backgrounds",
+
+              reason:
+                "Shadows on transparent or dark backgrounds may not be visible.",
+
+              example: `<div class="shadow p-4 bg-transparent">Invisible shadow</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Inconsistent Shadow Usage",
+
+              reason:
+                "Using multiple shadow sizes inconsistently reduces visual hierarchy.",
+
+              example: `<div class="shadow-sm p-4"></div><div class="shadow-2xl p-4"></div>`,
+
+              level: "info",
+            },
+
+            {
+              title: "Ignoring Rounded Corners",
+
+              reason:
+                "Applying shadow without rounding can create sharp unnatural edges.",
+
+              example: `<div class="shadow p-4 rounded-none">Blocky shadow</div>`,
+
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Layering Shadows:",
+              text: "Combine shadows with borders and backgrounds for subtle depth effects.",
+            },
+
+            {
+              bold: "Performance:",
+              text: "Avoid excessive large shadows on many elements to maintain rendering performance.",
+            },
+
+            {
+              bold: "Interactive States:",
+              text: "Enhance buttons and cards with hover/active shadow changes for interactivity.",
+            },
+
+            {
+              bold: "Inset Usage:",
+              text: "Use `shadow-inner` sparingly to indicate recessed or inset elements.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["effects", "mask-clip"],
+    title: "Mask Clip",
+    description:
+      "Control the bounding box of an element's mask. Use mask clip utilities to determine whether a mask covers the border, padding, content area, or text of an element.",
+
+    sections: [
+      {
+        type: "hero",
+        props: {
+          title: "Mask Clip",
+          description:
+            "Just like `background-clip` controls where a background image is drawn, `mask-clip` controls the area affected by a mask. It allows you to constrain a mask to the content box, padding box, border box, or even the text characters themselves.",
+        },
+      },
+      {
+        type: "mental-model",
+        props: {
+          title: "The Cropping Boundary",
+          description:
+            "Think of `mask-clip` as the 'cropping frame' for your mask. Even if your mask image is large, `mask-clip` tells the browser: 'Only apply the mask inside these specific lines.'",
+          features: [
+            "Determines the mask's paint area",
+            "Crucial for borders vs. content",
+            "Supports text masking (in supported browsers)",
+            "Works exactly like background-clip",
+          ],
+          layerAssignment: "Effects Layer - Visual Clipping",
+          browserBehavior: "Maps directly to the CSS `mask-clip` property.",
+        },
+      },
+      {
+        type: "utility-grid",
+        props: {
+          title: "Common Classes",
+          items: [
+            {
+              cls: "mask-clip-border",
+              desc: "Mask extends to the outer edge of the border (Default)",
+            },
+            {
+              cls: "mask-clip-padding",
+              desc: "Mask extends to the outer edge of the padding",
+            },
+            {
+              cls: "mask-clip-content",
+              desc: "Mask is clipped to the content box",
+            },
+            {
+              cls: "mask-clip-text",
+              desc: "Mask is clipped to the text itself",
+            },
+          ],
+        },
+      },
+      {
+        type: "playground",
+        props: {
+          title: "Mask Clip Playground",
+          description:
+            "This box has a thick transparent border (dashed) and padding. Change the clip value to see where the mask (a gradient fade) stops taking effect.",
+          options: [
+            "mask-clip-border",
+            "mask-clip-padding",
+            "mask-clip-content",
+            "mask-clip-text",
+          ],
+          defaultValue: "mask-clip-border",
+          buildMarkup: (value: string) =>
+            `<div class="${value} p-8 border-8 border-dashed border-white/50 bg-blue-500 mask-linear-gradient">
+  Target
+</div>`,
+          renderPreview: (value: string) => (
+            <div className="p-12 bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-48 h-48 bg-gradient-to-br from-indigo-500 to-purple-600 p-8 border-8 border-dashed border-white/30 text-white text-2xl font-bold flex items-center justify-center ${value}`}
+                style={{
+                  maskImage:
+                    "linear-gradient(to bottom right, black 50%, transparent 100%)",
+                  WebkitMaskImage:
+                    "linear-gradient(to bottom right, black 50%, transparent 100%)",
+                }}
+              >
+                TEXT
+              </div>
+            </div>
+          ),
+        },
+      },
+      {
+        type: "interactive-challenge",
+        props: {
+          title: "The Content-Only Mask",
+          description:
+            "You have a card with a nice border. You want to apply a 'fade out' mask to the text content inside, but you want the border to remain fully visible (unmasked). Set the clip so the mask ONLY affects the content area.",
+          codeSnippet: `<div class="relative w-64 p-4 border-4 border-blue-500">
+  <div class="{input} mask-linear-fade">
+    <p>Long text content that fades out...</p>
+  </div>
+</div>`,
+          options: [
+            "mask-clip-border",
+            "mask-clip-padding",
+            "mask-clip-content",
+            "mask-clip-text",
+          ],
+          correctOption: "mask-clip-content",
+          renderPreview: (userClass: string) => (
+            <div className="bg-slate-50 dark:bg-slate-950 p-8 rounded-lg flex justify-center">
+              <div
+                className={`w-64 h-32 p-4 border-4 border-blue-500 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm overflow-hidden ${userClass}`}
+                style={{
+                  maskImage:
+                    "linear-gradient(to bottom, black 0%, transparent 100%)",
+                  WebkitMaskImage:
+                    "linear-gradient(to bottom, black 0%, transparent 100%)",
+                }}
+              >
+                <p>
+                  This is a block of text. Notice how the mask affects the
+                  container. If you choose 'content', the border stays solid!
+                </p>
+              </div>
+            </div>
+          ),
+        },
+      },
+      {
+        type: "examples",
+        props: {
+          title: "Real-World Patterns",
+          examples: [
+            {
+              title: "Border Exclusion",
+              description:
+                "Keep a border solid while fading out the image inside.",
+              code: `<div class="mask-clip-content p-4 border-4 border-white">
+  <img src="..." class="mask-linear" />
+</div>`,
+              preview: (
+                <div className="bg-slate-800 p-8 rounded-lg flex justify-center">
+                  <div
+                    className="w-32 h-32 p-4 border-4 border-white/50 bg-slate-700 mask-clip-content"
+                    style={{
+                      maskImage:
+                        "linear-gradient(to bottom, black, transparent)",
+                      WebkitMaskImage:
+                        "linear-gradient(to bottom, black, transparent)",
+                    }}
+                  >
+                    <div className="w-full h-full bg-pink-500 rounded"></div>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Text Masking Effect",
+              description:
+                "Apply a texture or gradient to text by clipping the mask to the text characters.",
+              code: `<h1 class="text-6xl font-black text-transparent bg-black mask-clip-text mask-image-texture">
+  GRUNGE
+</h1>`,
+              preview: (
+                <div className="bg-white p-8 rounded-lg flex justify-center">
+                  <h1
+                    className="text-5xl font-black text-transparent bg-black mask-clip-text"
+                    style={{
+                      maskImage:
+                        "linear-gradient(45deg, black 25%, transparent 25%, transparent 50%, black 50%, black 75%, transparent 75%, transparent)",
+                      WebkitMaskImage:
+                        "linear-gradient(45deg, black 25%, transparent 25%, transparent 50%, black 50%, black 75%, transparent 75%, transparent)",
+                      maskSize: "10px 10px",
+                      WebkitMaskSize: "10px 10px",
+                    }}
+                  >
+                    TEXTURE
+                  </h1>
+                </div>
+              ),
+            },
+            {
+              title: "Padding Box Clip",
+              description:
+                "Useful when you have a transparent border and want the mask to stop at the padding edge.",
+              code: `<div class="mask-clip-padding border-8 border-transparent p-4 bg-indigo-500">
+  Content
+</div>`,
+              preview: (
+                <div className="bg-slate-900 p-8 rounded-lg flex justify-center">
+                  <div
+                    className="w-32 h-32 border-8 border-white/20 p-4 bg-indigo-500 mask-clip-padding"
+                    style={{
+                      maskImage:
+                        "radial-gradient(circle, black 50%, transparent 100%)",
+                      WebkitMaskImage:
+                        "radial-gradient(circle, black 50%, transparent 100%)",
+                    }}
+                  ></div>
+                </div>
+              ),
+            },
+            {
+              title: "Content Highlight",
+              description:
+                "Isolating the mask strictly to the content area for precise hover effects.",
+              code: `<button class="p-4 border mask-clip-content hover:bg-blue-500">
+  Hover Me
+</button>`,
+              preview: (
+                <div className="p-8 bg-slate-100 dark:bg-slate-900 rounded flex justify-center">
+                  <div
+                    className="p-4 bg-blue-500 text-white font-bold border-4 border-blue-200 mask-clip-content"
+                    style={{
+                      maskImage:
+                        "linear-gradient(to right, black, transparent)",
+                      WebkitMaskImage:
+                        "linear-gradient(to right, black, transparent)",
+                    }}
+                  >
+                    Clipped Button
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Gradient Text (Alternative)",
+              description:
+                "While `background-clip: text` is common, `mask-clip: text` allows you to mask an image or pattern *into* text.",
+              code: `<div class="mask-clip-text bg-gradient-to-r from-green-400 to-blue-500 text-transparent">
+  Nature
+</div>`,
+              preview: (
+                <div className="p-8 bg-slate-900 rounded flex justify-center">
+                  <span
+                    className="text-5xl font-black text-transparent bg-gradient-to-r from-green-400 to-blue-500 mask-clip-text"
+                    style={{
+                      maskImage:
+                        "linear-gradient(to bottom, black, transparent)",
+                      WebkitMaskImage:
+                        "linear-gradient(to bottom, black, transparent)",
+                    }}
+                  >
+                    FADED
+                  </span>
+                </div>
+              ),
+            },
+            {
+              title: "Avatar with Border Ring",
+              description:
+                "Ensuring the mask doesn't eat into the decorative border ring.",
+              code: `<div class="p-1 border-2 border-red-500 rounded-full mask-clip-content">
+  <img src="..." class="rounded-full" />
+</div>`,
+              preview: (
+                <div className="p-8 bg-slate-50 dark:bg-slate-900 rounded flex justify-center">
+                  <div
+                    className="w-20 h-20 p-1 border-4 border-red-500 rounded-full bg-slate-300 mask-clip-content"
+                    style={{
+                      maskImage: "linear-gradient(black 50%, transparent)",
+                      WebkitMaskImage:
+                        "linear-gradient(black 50%, transparent)",
+                    }}
+                  ></div>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+      {
+        type: "common-mistakes",
+        props: {
+          mistakes: [
+            {
+              title: "No Mask Image",
+              reason:
+                " `mask-clip` does nothing if you haven't applied a `mask-image` first.",
+              example: `<div class="mask-clip-text">No effect</div>`,
+              level: "warning",
+            },
+            {
+              title: "Confusing with Background Clip",
+              reason:
+                "`mask-clip` affects the *mask*, `background-clip` affects the *background color/image*. They operate on different layers.",
+              example: `<div class="bg-blue-500 mask-clip-text">Whole box is blue</div>`,
+              level: "info",
+            },
+            {
+              title: "Text Color Not Transparent",
+              reason:
+                "When using `mask-clip-text`, if your text has a solid color, you might not see the effect clearly depending on the background.",
+              example: `<div class="text-black mask-clip-text">...</div>`,
+              level: "info",
+            },
+          ],
+        },
+      },
+      {
+        type: "tips",
+        props: {
+          tips: [
+            {
+              bold: "Default Value:",
+              text: "The default is `mask-clip-border`, meaning the mask covers everything including the border.",
+            },
+            {
+              bold: "Combination:",
+              text: "Combine `mask-clip-content` with `p-4` to create 'safe zones' around your content where the mask (and thus the element visibility) stops.",
+            },
+            {
+              bold: "Browser Support:",
+              text: "`mask-clip-text` may require `-webkit-` prefixing in some older environments, though Tailwind handles the utility generation.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["effects", "mask-composite"],
+
+    title: "Mask Composite",
+
+    description:
+      "Control how multiple mask layers interact to reveal or conceal content. Use mask-composite utilities when layering masks to achieve complex visual effects. Implementation varies across browsers, so test for consistent rendering.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Mask Composite",
+
+          description:
+            "Control how multiple mask layers combine to reveal or hide content. Essential for creating layered mask effects, the mask-composite property determines whether new mask layers replace, add to, subtract from, or intersect with existing masks.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Layer Interaction Model",
+
+          description:
+            "Mask composite utilities determine how successive mask layers interact on an element. Think of it like layering stencils over one another: each mode changes whether the new layer adds, subtracts, or intersects with the previous mask.",
+
+          features: [
+            "Supports multiple mask layers",
+
+            "Controls interaction between masks",
+
+            "Browser-dependent rendering nuances",
+
+            "Can affect visibility and shape composition",
+
+            "Supports standard and experimental values",
+          ],
+
+          layerAssignment: "Visual Effects Layer",
+
+          browserBehavior:
+            "Maps directly to the CSS `mask-composite` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "mask-composite-add",
+              desc: "Adds the new mask to existing layers",
+            },
+
+            {
+              cls: "mask-composite-subtract",
+              desc: "Subtracts the new mask from existing layers",
+            },
+
+            {
+              cls: "mask-composite-intersect",
+              desc: "Keeps only overlapping areas of masks",
+            },
+
+            {
+              cls: "mask-composite-replace",
+              desc: "Replaces all previous masks with the new one",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Mask Composite Playground",
+
+          description:
+            "Experiment with different mask-composite values to observe how multiple mask layers interact visually.",
+
+          options: [
+            "mask-composite-add",
+
+            "mask-composite-subtract",
+
+            "mask-composite-intersect",
+
+            "mask-composite-replace",
+          ],
+
+          defaultValue: "mask-composite-add",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} ...">Masked Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Masked Preview
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Mask Effect",
+
+          description:
+            "An element with multiple mask layers isn't showing the intended combined effect. Adjust the mask-composite utility to achieve the desired interaction.",
+
+          codeSnippet:
+            '<div class="mask mask-composite-{input}">Layered Content</div>',
+
+          options: [
+            "mask-composite-add",
+
+            "mask-composite-subtract",
+
+            "mask-composite-replace",
+
+            "mask-composite-intersect",
+          ],
+
+          correctOption: "mask-composite-intersect",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div className={`transition-all duration-500 ${userClass}`}>
+                Masked Element{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Additive Masks",
+
+              description:
+                "Layer multiple shapes to cumulatively reveal content.",
+
+              code: `<div class="mask mask-composite-add">...</div>`,
+
+              preview: <div className="p-4">Additive Mask Example</div>,
+            },
+
+            {
+              title: "Subtractive Masks",
+
+              description:
+                "Remove portions of content by subtracting mask areas.",
+
+              code: `<div class="mask mask-composite-subtract">...</div>`,
+
+              preview: <div className="p-4">Subtractive Mask Example</div>,
+            },
+
+            {
+              title: "Intersecting Masks",
+
+              description:
+                "Only the overlapping regions of multiple masks are visible.",
+
+              code: `<div class="mask mask-composite-intersect">...</div>`,
+
+              preview: <div className="p-4">Intersect Mask Example</div>,
+            },
+
+            {
+              title: "Replacing Masks",
+
+              description: "Completely replace prior masks with a new one.",
+
+              code: `<div class="mask mask-composite-replace">...</div>`,
+
+              preview: <div className="p-4">Replace Mask Example</div>,
+            },
+
+            {
+              title: "Complex Layered Effects",
+
+              description:
+                "Combine multiple mask modes for creative visual effects.",
+
+              code: `<div class="mask mask-composite-add mask-composite-intersect">...</div>`,
+
+              preview: <div className="p-4">Complex Mask Example</div>,
+            },
+
+            {
+              title: "UI Component Masking",
+
+              description:
+                "Use mask-composite to style buttons, cards, or avatars with layered shapes.",
+
+              code: `<button class="mask mask-composite-add">Click Me</button>`,
+
+              preview: <div className="p-4">Masked Button Example</div>,
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Ignoring Browser Support",
+
+              reason:
+                "Not all browsers support mask-composite values consistently, which can lead to unexpected results.",
+
+              example: `<div class="mask mask-composite-add">...</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overlapping Masks Misuse",
+
+              reason:
+                "Using multiple masks without the correct composite mode can hide content unintentionally.",
+
+              example: `<div class="mask mask-composite-replace mask-composite-add">...</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Assuming Default Behavior",
+
+              reason:
+                "Not specifying a mask-composite value may default to 'add', which may not match design intent.",
+
+              example: `<div class="mask">...</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Excessive Layering",
+
+              reason:
+                "Too many mask layers with complex composites can negatively affect performance.",
+
+              example: `<div class="mask mask-composite-add mask mask-composite-subtract">...</div>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Test Across Browsers:",
+              text: "Ensure consistent rendering of mask-composite values in Chrome, Safari, and Firefox.",
+            },
+
+            {
+              bold: "Use Simplified Masks:",
+              text: "Complex shapes may be simplified to improve performance and maintain clarity.",
+            },
+
+            {
+              bold: "Combine Wisely:",
+              text: "Layer only necessary masks to avoid over-complication.",
+            },
+
+            {
+              bold: "Fallbacks:",
+              text: "Provide background or alternative visuals when mask-composite is unsupported.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["effects", "mask-image"],
+
+    title: "Mask Image",
+
+    description:
+      "Control the visibility of parts of an element by applying a mask image. Useful for creating complex shapes, fade effects, or custom cutouts without altering the DOM structure.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Mask Image",
+
+          description:
+            "Control which areas of an element are visible by using mask images. This allows for advanced visual effects like gradients, shapes, and patterns without modifying the underlying content.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Conceptual Explanation",
+
+          description:
+            "Mask image utilities apply a mask to an element, controlling which parts are visible and which are hidden. Think of it as a stencil over your content where white areas are visible and black areas are hidden.",
+
+          features: [
+            "Supports gradients and patterns",
+
+            "Works with images and SVG masks",
+
+            "Can be combined with transitions",
+
+            "Responsive support with variant prefixes",
+
+            "Layered composition with multiple effects",
+          ],
+
+          layerAssignment: "Visual Effects Layer - Alters element rendering",
+
+          browserBehavior:
+            "Maps directly to the CSS `mask-image`, `-webkit-mask-image` properties.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "mask-none", desc: "Removes any applied mask" },
+
+            {
+              cls: "mask-linear-gradient",
+              desc: "Applies a linear gradient mask",
+            },
+
+            {
+              cls: "mask-radial-gradient",
+              desc: "Applies a radial gradient mask",
+            },
+
+            { cls: "mask-url", desc: "Uses an external image as a mask" },
+
+            { cls: "mask-repeat", desc: "Repeats the mask image" },
+
+            { cls: "mask-no-repeat", desc: "Prevents mask image repetition" },
+
+            { cls: "mask-cover", desc: "Scales mask to cover the element" },
+
+            {
+              cls: "mask-contain",
+              desc: "Scales mask to fit within the element",
+            },
+
+            { cls: "mask-center", desc: "Positions mask at center" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Playground",
+
+          description:
+            "Experiment with different mask images and styles to control element visibility and create interesting visual effects.",
+
+          options: [
+            "mask-none",
+            "mask-linear-gradient",
+            "mask-radial-gradient",
+            "mask-url",
+          ],
+
+          defaultValue: "mask-linear-gradient",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-32 h-32 bg-blue-500">Masked Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-blue-500 w-32 h-32 rounded shadow flex items-center justify-center text-white font-medium">
+                Preview
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken UI",
+
+          description:
+            "A decorative element is fully visible, but it should only show a gradient mask. Apply the correct mask utility to fix the rendering.",
+
+          codeSnippet: '<div class="w-32 h-32 bg-red-500 ... {input}"></div>',
+
+          options: [
+            "mask-none",
+            "mask-linear-gradient",
+            "mask-radial-gradient",
+            "mask-url",
+          ],
+
+          correctOption: "mask-linear-gradient",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-32 h-32 bg-red-500 transition-all duration-500 ${userClass}`}
+              >
+                Masked Element
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Faded Image Overlay",
+
+              description:
+                "Apply a linear gradient mask to fade the bottom of an image.",
+
+              code: `<div class="w-64 h-40 bg-blue-500 mask-linear-gradient"></div>`,
+
+              preview: (
+                <div className="w-64 h-40 bg-blue-500 mask-linear-gradient"></div>
+              ),
+            },
+
+            {
+              title: "Radial Spotlight",
+
+              description:
+                "Use a radial gradient mask to create a spotlight effect.",
+
+              code: `<div class="w-48 h-48 bg-green-500 mask-radial-gradient"></div>`,
+
+              preview: (
+                <div className="w-48 h-48 bg-green-500 mask-radial-gradient"></div>
+              ),
+            },
+
+            {
+              title: "SVG Mask Shape",
+
+              description: "Apply an SVG mask to create complex cutouts.",
+
+              code: `<div class="w-40 h-40 bg-red-500 mask-url"></div>`,
+
+              preview: <div className="w-40 h-40 bg-red-500 mask-url"></div>,
+            },
+
+            {
+              title: "Masked Button",
+
+              description: "Use a gradient mask for hover effects on a button.",
+
+              code: `<button class="px-4 py-2 bg-indigo-600 text-white mask-linear-gradient">Click Me</button>`,
+
+              preview: (
+                <button className="px-4 py-2 bg-indigo-600 text-white mask-linear-gradient">
+                  Click Me
+                </button>
+              ),
+            },
+
+            {
+              title: "Image Reveal",
+
+              description:
+                "Gradually reveal an image with a top-to-bottom gradient mask.",
+
+              code: `<div class="w-56 h-32 bg-yellow-400 mask-linear-gradient"></div>`,
+
+              preview: (
+                <div className="w-56 h-32 bg-yellow-400 mask-linear-gradient"></div>
+              ),
+            },
+
+            {
+              title: "Custom Pattern Mask",
+
+              description:
+                "Use a repeating mask image for patterned visibility effects.",
+
+              code: `<div class="w-48 h-24 bg-purple-500 mask-url mask-repeat"></div>`,
+
+              preview: (
+                <div className="w-48 h-24 bg-purple-500 mask-url mask-repeat"></div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Forgetting Vendor Prefix",
+
+              reason:
+                "Some browsers require `-webkit-mask-image` for correct rendering.",
+
+              example: `<div class="mask-url">...</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Using Fully Transparent Mask",
+
+              reason:
+                "Setting a fully black mask hides all content, making the element invisible.",
+
+              example: `<div class="mask-none">...</div>`,
+
+              level: "critical",
+            },
+
+            {
+              title: "Incorrect Mask Position",
+
+              reason:
+                "The mask may not align as expected if position or size is not defined.",
+
+              example: `<div class="mask-url">...</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overlapping Masks",
+
+              reason:
+                "Applying multiple masks without proper layering can lead to unexpected clipping.",
+
+              example: `<div class="mask-linear-gradient mask-url">...</div>`,
+
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with Opacity:",
+              text: "Masks work well with opacity and transition utilities for fade effects.",
+            },
+
+            {
+              bold: "SVG Masks:",
+              text: "Use vector masks for precise, scalable cutouts.",
+            },
+
+            {
+              bold: "Fallbacks:",
+              text: "Provide `mask-none` as a fallback for unsupported browsers.",
+            },
+
+            {
+              bold: "Performance:",
+              text: "Avoid very large mask images to reduce rendering overhead.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["effects", "mask-mode"],
+
+    title: "Mask Mode",
+
+    description:
+      "Control how mask images are applied to elements. Use this utility to define whether the mask uses the alpha channel or luminance of the image, enabling advanced visual effects without extra markup.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Mask Mode",
+
+          description:
+            "Mask Mode utilities control how an element's mask image is interpreted—either by alpha transparency or luminance. This is essential for creating layered visual effects, transitions, or focus areas without additional elements or overlays.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Mask Lens",
+
+          description:
+            "Think of Mask Mode as a lens determining which parts of an element are visible. It interprets the mask image to reveal or hide content, affecting compositing, animations, and decorative effects.",
+
+          features: [
+            "Supports `alpha` and `luminance` interpretation",
+
+            "Composable with other mask utilities",
+
+            "Affects element visibility and layering",
+
+            "Works with responsive and pseudo-class variants",
+
+            "Enhances design flexibility without extra DOM",
+          ],
+
+          layerAssignment:
+            "Effects Layer - Controls element visibility through masking",
+
+          browserBehavior: "Maps directly to the CSS `mask-mode` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "mask-mode-alpha",
+              desc: "Uses alpha channel to determine visibility",
+            },
+
+            {
+              cls: "mask-mode-luminance",
+              desc: "Uses luminance to determine visibility",
+            },
+
+            { cls: "mask-mode-none", desc: "Disables mask interpretation" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Mask Mode Playground",
+
+          description:
+            "Experiment with different mask interpretations to see how alpha and luminance affect visibility.",
+
+          options: ["mask-mode-alpha", "mask-mode-luminance", "mask-mode-none"],
+
+          defaultValue: "mask-mode-alpha",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} mask-[url('/mask.svg')] p-16 bg-blue-500">Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value} mask-[url('/mask.svg')]`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Preview Content
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken UI",
+
+          description:
+            "A decorative overlay isn't showing correctly because the mask mode is misconfigured. Apply the correct mask interpretation to restore visibility.",
+
+          codeSnippet:
+            "<div class=\"bg-green-500 p-8 {input} mask-[url('/overlay.svg')]\">Content</div>",
+
+          options: [
+            "mask-mode-none",
+            "mask-mode-luminance",
+            "mask-mode-alpha",
+            "mask-mode-invalid",
+          ],
+
+          correctOption: "mask-mode-alpha",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`transition-all duration-500 ${userClass} mask-[url('/overlay.svg')] p-8 bg-green-500 text-white flex items-center justify-center`}
+              >
+                Target Element{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Alpha Mask Effect",
+
+              description:
+                "Reveal an element based on the alpha channel of a mask image.",
+
+              code: `<div class="mask-mode-alpha mask-[url('/mask-alpha.svg')] p-16 bg-blue-500">Alpha Mask</div>`,
+
+              preview: (
+                <div className="p-16 bg-blue-500 mask-mode-alpha mask-[url('/mask-alpha.svg')] text-white flex items-center justify-center">
+                  Alpha Mask
+                </div>
+              ),
+            },
+
+            {
+              title: "Luminance Mask Effect",
+
+              description:
+                "Control visibility using the brightness values of the mask.",
+
+              code: `<div class="mask-mode-luminance mask-[url('/mask-luminance.svg')] p-16 bg-red-500">Luminance Mask</div>`,
+
+              preview: (
+                <div className="p-16 bg-red-500 mask-mode-luminance mask-[url('/mask-luminance.svg')] text-white flex items-center justify-center">
+                  Luminance Mask
+                </div>
+              ),
+            },
+
+            {
+              title: "Disabled Mask",
+
+              description:
+                "Remove mask interpretation while keeping the mask image applied.",
+
+              code: `<div class="mask-mode-none mask-[url('/mask.svg')] p-16 bg-green-500">No Mask</div>`,
+
+              preview: (
+                <div className="p-16 bg-green-500 mask-mode-none mask-[url('/mask.svg')] text-white flex items-center justify-center">
+                  No Mask
+                </div>
+              ),
+            },
+
+            {
+              title: "Masked Button",
+
+              description:
+                "Use a mask to create a button with a custom shape and visibility.",
+
+              code: `<button class="mask-mode-alpha mask-[url('/button-mask.svg')] px-8 py-4 bg-purple-600 text-white">Click Me</button>`,
+
+              preview: (
+                <button className="mask-mode-alpha mask-[url('/button-mask.svg')] px-8 py-4 bg-purple-600 text-white">
+                  Click Me
+                </button>
+              ),
+            },
+
+            {
+              title: "Masked Image Overlay",
+
+              description:
+                "Apply a luminance mask over an image for visual focus.",
+
+              code: `<div class="mask-mode-luminance mask-[url('/focus-mask.svg')] w-64 h-64 bg-gray-300">Image Overlay</div>`,
+
+              preview: (
+                <div className="mask-mode-luminance mask-[url('/focus-mask.svg')] w-64 h-64 bg-gray-300 flex items-center justify-center">
+                  Image Overlay
+                </div>
+              ),
+            },
+
+            {
+              title: "Interactive Mask Area",
+
+              description:
+                "Use alpha masking for hover-reveal effects on cards.",
+
+              code: `<div class="mask-mode-alpha mask-[url('/hover-mask.svg')] p-8 bg-yellow-500">Hover Area</div>`,
+
+              preview: (
+                <div className="mask-mode-alpha mask-[url('/hover-mask.svg')] p-8 bg-yellow-500 flex items-center justify-center text-black">
+                  Hover Area
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Incorrect Mask Mode",
+              reason: "Using `mask-mode-none` prevents visibility as intended.",
+              example: `<div class="mask-mode-none mask-[url('/mask.svg')]">Content</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Using Non-SVG Masks",
+              reason:
+                "Raster images may behave unpredictably; prefer SVGs for precise control.",
+              example: `<div class="mask-mode-alpha mask-[url('/mask.png')]">Content</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Browser Support",
+              reason: "Some browsers may require `-webkit-` prefix for masks.",
+              example: `<div class="mask-mode-alpha mask-[url('/mask.svg')]">Content</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overlapping Masks",
+              reason: "Stacking multiple masks can produce unexpected results.",
+              example: `<div class="mask-mode-alpha mask-[url('/mask1.svg')] mask-[url('/mask2.svg')]">Content</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use SVG Masks:",
+              text: "SVG masks provide precise alpha/luminance control and scale cleanly.",
+            },
+
+            {
+              bold: "Combine with Transitions:",
+              text: "Animate mask changes for engaging hover or reveal effects.",
+            },
+
+            {
+              bold: "Test in Multiple Browsers:",
+              text: "Ensure cross-browser support, especially Safari requiring `-webkit-mask-mode`.",
+            },
+
+            {
+              bold: "Layer with Opacity:",
+              text: "Combine with `opacity` for nuanced visual effects without extra elements.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["effects", "mask-origin"],
+
+    title: "Mask Origin",
+
+    description:
+      "Control the origin point from which a mask image is applied. Use this utility to align masks relative to an element's box, ensuring the intended visual clipping effect is consistent.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Mask Origin",
+
+          description:
+            "Control the origin point from which a mask image is applied. This determines how the mask aligns with the element's box and affects visibility of masked areas.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Mask Anchor",
+
+          description:
+            "Mask origin utilities set the CSS `mask-origin` property, defining the reference box for mask positioning. Think of it as an anchor for the clipping mask relative to the element's box.",
+
+          features: [
+            "Aligns mask relative to element box",
+
+            "Supports content, padding, border reference points",
+
+            "Affects visibility of masked areas",
+
+            "Combines with mask-repeat and mask-size",
+
+            "Works across block and inline elements",
+          ],
+
+          layerAssignment:
+            "Effects Layer - Alters visual rendering of masked content",
+
+          browserBehavior:
+            "Sets the `mask-origin` property. The value determines whether the mask uses border-box, padding-box, or content-box as its reference.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "mask-origin-border",
+              desc: "Uses the border box as mask reference",
+            },
+
+            {
+              cls: "mask-origin-padding",
+              desc: "Uses the padding box as mask reference",
+            },
+
+            {
+              cls: "mask-origin-content",
+              desc: "Uses the content box as mask reference",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Playground",
+
+          description:
+            "Experiment with different mask origins to see how the alignment of mask images changes relative to the element.",
+
+          options: [
+            "mask-origin-border",
+            "mask-origin-padding",
+            "mask-origin-content",
+            "mask-none",
+          ],
+
+          defaultValue: "mask-origin-border",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-40 h-40 mask-image-[url('/mask.svg')] bg-blue-500">Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <div
+                className={`w-40 h-40 bg-blue-500 mask-image-[url('/mask.svg')] ${value} rounded-lg`}
+              />{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken Mask",
+
+          description:
+            "The mask appears offset because the origin is not aligned with the padding box. Correct the class to align the mask properly.",
+
+          codeSnippet:
+            "<div class=\"w-40 h-40 mask-image-[url('/mask.svg')] {input} bg-red-500\"></div>",
+
+          options: [
+            "mask-origin-border",
+            "mask-origin-content",
+            "mask-origin-padding",
+            "mask-none",
+          ],
+
+          correctOption: "mask-origin-padding",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-40 h-40 bg-red-500 mask-image-[url('/mask.svg')] ${userClass} rounded-lg transition-all duration-500`}
+              />{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Border Box Mask",
+
+              description:
+                "Apply a mask that aligns to the border box for consistent edge clipping.",
+
+              code: `<div class="mask-origin-border w-32 h-32 mask-image-[url('/mask.svg')] bg-green-500"></div>`,
+
+              preview: (
+                <div className="w-32 h-32 bg-green-500 mask-image-[url('/mask.svg')] mask-origin-border rounded-lg" />
+              ),
+            },
+
+            {
+              title: "Padding Box Mask",
+
+              description:
+                "Mask aligns with the padding area to avoid clipping borders.",
+
+              code: `<div class="mask-origin-padding w-32 h-32 mask-image-[url('/mask.svg')] bg-yellow-500"></div>`,
+
+              preview: (
+                <div className="w-32 h-32 bg-yellow-500 mask-image-[url('/mask.svg')] mask-origin-padding rounded-lg" />
+              ),
+            },
+
+            {
+              title: "Content Box Mask",
+
+              description:
+                "Mask is applied relative to the content box, ignoring padding and borders.",
+
+              code: `<div class="mask-origin-content w-32 h-32 mask-image-[url('/mask.svg')] bg-blue-500"></div>`,
+
+              preview: (
+                <div className="w-32 h-32 bg-blue-500 mask-image-[url('/mask.svg')] mask-origin-content rounded-lg" />
+              ),
+            },
+
+            {
+              title: "Dynamic Mask Changes",
+
+              description:
+                "Switching mask origins dynamically using classes for responsive effects.",
+
+              code: `<div class="mask-origin-border md:mask-origin-content w-32 h-32 mask-image-[url('/mask.svg')] bg-purple-500"></div>`,
+
+              preview: (
+                <div className="w-32 h-32 bg-purple-500 mask-image-[url('/mask.svg')] mask-origin-border md:mask-origin-content rounded-lg" />
+              ),
+            },
+
+            {
+              title: "Interactive UI Mask",
+
+              description:
+                "Masks can be combined with hover states for interactive effects.",
+
+              code: `<div class="mask-origin-padding hover:mask-origin-content w-32 h-32 mask-image-[url('/mask.svg')] bg-pink-500"></div>`,
+
+              preview: (
+                <div className="w-32 h-32 bg-pink-500 mask-image-[url('/mask.svg')] mask-origin-padding hover:mask-origin-content rounded-lg" />
+              ),
+            },
+
+            {
+              title: "Masked Icon Overlay",
+
+              description:
+                "Use mask-origin with icons to clip decorative shapes precisely.",
+
+              code: `<span class="mask-origin-border mask-image-[url('/icon-mask.svg')] bg-red-400 inline-block w-12 h-12"></span>`,
+
+              preview: (
+                <span className="mask-origin-border mask-image-[url('/icon-mask.svg')] bg-red-400 inline-block w-12 h-12 rounded-lg" />
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using Wrong Box Reference",
+
+              reason:
+                "Selecting content-box instead of padding-box may clip borders unexpectedly.",
+
+              example: `<div class="mask-origin-content w-32 h-32 mask-image-[url('/mask.svg')] bg-blue-500"></div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Neglecting Mask Size",
+
+              reason:
+                "Mask may not align as intended if mask-size is not set appropriately.",
+
+              example: `<div class="mask-origin-border w-32 h-32 mask-image-[url('/mask.svg')]"></div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Browser Support",
+
+              reason: "Some browsers may require -webkit-mask-origin prefix.",
+
+              example: `<div class="mask-origin-padding w-32 h-32 mask-image-[url('/mask.svg')]"></div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overlapping Borders",
+
+              reason:
+                "Using border-box mask can clip content inside thick borders unintentionally.",
+
+              example: `<div class="mask-origin-border w-32 h-32 border-8 mask-image-[url('/mask.svg')] bg-green-500"></div>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with Mask Size:",
+              text: "Adjust mask-size to control coverage with the chosen origin.",
+            },
+
+            {
+              bold: "Use Consistent Box Reference:",
+              text: "Maintain the same mask-origin across similar components for predictable results.",
+            },
+
+            {
+              bold: "Responsive Adjustments:",
+              text: "Use responsive variants to shift mask origin for different layouts.",
+            },
+
+            {
+              bold: "Check Browser Prefixes:",
+              text: "Add `-webkit-` prefixes for Safari compatibility if needed.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["effects", "mask-position"],
+
+    title: "Mask Position",
+
+    description:
+      "Control the alignment of a mask image within an element. Use this utility to precisely position mask graphics for visual effects without affecting the underlying content layout.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Mask Position",
+
+          description:
+            "Control the alignment of mask images inside elements. This utility allows developers to adjust mask placement for visual emphasis, overlay effects, or creative clipping while keeping the content intact.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "How Mask Alignment Works",
+
+          description:
+            "Mask position utilities set the CSS `mask-position` property. Think of it like placing a stencil over an element; the content is visible only where the mask allows, and this property determines where the stencil sits.",
+
+          features: [
+            "Controls mask image placement",
+
+            "Supports X and Y offsets",
+
+            "Works with single or multiple masks",
+
+            "Responsive positioning support",
+
+            "Preserves underlying content visibility",
+          ],
+
+          layerAssignment: "Effects Layer - Modifies element masking behavior",
+
+          browserBehavior:
+            "Sets the `mask-position` property. Offsets can be percentages, lengths, or keywords like `center`, `top`, `bottom`.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "mask-center", desc: "Centers the mask image" },
+
+            { cls: "mask-top", desc: "Aligns mask to the top" },
+
+            { cls: "mask-bottom", desc: "Aligns mask to the bottom" },
+
+            { cls: "mask-left", desc: "Aligns mask to the left" },
+
+            { cls: "mask-right", desc: "Aligns mask to the right" },
+
+            {
+              cls: "mask-top-left",
+              desc: "Aligns mask to the top-left corner",
+            },
+
+            {
+              cls: "mask-top-right",
+              desc: "Aligns mask to the top-right corner",
+            },
+
+            {
+              cls: "mask-bottom-left",
+              desc: "Aligns mask to the bottom-left corner",
+            },
+
+            {
+              cls: "mask-bottom-right",
+              desc: "Aligns mask to the bottom-right corner",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Mask Position Playground",
+
+          description:
+            "Experiment with different mask positions and offsets. Observe how the mask placement changes the visible portion of the content.",
+
+          options: [
+            "mask-center",
+            "mask-top",
+            "mask-bottom",
+            "mask-left",
+            "mask-right",
+          ],
+
+          defaultValue: "mask-center",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} mask bg-gray-300 w-32 h-32">Masked Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-8 rounded shadow text-center">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Preview Content
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Mask Alignment",
+
+          description:
+            "A mask is positioned incorrectly, cutting off important content at the top. Adjust the utility to center it correctly.",
+
+          codeSnippet: '<div class="mask-top ... {input}">Content</div>',
+
+          options: ["mask-left", "mask-center", "mask-bottom", "mask-right"],
+
+          correctOption: "mask-center",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div className={`transition-all duration-500 ${userClass}`}>
+                Masked Content{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Centered Mask",
+
+              description:
+                "Mask image is centered over a hero section to focus attention.",
+
+              code: `<div class="mask mask-center w-64 h-32 bg-gradient-to-r from-blue-500 to-purple-600"></div>`,
+
+              preview: (
+                <div className="w-64 h-32 bg-gradient-to-r from-blue-500 to-purple-600 mask mask-center"></div>
+              ),
+            },
+
+            {
+              title: "Top-Aligned Mask",
+
+              description:
+                "Position mask at the top to reveal upper content areas.",
+
+              code: `<div class="mask mask-top w-64 h-32 bg-gray-400"></div>`,
+
+              preview: (
+                <div className="w-64 h-32 bg-gray-400 mask mask-top"></div>
+              ),
+            },
+
+            {
+              title: "Bottom-Aligned Mask",
+
+              description:
+                "Shift mask to the bottom to highlight footer elements.",
+
+              code: `<div class="mask mask-bottom w-64 h-32 bg-green-400"></div>`,
+
+              preview: (
+                <div className="w-64 h-32 bg-green-400 mask mask-bottom"></div>
+              ),
+            },
+
+            {
+              title: "Left-Aligned Mask",
+
+              description: "Align mask to the left for side-focused effects.",
+
+              code: `<div class="mask mask-left w-64 h-32 bg-red-400"></div>`,
+
+              preview: (
+                <div className="w-64 h-32 bg-red-400 mask mask-left"></div>
+              ),
+            },
+
+            {
+              title: "Right-Aligned Mask",
+
+              description: "Align mask to the right for asymmetrical designs.",
+
+              code: `<div class="mask mask-right w-64 h-32 bg-yellow-400"></div>`,
+
+              preview: (
+                <div className="w-64 h-32 bg-yellow-400 mask mask-right"></div>
+              ),
+            },
+
+            {
+              title: "Corner Mask",
+
+              description:
+                "Use top-right mask to focus on a specific corner of content.",
+
+              code: `<div class="mask mask-top-right w-64 h-32 bg-purple-500"></div>`,
+
+              preview: (
+                <div className="w-64 h-32 bg-purple-500 mask mask-top-right"></div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Incorrect Mask Position",
+
+              reason:
+                "Using a default mask without aligning can obscure content.",
+
+              example: `<div class="mask-top-left">...</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Mask Size",
+
+              reason:
+                "Mask size may need adjustment; otherwise, content may be clipped.",
+
+              example: `<div class="mask mask-center w-16 h-16">...</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Using Non-Visible Mask",
+
+              reason:
+                "Transparent masks or empty images result in hidden content.",
+
+              example: `<div class="mask mask-center"></div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Neglecting Cross-Browser Support",
+
+              reason:
+                "Some browsers require `-webkit-mask-position` for proper alignment.",
+
+              example: `<div class="mask mask-center">...</div>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with mask-size:",
+              text: "Adjust `mask-size` to control scaling along with position.",
+            },
+
+            {
+              bold: "Use keywords:",
+              text: "Use `top`, `bottom`, `center` for predictable alignment.",
+            },
+
+            {
+              bold: "Layer Effects:",
+              text: "Combine mask-position with gradients or opacity for creative overlays.",
+            },
+
+            {
+              bold: "Browser Prefixes:",
+              text: "Include `-webkit-` for Safari support where necessary.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["effects", "mask-repeat"],
+
+    title: "Mask Repeat",
+
+    description:
+      "Control how mask images are repeated within an element. Use these utilities to tile, stretch, or prevent repetition of mask patterns, enabling sophisticated visual effects without extra markup.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Mask Repeat",
+
+          description:
+            "Control how mask images are repeated within an element. Mask repeat utilities allow you to tile, stretch, or prevent repetition of mask patterns, useful for overlays, icons, and advanced visual effects.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Tiling the Mask",
+
+          description:
+            "Mask repeat utilities determine the repetition behavior of the CSS `mask-repeat` property. This affects how the mask pattern fills the content box, influencing visual coverage and design composition.",
+
+          features: [
+            "Controls repetition of mask images",
+
+            "Supports responsive layouts",
+
+            "Works with multiple mask layers",
+
+            "Affects visual layering and composition",
+
+            "Supports standard repeat values",
+          ],
+
+          layerAssignment: "Visual Effects Layer",
+
+          browserBehavior: "Maps directly to the CSS `mask-repeat` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "mask-repeat",
+              desc: "Default repeat behavior (repeat both axes)",
+            },
+
+            { cls: "mask-repeat-x", desc: "Repeat mask only horizontally" },
+
+            { cls: "mask-repeat-y", desc: "Repeat mask only vertically" },
+
+            { cls: "mask-repeat-no-repeat", desc: "Do not repeat mask" },
+
+            { cls: "mask-repeat-round", desc: "Repeat and scale mask to fit" },
+
+            { cls: "mask-repeat-space", desc: "Repeat with equal spacing" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Mask Repeat Playground",
+
+          description:
+            "Experiment with different mask repeat values to see how they tile or stretch the mask image over the element.",
+
+          options: [
+            "mask-repeat",
+
+            "mask-repeat-x",
+
+            "mask-repeat-y",
+
+            "mask-repeat-no-repeat",
+
+            "mask-repeat-round",
+
+            "mask-repeat-space",
+          ],
+
+          defaultValue: "mask-repeat",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} mask-[url('/mask.svg')] w-32 h-32 bg-blue-400"></div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="w-32 h-32 bg-blue-400 mask-[url('/mask.svg')]">
+                {" "}
+                <p className="text-white text-center">Mask Preview</p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Mask Tiling",
+
+          description:
+            "The mask is repeating in both directions, but the design requires it to repeat only horizontally. Correct the utility class to fix the layout.",
+
+          codeSnippet:
+            "<div class=\"mask-[url('/mask.svg')] {input} w-32 h-32 bg-blue-400\"></div>",
+
+          options: [
+            "mask-repeat",
+
+            "mask-repeat-x",
+
+            "mask-repeat-no-repeat",
+
+            "mask-repeat-y",
+          ],
+
+          correctOption: "mask-repeat-x",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`mask-[url('/mask.svg')] w-32 h-32 bg-blue-400 transition-all duration-500 ${userClass}`}
+              >
+                Mask Target{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Single Mask No Repeat",
+
+              description:
+                "Apply a single mask image without tiling for precise overlay shapes.",
+
+              code: `<div class="mask-[url('/icon.svg')] mask-repeat-no-repeat w-16 h-16 bg-red-400"></div>`,
+
+              preview: (
+                <div className="w-16 h-16 bg-red-400 mask-[url('/icon.svg')] mask-repeat-no-repeat"></div>
+              ),
+            },
+
+            {
+              title: "Horizontal Repetition",
+
+              description: "Tile the mask horizontally across the element.",
+
+              code: `<div class="mask-[url('/pattern.svg')] mask-repeat-x w-32 h-16 bg-green-400"></div>`,
+
+              preview: (
+                <div className="w-32 h-16 bg-green-400 mask-[url('/pattern.svg')] mask-repeat-x"></div>
+              ),
+            },
+
+            {
+              title: "Vertical Repetition",
+
+              description:
+                "Tile the mask vertically to create stripes or columns.",
+
+              code: `<div class="mask-[url('/stripes.svg')] mask-repeat-y w-16 h-32 bg-blue-400"></div>`,
+
+              preview: (
+                <div className="w-16 h-32 bg-blue-400 mask-[url('/stripes.svg')] mask-repeat-y"></div>
+              ),
+            },
+
+            {
+              title: "Round Repeat",
+
+              description: "Repeat and scale the mask to fill evenly.",
+
+              code: `<div class="mask-[url('/dots.svg')] mask-repeat-round w-32 h-32 bg-purple-400"></div>`,
+
+              preview: (
+                <div className="w-32 h-32 bg-purple-400 mask-[url('/dots.svg')] mask-repeat-round"></div>
+              ),
+            },
+
+            {
+              title: "Space Repeat",
+
+              description: "Repeat the mask with equal spacing between tiles.",
+
+              code: `<div class="mask-[url('/grid.svg')] mask-repeat-space w-32 h-32 bg-yellow-400"></div>`,
+
+              preview: (
+                <div className="w-32 h-32 bg-yellow-400 mask-[url('/grid.svg')] mask-repeat-space"></div>
+              ),
+            },
+
+            {
+              title: "Combined Effects",
+
+              description:
+                "Use mask repeat with gradients or multiple background layers for advanced designs.",
+
+              code: `<div class="mask-[url('/pattern.svg')] mask-repeat-x w-32 h-32 bg-gradient-to-r from-pink-400 to-red-500"></div>`,
+
+              preview: (
+                <div className="w-32 h-32 bg-gradient-to-r from-pink-400 to-red-500 mask-[url('/pattern.svg')] mask-repeat-x"></div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using Repeat When Not Needed",
+
+              reason:
+                "Mask repeats by default, which may cause visual clutter if a single mask is intended.",
+
+              example: `<div class="mask-repeat mask-[url('/icon.svg')] w-16 h-16"></div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Incorrect Axis Repeat",
+
+              reason:
+                "Using `mask-repeat-y` instead of `mask-repeat-x` can misalign designs.",
+
+              example: `<div class="mask-repeat-y mask-[url('/pattern.svg')] w-32 h-16"></div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Forgetting to Set Mask URL",
+
+              reason:
+                "Mask utilities require a valid  to work, else they have no effect.",
+
+              example: `<div class="mask-repeat w-32 h-32 bg-blue-400"></div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overlapping Multiple Masks",
+
+              reason:
+                "Layering masks without specifying repeat behavior can lead to unexpected visual results.",
+
+              example: `<div class="mask-[url('/a.svg')] mask-[url('/b.svg')] mask-repeat"></div>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Preview First:",
+              text: "Always check mask tiling visually, as patterns may repeat unexpectedly.",
+            },
+
+            {
+              bold: "Combine with Size:",
+              text: "Adjust `mask-size` when using repeats to control pattern scaling.",
+            },
+
+            {
+              bold: "Use No Repeat for Icons:",
+              text: "Single icons typically require `mask-repeat-no-repeat` to stay sharp.",
+            },
+
+            {
+              bold: "Layer with Backgrounds:",
+              text: "Mask repeat works well with gradients or multiple background layers for creative effects.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["effects", "mask-size"],
+
+    title: "Mask Size",
+
+    description:
+      "Control the sizing behavior of mask images on elements. Use mask size utilities to scale masks proportionally, cover, or contain them for precise visual effects. This ensures consistent application of masks across responsive layouts.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Mask Size",
+
+          description:
+            "Mask size utilities control how an element's mask image is scaled. They are essential for maintaining consistent masking effects across different element dimensions and responsive layouts.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Mask Resizer",
+
+          description:
+            "Mask size utilities map to the CSS `mask-size` property, defining how mask images fit within an element. Think of it as stretching or shrinking a stencil over content.",
+
+          features: [
+            "Scales mask images precisely",
+
+            "Supports `auto`, `contain`, `cover`, and custom sizes",
+
+            "Responsive-friendly scaling",
+
+            "Maintains visual integrity of masked content",
+
+            "Directly affects element clipping",
+          ],
+
+          layerAssignment: "Visual Effects Layer",
+
+          browserBehavior: "Maps directly to the CSS `mask-size` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "mask-auto", desc: "Default mask sizing" },
+
+            { cls: "mask-cover", desc: "Scale mask to cover element" },
+
+            {
+              cls: "mask-contain",
+              desc: "Scale mask to contain within element",
+            },
+
+            {
+              cls: "mask-[length]",
+              desc: "Custom mask size with arbitrary values",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Mask Size Playground",
+
+          description:
+            "Experiment with different mask sizing options to see how they alter the masking effect.",
+
+          options: [
+            "mask-auto",
+            "mask-cover",
+            "mask-contain",
+            "mask-[50%_50%]",
+          ],
+
+          defaultValue: "mask-cover",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-32 h-32 bg-blue-500 mask-[url('/mask.svg')]"></div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="w-32 h-32 bg-blue-500 mask-[url('/mask.svg')] rounded shadow flex items-center justify-center">
+                {" "}
+                <p className="text-white font-medium text-sm">Masked</p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Mask Scaling",
+
+          description:
+            "A mask appears stretched and pixelated on a responsive card. Apply the correct mask size utility to scale it properly.",
+
+          codeSnippet: `<div class="w-48 h-48 bg-green-500 mask-[url('/mask.svg')] {input}"></div>`,
+
+          options: [
+            "mask-auto",
+            "mask-cover",
+            "mask-contain",
+            "mask-[200%_200%]",
+          ],
+
+          correctOption: "mask-contain",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-48 h-48 bg-green-500 mask-[url('/mask.svg')] transition-all duration-500 ${userClass} flex items-center justify-center`}
+              >
+                {" "}
+                <span className="text-white font-bold">
+                  Masked Element
+                </span>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Avatar Mask",
+              description:
+                "Using `mask-cover` to clip user avatars into circular shapes.",
+              code: `<img src="avatar.jpg" class="mask-cover mask-[url('/circle-mask.svg')] w-24 h-24"/>`,
+              preview: (
+                <div className="w-24 h-24 bg-gray-300 mask-[url('/circle-mask.svg')] mask-cover rounded-full"></div>
+              ),
+            },
+
+            {
+              title: "Button Highlight Mask",
+              description:
+                "Applying `mask-contain` to highlight buttons with a gradient mask.",
+              code: `<button class="mask-contain mask-[url('/gradient-mask.svg')]">Click</button>`,
+              preview: (
+                <div className="p-2 bg-blue-500 mask-[url('/gradient-mask.svg')] mask-contain text-white rounded">
+                  Click
+                </div>
+              ),
+            },
+
+            {
+              title: "Icon Mask",
+              description:
+                "Scaling an SVG icon mask to fit within a fixed square using `mask-auto`.",
+              code: `<div class="mask-auto mask-[url('/icon-mask.svg')] w-16 h-16"></div>`,
+              preview: (
+                <div className="w-16 h-16 bg-red-500 mask-[url('/icon-mask.svg')] mask-auto"></div>
+              ),
+            },
+
+            {
+              title: "Custom Size Mask",
+              description:
+                "Using arbitrary values to define exact mask dimensions.",
+              code: `<div class="mask-[75%_50%] w-32 h-32 bg-green-400"></div>`,
+              preview: (
+                <div className="w-32 h-32 bg-green-400 mask-[75%_50%]"></div>
+              ),
+            },
+
+            {
+              title: "Responsive Card Mask",
+              description:
+                "Masking a card with `mask-cover` to ensure consistent clipping at all breakpoints.",
+              code: `<div class="mask-cover mask-[url('/card-mask.svg')] w-full h-48"></div>`,
+              preview: (
+                <div className="w-full h-48 bg-purple-500 mask-[url('/card-mask.svg')] mask-cover"></div>
+              ),
+            },
+
+            {
+              title: "Decorative Banner",
+              description:
+                "Applying a repeating mask with `mask-contain` to create patterned banners.",
+              code: `<div class="mask-contain mask-[url('/pattern-mask.svg')] h-24"></div>`,
+              preview: (
+                <div className="h-24 w-full bg-yellow-400 mask-[url('/pattern-mask.svg')] mask-contain"></div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using mask-auto for precise scaling",
+              reason: "`mask-auto` may not fit the element as intended.",
+              example: `<div class="mask-auto w-32 h-32"></div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring aspect ratio",
+              reason:
+                "Mask may appear distorted if element dimensions do not match mask ratio.",
+              example: `<div class="mask-cover w-32 h-16"></div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overlapping masks",
+              reason:
+                "Stacking multiple masks without careful sizing can produce unexpected visual results.",
+              example: `<div class="mask-cover mask-[url('/mask1.svg')] mask-[url('/mask2.svg')]"></div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Arbitrary sizes without testing",
+              reason:
+                "Custom mask dimensions may break responsiveness if not tested.",
+              example: `<div class="mask-[200%_50%]"></div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Cover for Full Fit:",
+              text: "Apply `mask-cover` when the mask should fully cover the element area.",
+            },
+
+            {
+              bold: "Contain for Aspect Ratio:",
+              text: "Use `mask-contain` to preserve mask's original aspect ratio.",
+            },
+
+            {
+              bold: "Test Custom Sizes:",
+              text: "Always verify arbitrary mask sizes on responsive layouts.",
+            },
+
+            {
+              bold: "Combine with Transforms:",
+              text: "Masks can be combined with `scale` and `rotate` for creative effects.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["effects", "mask-type"],
+
+    title: "Mask Type",
+
+    description:
+      "Control how an element's mask image is applied. This utility defines whether the mask scales with the element or remains fixed, useful for creating cut-out effects or complex shapes.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Mask Type",
+
+          description:
+            "Control how an element's mask image behaves relative to the element's size. Use this utility to create precise masking effects for images, icons, or backgrounds, ensuring predictable visual results.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Mask Scaling Behavior",
+
+          description:
+            "Mask type determines whether the mask image scales with the element or retains its intrinsic size. Think of it like applying a stencil: `mask-auto` scales the stencil to fit, while `mask-fixed` keeps the stencil unchanged.",
+
+          features: [
+            "Controls mask scaling relative to element",
+
+            "Supports responsive layouts",
+
+            "Works with gradients and images",
+
+            "Critical for visual cutouts",
+
+            "Composable with other mask utilities",
+          ],
+
+          layerAssignment:
+            "Effects Layer - Alters element visibility via masking",
+
+          browserBehavior:
+            "Maps directly to the CSS `mask-type` property, affecting how the mask image is interpreted.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "mask-auto",
+              desc: "Mask scales automatically with element",
+            },
+
+            { cls: "mask-fixed", desc: "Mask retains its intrinsic size" },
+
+            { cls: "mask-none", desc: "Removes mask effect entirely" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Playground",
+
+          description:
+            "Experiment with different mask types to see how the image or gradient scales relative to the element.",
+
+          options: ["mask-auto", "mask-fixed", "mask-none", "mask-custom"],
+
+          defaultValue: "mask-auto",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-32 h-32 bg-blue-500 mask-image-url('/mask.svg')"></div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="w-32 h-32 bg-blue-500 mask-image-[url('/mask.svg')] rounded shadow" />{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken Mask",
+
+          description:
+            "A mask image is not scaling as intended on a responsive card. Apply the correct mask type to ensure the effect matches the element size.",
+
+          codeSnippet:
+            '<div class="w-48 h-48 bg-red-500 ... {input}">Content</div>',
+
+          options: ["mask-fixed", "mask-auto", "mask-none", "mask-incorrect"],
+
+          correctOption: "mask-auto",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-48 h-48 bg-red-500 mask-image-[url('/mask.svg')] transition-all duration-500 ${userClass}`}
+              />{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Icon Cutouts",
+
+              description:
+                "Apply a fixed mask to an icon to maintain shape consistency across responsive layouts.",
+
+              code: `<div class="w-16 h-16 bg-blue-600 mask-fixed mask-image-[url('/icon-mask.svg')]"></div>`,
+
+              preview: (
+                <div className="w-16 h-16 bg-blue-600 mask-fixed mask-image-[url('/icon-mask.svg')]"></div>
+              ),
+            },
+
+            {
+              title: "Card Mask Effect",
+
+              description:
+                "Use auto scaling masks to create dynamic cutouts on cards.",
+
+              code: `<div class="w-64 h-32 bg-green-500 mask-auto mask-image-[url('/card-mask.svg')]"></div>`,
+
+              preview: (
+                <div className="w-64 h-32 bg-green-500 mask-auto mask-image-[url('/card-mask.svg')]"></div>
+              ),
+            },
+
+            {
+              title: "Gradient Reveal",
+
+              description:
+                "Combine mask-type with gradients to reveal content progressively.",
+
+              code: `<div class="w-32 h-32 bg-gradient-to-r from-purple-500 to-pink-500 mask-auto mask-image-[url('/gradient-mask.svg')]"></div>`,
+
+              preview: (
+                <div className="w-32 h-32 bg-gradient-to-r from-purple-500 to-pink-500 mask-auto mask-image-[url('/gradient-mask.svg')]"></div>
+              ),
+            },
+
+            {
+              title: "Image Overlay",
+
+              description:
+                "Fixed masks prevent background images from stretching, preserving the overlay pattern.",
+
+              code: `<div class="w-48 h-48 bg-cover mask-fixed mask-image-[url('/overlay-mask.svg')]"></div>`,
+
+              preview: (
+                <div className="w-48 h-48 bg-cover mask-fixed mask-image-[url('/overlay-mask.svg')]"></div>
+              ),
+            },
+
+            {
+              title: "Custom Shape Button",
+
+              description:
+                "Create uniquely shaped buttons by combining mask images with mask-type utilities.",
+
+              code: `<button class="w-32 h-12 bg-red-600 mask-auto mask-image-[url('/button-shape.svg')]">Click Me</button>`,
+
+              preview: (
+                <button className="w-32 h-12 bg-red-600 mask-auto mask-image-[url('/button-shape.svg')]">
+                  Click Me
+                </button>
+              ),
+            },
+
+            {
+              title: "Decorative Panels",
+
+              description:
+                "Decorative panels with fixed masks maintain pattern fidelity across multiple elements.",
+
+              code: `<div class="w-64 h-16 bg-yellow-400 mask-fixed mask-image-[url('/panel-mask.svg')]"></div>`,
+
+              preview: (
+                <div className="w-64 h-16 bg-yellow-400 mask-fixed mask-image-[url('/panel-mask.svg')]"></div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using Fixed on Responsive Elements",
+
+              reason:
+                "Fixed masks do not scale with the element, causing clipping on resized components.",
+
+              example: `<div class="mask-fixed w-64 h-32"></div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Forgetting Mask Image",
+
+              reason:
+                "Applying a mask type without specifying a mask image has no effect.",
+
+              example: `<div class="mask-auto w-32 h-32"></div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Improper Mask Units",
+
+              reason: "Incorrect sizing units can distort the mask rendering.",
+
+              example: `<div class="mask-auto mask-size-[150px]"></div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overlapping Mask Effects",
+
+              reason:
+                "Combining multiple mask utilities can produce unexpected visual results.",
+
+              example: `<div class="mask-auto mask-composite-add"></div>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Auto for Responsiveness:",
+              text: "Prefer `mask-auto` on flexible components to ensure the mask scales correctly.",
+            },
+
+            {
+              bold: "Combine with Mask Image:",
+              text: "Always define a `mask-image` when using mask-type utilities.",
+            },
+
+            {
+              bold: "Test Across Browsers:",
+              text: "Mask behavior may vary slightly in older browsers; validate visual fidelity.",
+            },
+
+            {
+              bold: "Layer with Gradients:",
+              text: "Use with gradient backgrounds for advanced visual effects.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["effects", "mix-blend-mode"],
+
+    title: "Mix Blend Mode",
+
+    description:
+      "Control how an element's content blends with its background. Useful for creating layered visuals, effects, and enhancing UI aesthetics without additional graphics. Implementation relies on browser support for CSS blend modes.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Mix Blend Mode",
+
+          description:
+            "Control how an element visually interacts with its background using CSS blend modes. This utility is ideal for overlay effects, image/text blending, and dynamic visual compositions.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Layered Canvas Interaction",
+
+          description:
+            "Mix blend mode utilities modify how the colors of an element combine with the backdrop. Think of it as applying a filter that interacts with everything underneath, similar to Photoshop's layer blending.",
+
+          features: [
+            "Supports multiple blend modes",
+
+            "Affects both text and images",
+
+            "Can be combined with opacity",
+
+            "Requires visible background for effect",
+
+            "Responsive and state modifiers apply",
+          ],
+
+          layerAssignment:
+            "Visual Layer - Affects rendered colors atop backgrounds",
+
+          browserBehavior:
+            "Maps directly to the CSS `mix-blend-mode` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "mix-blend-normal", desc: "Default blending; no effect" },
+
+            { cls: "mix-blend-multiply", desc: "Darkens base colors" },
+
+            { cls: "mix-blend-screen", desc: "Lightens base colors" },
+
+            {
+              cls: "mix-blend-overlay",
+              desc: "Combination of multiply and screen",
+            },
+
+            { cls: "mix-blend-darken", desc: "Keeps the darker color" },
+
+            { cls: "mix-blend-lighten", desc: "Keeps the lighter color" },
+
+            {
+              cls: "mix-blend-color-dodge",
+              desc: "Brightens base color to reflect blend color",
+            },
+
+            {
+              cls: "mix-blend-color-burn",
+              desc: "Darkens base color to reflect blend color",
+            },
+
+            { cls: "mix-blend-hard-light", desc: "Overlay using blend color" },
+
+            { cls: "mix-blend-soft-light", desc: "Soft overlay effect" },
+
+            {
+              cls: "mix-blend-difference",
+              desc: "Subtracts darker from lighter colors",
+            },
+
+            {
+              cls: "mix-blend-exclusion",
+              desc: "Similar to difference but softer",
+            },
+
+            {
+              cls: "mix-blend-hue",
+              desc: "Applies the hue of the blend color",
+            },
+
+            {
+              cls: "mix-blend-saturation",
+              desc: "Applies the saturation of the blend color",
+            },
+
+            {
+              cls: "mix-blend-color",
+              desc: "Applies both hue and saturation of blend color",
+            },
+
+            {
+              cls: "mix-blend-luminosity",
+              desc: "Applies the luminosity of blend color",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Mix Blend Mode Playground",
+
+          description:
+            "Experiment with different blend modes to see how elements interact with their backgrounds. Note that effect is only visible with layered content.",
+
+          options: [
+            "mix-blend-normal",
+
+            "mix-blend-multiply",
+
+            "mix-blend-screen",
+
+            "mix-blend-overlay",
+          ],
+
+          defaultValue: "mix-blend-normal",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} p-8 bg-blue-200 text-white text-center font-bold">Blended Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-yellow-200 rounded-lg flex items-center justify-center ${value}`}
+            >
+              {" "}
+              <div className="bg-red-500 p-4 text-white rounded shadow text-center font-medium">
+                Preview Content
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Visual Overlay",
+
+          description:
+            "The text is blending invisibly over a colored background. Apply a blend mode that makes it visible while preserving color interaction.",
+
+          codeSnippet: '<div class="text-white p-4 {input}">Overlay Text</div>',
+
+          options: [
+            "mix-blend-normal",
+            "mix-blend-multiply",
+            "mix-blend-screen",
+            "mix-blend-overlay",
+          ],
+
+          correctOption: "mix-blend-screen",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-purple-300 rounded-lg flex items-center justify-center">
+              <div
+                className={`text-white font-bold text-lg transition-all duration-500 ${userClass}`}
+              >
+                Overlay Text
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Image Overlay",
+              description:
+                "Apply multiply blend to text over images for artistic effect.",
+              code: `<h1 class="mix-blend-multiply text-white text-3xl">Blended Heading</h1>`,
+              preview: (
+                <div className="relative w-64 h-32 bg-gradient-to-r from-pink-400 to-purple-600">
+                  <h1 className="mix-blend-multiply text-white text-3xl p-4">
+                    Blended Heading
+                  </h1>
+                </div>
+              ),
+            },
+
+            {
+              title: "Highlight Cards",
+              description:
+                "Use screen blend mode for hover highlight effects on cards.",
+              code: `<div class="mix-blend-screen bg-red-500 p-4">Card Content</div>`,
+              preview: (
+                <div className="mix-blend-screen bg-red-500 p-4 text-white rounded">
+                  Card Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Soft Overlay",
+              description: "Soft-light blend for subtle layering effects.",
+              code: `<div class="mix-blend-soft-light bg-green-300 p-4">Content Layer</div>`,
+              preview: (
+                <div className="mix-blend-soft-light bg-green-300 p-4 text-black rounded">
+                  Content Layer
+                </div>
+              ),
+            },
+
+            {
+              title: "Dynamic Text Effects",
+              description:
+                "Change blend modes on hover for interactive visual feedback.",
+              code: `<h2 class="hover:mix-blend-overlay text-black">Interactive Text</h2>`,
+              preview: (
+                <h2 className="hover:mix-blend-overlay text-black p-4 bg-gray-200 rounded">
+                  Interactive Text
+                </h2>
+              ),
+            },
+
+            {
+              title: "Overlaying Shapes",
+              description:
+                "Combine multiple shapes with different blend modes for layered graphics.",
+              code: `<div class="mix-blend-difference bg-blue-300 p-6">Shape Overlay</div>`,
+              preview: (
+                <div className="mix-blend-difference bg-blue-300 p-6 text-white rounded">
+                  Shape Overlay
+                </div>
+              ),
+            },
+
+            {
+              title: "Text on Gradient",
+              description:
+                "Apply color blend to make text pop over gradient backgrounds.",
+              code: `<p class="mix-blend-color text-white">Gradient Text</p>`,
+              preview: (
+                <p className="mix-blend-color text-white p-4 bg-gradient-to-r from-indigo-400 to-pink-500 rounded">
+                  Gradient Text
+                </p>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Invisible Text",
+              reason:
+                "Using blend modes without a contrasting background renders text unreadable.",
+              example: `<p class="mix-blend-multiply text-white">Hidden Text</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overusing Effects",
+              reason:
+                "Applying multiple blend modes to nested elements can produce confusing visuals.",
+              example: `<div class="mix-blend-overlay"><span class="mix-blend-screen">Text</span></div>`,
+              level: "warning",
+            },
+
+            {
+              title: "No Background",
+              reason:
+                "Blend modes require visible backdrop; transparent backgrounds will show no effect.",
+              example: `<div class="mix-blend-darken text-black">No effect</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Accessibility Neglect",
+              reason:
+                "Blended text may not meet contrast standards; always check readability.",
+              example: `<p class="mix-blend-difference text-gray-300">Unreadable Text</p>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with Opacity:",
+              text: "Reduce element opacity to enhance subtle blend effects.",
+            },
+
+            {
+              bold: "Test Across Backgrounds:",
+              text: "Ensure blended content is readable against various layers.",
+            },
+
+            {
+              bold: "Use for Visual Flair:",
+              text: "Ideal for hover states, cards, and hero sections.",
+            },
+
+            {
+              bold: "Fallbacks:",
+              text: "Provide `mix-blend-normal` as a default for unsupported browsers.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["effects", "opacity"],
+
+    title: "Opacity",
+
+    description:
+      "Control the transparency level of elements. Opacity utilities allow you to adjust visual prominence and layering without altering underlying content. Useful for hover states, disabled UI, and overlay effects.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Opacity",
+
+          description:
+            "Adjust the transparency of elements to control visibility and emphasis. Opacity utilities are essential for layering, hover effects, and visual hierarchy in UI design.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Transparency Layer",
+
+          description:
+            "Opacity utilities map directly to the CSS `opacity` property. Lower values make elements more transparent, while higher values increase visibility. It affects the entire element including text, backgrounds, and borders.",
+
+          features: [
+            "Controls element transparency",
+
+            "Supports hover and responsive variants",
+
+            "Applies to all children uniformly",
+
+            "Helps indicate disabled or inactive states",
+
+            "Enables layering and overlays",
+          ],
+
+          layerAssignment: "Visual Layer / Effects",
+
+          browserBehavior:
+            "Sets the CSS `opacity` property. Transparency applies to the entire element and its children.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "opacity-0", desc: "Fully transparent" },
+
+            { cls: "opacity-5", desc: "5% opacity" },
+
+            { cls: "opacity-10", desc: "10% opacity" },
+
+            { cls: "opacity-20", desc: "20% opacity" },
+
+            { cls: "opacity-25", desc: "25% opacity" },
+
+            { cls: "opacity-30", desc: "30% opacity" },
+
+            { cls: "opacity-40", desc: "40% opacity" },
+
+            { cls: "opacity-50", desc: "50% opacity" },
+
+            { cls: "opacity-60", desc: "60% opacity" },
+
+            { cls: "opacity-70", desc: "70% opacity" },
+
+            { cls: "opacity-75", desc: "75% opacity" },
+
+            { cls: "opacity-80", desc: "80% opacity" },
+
+            { cls: "opacity-90", desc: "90% opacity" },
+
+            { cls: "opacity-95", desc: "95% opacity" },
+
+            { cls: "opacity-100", desc: "Fully opaque" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Opacity Playground",
+
+          description:
+            "Experiment with different opacity values to see how transparency affects visibility and layering. Useful for hover effects or disabled states.",
+
+          options: [
+            "opacity-0",
+            "opacity-25",
+            "opacity-50",
+            "opacity-75",
+            "opacity-100",
+          ],
+
+          defaultValue: "opacity-50",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} p-4 bg-blue-500 text-white rounded">Sample Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Preview Content
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Transparency",
+
+          description:
+            "A modal appears but is almost invisible because of incorrect opacity. Adjust the opacity to make it clearly visible.",
+
+          codeSnippet:
+            '<div class="bg-blue-500 p-4 rounded {input}">Modal</div>',
+
+          options: ["opacity-0", "opacity-25", "opacity-50", "opacity-100"],
+
+          correctOption: "opacity-100",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`transition-all duration-500 ${userClass} p-8 text-white bg-blue-500 rounded`}
+              >
+                Modal{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Hover Overlay",
+
+              description:
+                "Apply partial opacity on hover to highlight UI cards.",
+
+              code: `<div class="bg-black text-white p-4 rounded hover:opacity-75">Card</div>`,
+
+              preview: (
+                <div className="bg-black text-white p-4 rounded hover:opacity-75">
+                  Card
+                </div>
+              ),
+            },
+
+            {
+              title: "Disabled Button",
+
+              description: "Indicate inactive state by reducing opacity.",
+
+              code: `<button class="bg-blue-600 text-white opacity-50 cursor-not-allowed">Submit</button>`,
+
+              preview: (
+                <button className="bg-blue-600 text-white opacity-50 cursor-not-allowed">
+                  Submit
+                </button>
+              ),
+            },
+
+            {
+              title: "Faded Background",
+
+              description:
+                "Create subtle layering using semi-transparent backgrounds.",
+
+              code: `<div class="bg-gray-500 opacity-30 p-6 rounded">Overlay</div>`,
+
+              preview: (
+                <div className="bg-gray-500 opacity-30 p-6 rounded">
+                  Overlay
+                </div>
+              ),
+            },
+
+            {
+              title: "Image Overlay",
+
+              description: "Dim images with a translucent overlay.",
+
+              code: `<div class="relative"><img src='image.jpg' class="rounded"/><div class="absolute inset-0 bg-black opacity-40 rounded"></div></div>`,
+
+              preview: (
+                <div className="relative">
+                  <img src="image.jpg" className="rounded" />
+                  <div className="absolute inset-0 bg-black opacity-40 rounded"></div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Menu Background",
+
+              description: "Dropdown menus with subtle transparency.",
+
+              code: `<ul class="bg-white dark:bg-slate-800 opacity-90 p-2 rounded shadow">Menu Items</ul>`,
+
+              preview: (
+                <ul className="bg-white dark:bg-slate-800 opacity-90 p-2 rounded shadow">
+                  Menu Items
+                </ul>
+              ),
+            },
+
+            {
+              title: "Fading Text",
+
+              description: "Create text emphasis using low opacity.",
+
+              code: `<p class="text-black opacity-50">Less important info</p>`,
+
+              preview: (
+                <p className="text-black opacity-50">Less important info</p>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Fully Hidden",
+              reason:
+                "Setting opacity-0 hides the element entirely, making it unclickable.",
+              example: `<div class="opacity-0">Can't see me</div>`,
+              level: "critical",
+            },
+
+            {
+              title: "Overusing Opacity",
+              reason:
+                "Too many semi-transparent elements can reduce readability and contrast.",
+              example: `<div class="opacity-50 bg-gray-300">Text hard to read</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Hover States",
+              reason:
+                "Not adjusting opacity on hover may confuse users about interactable elements.",
+              example: `<button class="opacity-50">Click Me</button>`,
+              level: "info",
+            },
+
+            {
+              title: "Opacity on Text Only",
+              reason:
+                "Opacity applies to the entire element, including children; separate text opacity with color utilities if needed.",
+              example: `<div class="opacity-50"><p>Text</p></div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Hover Effects:",
+              text: "Use hover variants to change opacity on interactive elements.",
+            },
+
+            {
+              bold: "Transitions:",
+              text: "Combine with transition utilities for smooth fade animations.",
+            },
+
+            {
+              bold: "Accessibility:",
+              text: "Avoid very low opacity for text to maintain readability.",
+            },
+
+            {
+              bold: "Layering:",
+              text: "Use opacity to create overlays or depth without extra DOM elements.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["effects", "text-shadow"],
+
+    title: "Text Shadow",
+
+    description:
+      "Apply shadow effects to text elements to enhance legibility or create depth. Useful for emphasizing headings, buttons, or decorative typography. Be cautious with readability on small text or low-contrast backgrounds.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Text Shadow",
+
+          description:
+            "Apply shadow effects to text elements to improve legibility, hierarchy, or stylistic impact. Text shadows can subtly lift content off the background or add dramatic emphasis for headers and key UI elements.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Drop Shadow Brush",
+
+          description:
+            "Text shadow utilities set the CSS `text-shadow` property. They create a blurred or offset duplicate of text behind the main content, giving a sense of depth or emphasis without affecting layout dimensions.",
+
+          features: [
+            "Adds depth and emphasis to text",
+
+            "Supports multiple shadow layers",
+
+            "Affects only visual appearance, not layout",
+
+            "Can enhance contrast on busy backgrounds",
+
+            "Works on any inline or block text element",
+          ],
+
+          layerAssignment:
+            "Effects Layer - Visual enhancement without layout changes",
+
+          browserBehavior:
+            "Sets the CSS `text-shadow` property. Inherits like normal text unless overridden.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "shadow-sm", desc: "Applies a small drop shadow" },
+
+            { cls: "shadow", desc: "Applies a default shadow" },
+
+            { cls: "shadow-md", desc: "Applies a medium shadow" },
+
+            { cls: "shadow-lg", desc: "Applies a large shadow" },
+
+            { cls: "shadow-xl", desc: "Applies an extra-large shadow" },
+
+            { cls: "shadow-2xl", desc: "Applies a double extra-large shadow" },
+
+            { cls: "shadow-none", desc: "Removes text shadow" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Text Shadow Playground",
+
+          description:
+            "Experiment with different text shadow sizes and intensities to find the best visual hierarchy. Combine shadows with color for better readability.",
+
+          options: [
+            "shadow-sm",
+
+            "shadow",
+
+            "shadow-md",
+
+            "shadow-lg",
+
+            "shadow-xl",
+
+            "shadow-2xl",
+
+            "shadow-none",
+          ],
+
+          defaultValue: "shadow",
+
+          buildMarkup: (value: string) =>
+            `<h1 class="${value} font-bold text-3xl text-center">Shadowed Text</h1>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <h1
+                className={`${value} font-bold text-3xl text-center text-slate-900 dark:text-slate-100`}
+              >
+                Preview Shadow
+              </h1>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Invisible Heading",
+
+          description:
+            "The heading blends into the background due to lack of shadow. Apply the correct text shadow utility to make it stand out.",
+
+          codeSnippet:
+            '<h2 class="{input} font-bold text-4xl">Important Heading</h2>',
+
+          options: ["shadow-none", "shadow-sm", "shadow-lg", "shadow-2xl"],
+
+          correctOption: "shadow-lg",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <h2
+                className={`${userClass} font-bold text-4xl text-slate-900 dark:text-slate-100`}
+              >
+                Important Heading
+              </h2>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Elevated Heading",
+
+              description:
+                "Use subtle shadows to make headings stand out against background images.",
+
+              code: `<h1 class="shadow-md text-4xl font-bold text-slate-900">Welcome</h1>`,
+
+              preview: (
+                <h1 className="shadow-md text-4xl font-bold text-slate-900">
+                  Welcome
+                </h1>
+              ),
+            },
+
+            {
+              title: "Button Emphasis",
+
+              description:
+                "Apply a shadow to button text for better readability on colorful backgrounds.",
+
+              code: `<button class="shadow-sm bg-blue-500 text-white px-4 py-2 rounded">Click Me</button>`,
+
+              preview: (
+                <button className="shadow-sm bg-blue-500 text-white px-4 py-2 rounded">
+                  Click Me
+                </button>
+              ),
+            },
+
+            {
+              title: "Decorative Typography",
+
+              description:
+                "Layer multiple shadows for stylistic or artistic headings.",
+
+              code: `<h2 class="shadow-lg text-5xl font-extrabold text-purple-600">Stylish</h2>`,
+
+              preview: (
+                <h2 className="shadow-lg text-5xl font-extrabold text-purple-600">
+                  Stylish
+                </h2>
+              ),
+            },
+
+            {
+              title: "Alert Text",
+
+              description:
+                "Use heavier shadows on alert messages for clear contrast.",
+
+              code: `<p class="shadow-xl text-red-600 font-semibold">Error Occurred</p>`,
+
+              preview: (
+                <p className="shadow-xl text-red-600 font-semibold">
+                  Error Occurred
+                </p>
+              ),
+            },
+
+            {
+              title: "Card Headings",
+
+              description:
+                "Subtle shadows help card headings pop without being distracting.",
+
+              code: `<h3 class="shadow text-lg font-bold">Card Title</h3>`,
+
+              preview: <h3 className="shadow text-lg font-bold">Card Title</h3>,
+            },
+
+            {
+              title: "Disabled Text",
+
+              description:
+                "Remove shadows for disabled or inactive text to indicate de-emphasis.",
+
+              code: `<span class="shadow-none text-gray-400">Inactive</span>`,
+
+              preview: (
+                <span className="shadow-none text-gray-400">Inactive</span>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Excessive Shadows",
+              reason: "Too many shadows can reduce readability.",
+              example: `<h1 class="shadow-2xl shadow-xl">Overdone</h1>`,
+              level: "warning",
+            },
+
+            {
+              title: "Low Contrast Background",
+              reason: "Shadow not visible on low-contrast text/background.",
+              example: `<p class="shadow text-white bg-yellow-50">Hard to see</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Using on Small Text",
+              reason: "Shadows can blur small fonts, harming legibility.",
+              example: `<span class="shadow text-xs">Tiny</span>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Dark Mode",
+              reason: "Shadow color may be inappropriate for dark backgrounds.",
+              example: `<p class="shadow text-black dark:text-white">Contrast issue</p>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Subtle Shadows:",
+              text: "Use `shadow-sm` for slight elevation without distraction.",
+            },
+
+            {
+              bold: "Combine with Color:",
+              text: "Pair shadows with contrasting text colors for maximum legibility.",
+            },
+
+            {
+              bold: "Avoid Overuse:",
+              text: "Limit multiple shadows on a single element to maintain clarity.",
+            },
+
+            {
+              bold: "Dark Mode Awareness:",
+              text: "Adjust shadow intensity for dark backgrounds to prevent washed-out effects.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["filters", "backdrop-filter"],
+    title: "Backdrop Filter",
+    description:
+      "Apply graphical effects such as blur, brightness, or contrast to the area behind an element. Backdrop filter utilities are useful for creating frosted glass or overlay effects while keeping foreground content readable and visually distinct.",
+    sections: [
+      {
+        type: "hero",
+        props: {
+          title: "Backdrop Filter",
+          description:
+            "Control the visual treatment of the background behind elements. These utilities enhance depth and focus in UI design by modifying what appears through semi-transparent surfaces.",
+        },
+      },
+      {
+        type: "mental-model",
+        props: {
+          title: "Background Effect Layer",
+          description:
+            "Backdrop filters operate on the pixels behind an element without affecting the element’s content. Think of it as looking through a frosted pane that changes color, clarity, or intensity of whatever is behind it.",
+          features: [
+            "Supports multiple filter types",
+            "Works with semi-transparent elements",
+            "Composable with foreground filters",
+            "Responsive and state-aware",
+          ],
+          layerAssignment: "Visual Effects Layer",
+          browserBehavior:
+            "Maps directly to the CSS `backdrop-filter` property and its variants (e.g., `backdrop-blur`, `backdrop-brightness`).",
+        },
+      },
+      {
+        type: "utility-grid",
+        props: {
+          title: "Common Classes",
+          items: [
+            { cls: "backdrop-blur-none", desc: "No blur applied" },
+            { cls: "backdrop-blur-sm", desc: "Small blur effect" },
+            { cls: "backdrop-blur", desc: "Default blur effect" },
+            { cls: "backdrop-blur-md", desc: "Medium blur effect" },
+            { cls: "backdrop-blur-lg", desc: "Large blur effect" },
+            { cls: "backdrop-blur-xl", desc: "Extra-large blur effect" },
+            { cls: "backdrop-brightness-50", desc: "Reduce brightness to 50%" },
+            { cls: "backdrop-brightness-75", desc: "Reduce brightness to 75%" },
+            { cls: "backdrop-brightness-90", desc: "Slightly dimmed" },
+            { cls: "backdrop-brightness-100", desc: "No brightness change" },
+            {
+              cls: "backdrop-brightness-110",
+              desc: "Increase brightness by 10%",
+            },
+            { cls: "backdrop-contrast-50", desc: "Reduce contrast to 50%" },
+            { cls: "backdrop-contrast-100", desc: "Default contrast" },
+          ],
+        },
+      },
+      {
+        type: "playground",
+        props: {
+          title: "Backdrop Filter Playground",
+          description:
+            "Experiment with different backdrop filters to see how they modify the background of elements behind semi-transparent surfaces.",
+          options: [
+            "backdrop-blur-none",
+            "backdrop-blur",
+            "backdrop-blur-md",
+            "backdrop-brightness-75",
+          ],
+          defaultValue: "backdrop-blur",
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-32 h-32 bg-white/30 rounded-lg flex items-center justify-center">Content</div>`,
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              <div className="w-32 h-32 bg-white/30 rounded-lg flex items-center justify-center shadow text-center">
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Preview Content
+                </p>
+              </div>
+            </div>
+          ),
+        },
+      },
+      {
+        type: "interactive-challenge",
+        props: {
+          title: "Fix the Blur Effect",
+          description:
+            "A semi-transparent card is not achieving the intended frosted glass effect. Apply the correct backdrop filter to make the background subtly blurred.",
+          codeSnippet:
+            '<div class="bg-white/30 p-4 rounded {input}">Card</div>',
+          options: [
+            "backdrop-blur-none",
+            "backdrop-blur",
+            "backdrop-brightness-75",
+            "backdrop-contrast-100",
+          ],
+          correctOption: "backdrop-blur",
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-32 h-32 bg-white/30 rounded-lg flex items-center justify-center shadow ${userClass}`}
+              >
+                Card
+              </div>
+            </div>
+          ),
+        },
+      },
+      {
+        type: "examples",
+        props: {
+          title: "Real-World Patterns",
+          examples: [
+            {
+              title: "Frosted Modal",
+              description:
+                "A modal overlay using blur to separate content from the page background.",
+              code: `<div class="backdrop-blur p-6 bg-white/40 rounded-lg">Modal Content</div>`,
+              preview: (
+                <div className="p-4 flex justify-center">
+                  <div className="w-48 h-24 backdrop-blur bg-white/40 rounded-lg flex items-center justify-center">
+                    Modal Content
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Navigation Overlay",
+              description: "Blur background behind dropdown menus for focus.",
+              code: `<div class="backdrop-blur-md p-2 bg-gray-100/50 rounded">Menu</div>`,
+              preview: (
+                <div className="p-4 flex justify-center">
+                  <div className="w-40 h-20 backdrop-blur-md bg-gray-100/50 rounded flex items-center justify-center">
+                    Menu
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Glass Card",
+              description:
+                "Cards with subtle frosted glass effect using backdrop filters.",
+              code: `<div class="backdrop-blur-sm bg-white/30 rounded p-4">Content</div>`,
+              preview: (
+                <div className="p-4 flex justify-center">
+                  <div className="w-32 h-24 backdrop-blur-sm bg-white/30 rounded flex items-center justify-center">
+                    Content
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Image Overlay",
+              description:
+                "Apply backdrop filter on overlay divs for image galleries.",
+              code: `<div class="backdrop-blur-lg bg-black/25 rounded p-4">Overlay</div>`,
+              preview: (
+                <div className="p-4 flex justify-center">
+                  <div className="w-40 h-24 backdrop-blur-lg bg-black/25 rounded flex items-center justify-center text-white">
+                    Overlay
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Hover Effect",
+              description:
+                "Apply backdrop blur on hover for interactive feedback.",
+              code: `<div class="hover:backdrop-blur p-4 bg-white/30 rounded">Hover Me</div>`,
+              preview: (
+                <div className="p-4 flex justify-center">
+                  <div className="w-32 h-16 hover:backdrop-blur bg-white/30 rounded flex items-center justify-center">
+                    Hover Me
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Dialog Background",
+              description:
+                "Backdrop filters on dialogs to emphasize focus areas.",
+              code: `<div class="backdrop-blur-xl bg-gray-200/40 p-6 rounded-lg">Dialog</div>`,
+              preview: (
+                <div className="p-4 flex justify-center">
+                  <div className="w-48 h-28 backdrop-blur-xl bg-gray-200/40 rounded-lg flex items-center justify-center">
+                    Dialog
+                  </div>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+      {
+        type: "common-mistakes",
+        props: {
+          mistakes: [
+            {
+              title: "No Transparency",
+              reason:
+                "Backdrop filters require a semi-transparent element; solid background prevents effect.",
+              example: `<div class="backdrop-blur bg-white">Content</div>`,
+              level: "warning",
+            },
+            {
+              title: "Overusing Filters",
+              reason:
+                "Applying multiple heavy backdrop filters can reduce performance.",
+              example: `<div class="backdrop-blur-lg backdrop-brightness-50">Content</div>`,
+              level: "warning",
+            },
+            {
+              title: "Expecting Foreground Change",
+              reason:
+                "Backdrop filter affects only the background, not element content.",
+              example: `<div class="backdrop-blur text-red-600">Text</div>`,
+              level: "warning",
+            },
+            {
+              title: "Ignoring Browser Support",
+              reason:
+                "Some browsers may require vendor prefixes; test cross-browser.",
+              example: `<div class="backdrop-blur">Content</div>`,
+              level: "info",
+            },
+          ],
+        },
+      },
+      {
+        type: "tips",
+        props: {
+          tips: [
+            {
+              bold: "Combine with Opacity:",
+              text: "Use semi-transparent backgrounds to make filters visible.",
+            },
+            {
+              bold: "Use Subtle Effects:",
+              text: "Moderate blur levels maintain readability and performance.",
+            },
+            {
+              bold: "Interactive States:",
+              text: "Apply hover/focus variants for dynamic visual feedback.",
+            },
+            {
+              bold: "Layer Carefully:",
+              text: "Avoid stacking too many filters on nested elements.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["filters", "blur"],
+
+    title: "Blur",
+
+    description:
+      "Applies a Gaussian blur to the backdrop or element. Use blur utilities to create depth, focus effects, or visually separate content layers while maintaining readability.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Blur",
+
+          description:
+            "Applies a Gaussian blur effect to elements or their background. This utility is commonly used for focus states, modal overlays, or visual separation between content layers.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Frosted Glass Effect",
+
+          description:
+            "Blur utilities set the CSS `filter: blur()` property, softening the edges and details of elements. It’s like looking through frosted glass, where the content is visible but diffused.",
+
+          features: [
+            "Controls visual sharpness of elements",
+
+            "Supports responsive modifiers",
+
+            "Layered effect for focus or overlay",
+
+            "Works with backdrop and standard elements",
+
+            "Easily composable with other filters",
+          ],
+
+          layerAssignment: "Visual Layer / Effects",
+
+          browserBehavior:
+            "Maps directly to the CSS `filter: blur()` property. Works on any element but may affect performance if overused.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "blur-none", desc: "No blur applied" },
+
+            { cls: "blur-sm", desc: "Small blur effect" },
+
+            { cls: "blur", desc: "Default blur" },
+
+            { cls: "blur-md", desc: "Medium blur effect" },
+
+            { cls: "blur-lg", desc: "Large blur effect" },
+
+            { cls: "blur-xl", desc: "Extra-large blur effect" },
+
+            { cls: "blur-2xl", desc: "Double extra-large blur effect" },
+
+            { cls: "blur-3xl", desc: "Triple extra-large blur effect" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Blur Playground",
+
+          description:
+            "Experiment with different blur levels to see how content diffuses. Observe how higher blur values affect readability and perceived depth.",
+
+          options: [
+            "blur-none",
+            "blur-sm",
+            "blur",
+            "blur-md",
+            "blur-lg",
+            "blur-xl",
+          ],
+
+          defaultValue: "blur",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} p-8 bg-slate-100 rounded-lg text-center">Blur Me!</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Preview Content
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Overlay Blur",
+
+          description:
+            "A modal overlay lacks visual separation from the background. Apply the correct blur utility to emphasize the modal and diffuse the background content.",
+
+          codeSnippet:
+            '<div class="bg-gray-100 p-8 rounded {input}">Modal Content</div>',
+
+          options: ["blur-none", "blur-sm", "blur-lg", "blur-3xl"],
+
+          correctOption: "blur-lg",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`transition-all duration-500 ${userClass} p-8 bg-white rounded shadow`}
+              >
+                Target Element{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Modal Overlay",
+
+              description:
+                "Use blur to diffuse background content behind a modal.",
+
+              code: `<div class="fixed inset-0 bg-black/30 blur-md">Modal</div>`,
+
+              preview: (
+                <div className="p-4 bg-black/30 blur-md rounded text-white text-center">
+                  Modal
+                </div>
+              ),
+            },
+
+            {
+              title: "Focus State",
+
+              description:
+                "Highlight an active card by blurring surrounding elements.",
+
+              code: `<div class="blur-sm">Inactive Card</div>`,
+
+              preview: (
+                <div className="blur-sm p-4 bg-slate-200 rounded text-center">
+                  Inactive Card
+                </div>
+              ),
+            },
+
+            {
+              title: "Background Frosting",
+
+              description: "Apply backdrop blur for frosted glass panels.",
+
+              code: `<div class="backdrop-blur-lg p-6 rounded bg-white/30">Content Panel</div>`,
+
+              preview: (
+                <div className="backdrop-blur-lg p-6 rounded bg-white/30 text-center">
+                  Content Panel
+                </div>
+              ),
+            },
+
+            {
+              title: "Hero Section Blur",
+
+              description: "Blur a hero image to place focus on text overlay.",
+
+              code: `<img class="blur-xl" src="hero.jpg" alt="Hero"/>`,
+
+              preview: (
+                <img
+                  className="blur-xl rounded"
+                  src="https://via.placeholder.com/200"
+                  alt="Hero"
+                />
+              ),
+            },
+
+            {
+              title: "Hover Blur",
+
+              description:
+                "Add blur on hover to emphasize interactive elements.",
+
+              code: `<div class="hover:blur-sm p-4 rounded bg-slate-100">Hover Me</div>`,
+
+              preview: (
+                <div className="hover:blur-sm p-4 rounded bg-slate-100 text-center">
+                  Hover Me
+                </div>
+              ),
+            },
+
+            {
+              title: "Card Depth Effect",
+
+              description: "Blur background cards to create a sense of depth.",
+
+              code: `<div class="blur-md p-4 rounded bg-slate-50">Card</div>`,
+
+              preview: (
+                <div className="blur-md p-4 rounded bg-slate-50 text-center">
+                  Card
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Excessive Blur",
+
+              reason:
+                "High blur values can reduce readability and hurt performance.",
+
+              example: `<div class="blur-3xl">Too blurry</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Missing Backdrop Support",
+
+              reason:
+                "Using `blur` instead of `backdrop-blur` when background content needs diffusing.",
+
+              example: `<div class="blur-md">Background not affected</div>`,
+
+              level: "info",
+            },
+
+            {
+              title: "Overlapping Elements",
+
+              reason:
+                "Blur may create unexpected visual artifacts with overlapping content.",
+
+              example: `<div class="blur-lg">Overlaps</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Performance on Large Areas",
+
+              reason:
+                "Applying blur to large elements can trigger GPU rendering and slow down the page.",
+
+              example: `<div class="blur-3xl w-full h-96">Heavy Blur</div>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Sparingly:",
+              text: "Apply blur only where necessary to maintain performance.",
+            },
+
+            {
+              bold: "Combine with Backdrop:",
+              text: "Use `backdrop-blur` for frosted glass effects behind content.",
+            },
+
+            {
+              bold: "Layer Awareness:",
+              text: "Ensure blurred elements do not hide essential UI components.",
+            },
+
+            {
+              bold: "Responsive Control:",
+              text: "Apply responsive blur classes to adapt effects on different screen sizes.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["filters", "brightness"],
+
+    title: "Brightness",
+
+    description:
+      "Adjust the brightness of an element's content. Useful for highlighting, dimming, or correcting visual contrast in images, backgrounds, or UI elements. Applies a filter effect without altering the original source asset.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Brightness",
+
+          description:
+            "Control the perceived brightness of elements using Tailwind utilities. Brightness adjustments help emphasize or de-emphasize visual content, useful in hover effects, image styling, and accessibility-aware designs.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Light Intensity Control",
+
+          description:
+            "Brightness utilities apply a CSS filter that scales the luminance of an element. Values above 100% increase brightness, while values below reduce it, allowing precise visual emphasis without changing the source file.",
+
+          features: [
+            "Adjusts visual luminance dynamically",
+
+            "Supports hover and responsive modifiers",
+
+            "Non-destructive to source images",
+
+            "Can combine with other filter utilities",
+
+            "Ideal for interactive or hover effects",
+          ],
+
+          layerAssignment: "Visual Effects Layer - CSS Filters",
+
+          browserBehavior:
+            "Maps directly to the CSS `filter: brightness()` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "brightness-0", desc: "Completely black (0% brightness)" },
+
+            { cls: "brightness-50", desc: "Half brightness (50%)" },
+
+            { cls: "brightness-75", desc: "Slightly dimmed (75%)" },
+
+            { cls: "brightness-90", desc: "Near default dimming (90%)" },
+
+            { cls: "brightness-100", desc: "Default brightness (100%)" },
+
+            { cls: "brightness-110", desc: "Slightly brighter (110%)" },
+
+            { cls: "brightness-125", desc: "Moderately brighter (125%)" },
+
+            { cls: "brightness-150", desc: "Brightened (150%)" },
+
+            { cls: "brightness-200", desc: "Very bright (200%)" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Brightness Playground",
+
+          description:
+            "Experiment with different brightness levels to see how they affect images, backgrounds, or icons. Useful for hover interactions and dynamic emphasis.",
+
+          options: [
+            "brightness-50",
+            "brightness-75",
+            "brightness-100",
+            "brightness-125",
+            "brightness-150",
+          ],
+
+          defaultValue: "brightness-100",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-48 h-48 bg-gray-300 flex items-center justify-center">Box</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <div
+                className={`w-48 h-48 bg-gray-300 flex items-center justify-center ${value} rounded shadow text-center`}
+              >
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Preview Content
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Dull Image",
+
+          description:
+            "An image appears too dark due to low brightness. Apply the correct Tailwind class to restore visibility without modifying the source.",
+
+          codeSnippet: '<img src="photo.jpg" class="... {input}" />',
+
+          options: [
+            "brightness-50",
+            "brightness-75",
+            "brightness-100",
+            "brightness-150",
+          ],
+
+          correctOption: "brightness-100",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <img
+                src="photo.jpg"
+                className={`transition-all duration-500 ${userClass} w-48 h-48 object-cover rounded`}
+              />{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Hover Brighten",
+
+              description:
+                "Increase brightness on hover to create interactive feedback on buttons or cards.",
+
+              code: `<div class="brightness-90 hover:brightness-125 w-48 h-48 bg-blue-500"></div>`,
+
+              preview: (
+                <div className="brightness-90 hover:brightness-125 w-48 h-48 bg-blue-500 rounded" />
+              ),
+            },
+
+            {
+              title: "Dim Background Image",
+
+              description:
+                "Reduce image brightness to overlay text more legibly.",
+
+              code: `<div class="brightness-75 w-64 h-40 bg-[url('/image.jpg')] bg-cover"></div>`,
+
+              preview: (
+                <div className="brightness-75 w-64 h-40 bg-[url('/image.jpg')] bg-cover rounded" />
+              ),
+            },
+
+            {
+              title: "Icon Emphasis",
+
+              description:
+                "Highlight icons by slightly increasing brightness when active.",
+
+              code: `<svg class="brightness-125 w-12 h-12 text-indigo-600">...</svg>`,
+
+              preview: (
+                <svg className="brightness-125 w-12 h-12 text-indigo-600">
+                  <circle cx="6" cy="6" r="6" fill="currentColor" />
+                </svg>
+              ),
+            },
+
+            {
+              title: "Card Highlight",
+
+              description:
+                "Adjust card brightness to indicate selection or focus.",
+
+              code: `<div class="brightness-100 hover:brightness-150 w-48 h-32 bg-gray-200"></div>`,
+
+              preview: (
+                <div className="brightness-100 hover:brightness-150 w-48 h-32 bg-gray-200 rounded" />
+              ),
+            },
+
+            {
+              title: "Image Slider Effects",
+
+              description:
+                "Dynamic brightness changes in carousels or sliders for visual depth.",
+
+              code: `<img class="brightness-90 hover:brightness-110 w-64 h-40 object-cover" src="/slider.jpg" />`,
+
+              preview: (
+                <img
+                  className="brightness-90 hover:brightness-110 w-64 h-40 object-cover rounded"
+                  src="/slider.jpg"
+                />
+              ),
+            },
+
+            {
+              title: "Overlay Contrast",
+
+              description:
+                "Reduce brightness on backgrounds to make overlay text pop.",
+
+              code: `<div class="brightness-75 relative w-64 h-40 bg-[url('/bg.jpg')]"><span class="absolute text-white">Overlay Text</span></div>`,
+
+              preview: (
+                <div className="brightness-75 relative w-64 h-40 bg-[url('/bg.jpg')] rounded">
+                  <span className="absolute text-white p-2">Overlay Text</span>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Too Dark or Too Bright",
+              reason:
+                "Applying extreme brightness values can reduce legibility or distort colors.",
+              example: `<div class="brightness-0">Too dark</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Hover States",
+              reason:
+                "Not combining brightness with hover can reduce interactive feedback cues.",
+              example: `<div class="brightness-100">Static box</div>`,
+              level: "info",
+            },
+
+            {
+              title: "Overlapping Filters",
+              reason:
+                "Multiple filter utilities may conflict and produce unintended results.",
+              example: `<div class="brightness-125 contrast-50">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Accessibility Neglect",
+              reason:
+                "Over-bright or dimmed content can fail contrast requirements, affecting readability.",
+              example: `<p class="brightness-50">Unreadable text</p>`,
+              level: "critical",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Subtle Adjustments:",
+              text: "Minor brightness tweaks often yield better UX than extreme changes.",
+            },
+
+            {
+              bold: "Combine with Contrast:",
+              text: "Pair brightness with `contrast` for richer visual control.",
+            },
+
+            {
+              bold: "Hover Animations:",
+              text: "Use transition utilities to smoothly animate brightness changes.",
+            },
+
+            {
+              bold: "Test Accessibility:",
+              text: "Check brightness changes against text overlays to maintain readability.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["filters", "contrast"],
+
+    title: "Contrast",
+
+    description:
+      "Adjust the contrast of elements by modifying the difference between light and dark areas. Use contrast utilities to enhance visual clarity or create emphasis on images, backgrounds, or interface components. Implementation relies on the CSS `filter` property and may affect child elements if applied broadly.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Contrast",
+
+          description:
+            "Adjust the contrast of elements to control visual emphasis and clarity. This utility is particularly useful for images, backgrounds, or UI elements that require higher or lower contrast to improve readability or aesthetic impact.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Visual Intensity Adjustment",
+
+          description:
+            "Contrast utilities increase or decrease the difference between the lightest and darkest parts of an element. Think of it like adjusting the dynamic range of a photo to make features pop or blend.",
+
+          features: [
+            "Modifies perceived brightness differences",
+
+            "Supports responsive adjustments",
+
+            "Composable with other filter utilities",
+
+            "Affects child elements visually",
+
+            "Useful for accessibility emphasis",
+          ],
+
+          layerAssignment: "Visual / Presentation Layer",
+
+          browserBehavior:
+            "Maps directly to the CSS `filter: contrast()` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "contrast-0", desc: "Removes all contrast (flat gray)" },
+
+            { cls: "contrast-50", desc: "Reduces contrast by 50%" },
+
+            { cls: "contrast-75", desc: "Slightly reduced contrast" },
+
+            { cls: "contrast-100", desc: "Default contrast (no change)" },
+
+            { cls: "contrast-125", desc: "Slightly increased contrast" },
+
+            { cls: "contrast-150", desc: "Increased contrast" },
+
+            { cls: "contrast-200", desc: "High contrast (double intensity)" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Contrast Playground",
+
+          description:
+            "Experiment with different contrast values to see how images or elements respond visually. Useful for fine-tuning accessibility and aesthetics.",
+
+          options: [
+            "contrast-0",
+            "contrast-50",
+            "contrast-100",
+            "contrast-150",
+          ],
+
+          defaultValue: "contrast-100",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-64 h-40 bg-gradient-to-r from-red-400 to-blue-500 rounded-lg flex items-center justify-center text-white font-bold">Contrast Test</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center w-64 h-40 flex items-center justify-center">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Contrast Preview
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Flat Image",
+
+          description:
+            "An image appears washed out due to low contrast. Increase contrast to make the subject pop and improve readability.",
+
+          codeSnippet:
+            '<div class="w-64 h-40 bg-gray-400 rounded {input}"></div>',
+
+          options: [
+            "contrast-0",
+            "contrast-50",
+            "contrast-125",
+            "contrast-200",
+          ],
+
+          correctOption: "contrast-125",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-64 h-40 bg-gradient-to-r from-red-400 to-blue-500 rounded transition-all duration-500 ${userClass}`}
+              >
+                Target Element{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Image Emphasis",
+
+              description:
+                "Enhancing photo contrast for product showcase or hero sections.",
+
+              code: `<img class="contrast-150 w-64 h-40 object-cover rounded" src="image.jpg" alt="Sample"/>`,
+
+              preview: (
+                <div className="w-64 h-40 bg-gradient-to-r from-red-400 to-blue-500 rounded contrast-150"></div>
+              ),
+            },
+
+            {
+              title: "Muted Backgrounds",
+
+              description:
+                "Reducing contrast to make overlaid text more readable.",
+
+              code: `<div class="contrast-50 bg-gradient-to-r from-pink-400 to-purple-600 p-8 rounded">Text Overlay</div>`,
+
+              preview: (
+                <div className="contrast-50 w-64 h-40 bg-gradient-to-r from-pink-400 to-purple-600 rounded flex items-center justify-center text-white font-bold">
+                  Text Overlay
+                </div>
+              ),
+            },
+
+            {
+              title: "Hover Effects",
+
+              description:
+                "Increase contrast on hover to indicate interactivity.",
+
+              code: `<div class="contrast-100 hover:contrast-150 w-64 h-40 rounded bg-blue-500"></div>`,
+
+              preview: (
+                <div className="contrast-100 hover:contrast-150 w-64 h-40 rounded bg-blue-500 transition-all duration-300"></div>
+              ),
+            },
+
+            {
+              title: "Accessible UI Cards",
+
+              description:
+                "Adjusting card contrast to ensure text and images are clear for all users.",
+
+              code: `<div class="contrast-125 p-4 rounded bg-gray-200">Card Content</div>`,
+
+              preview: (
+                <div className="contrast-125 p-4 rounded bg-gray-200 text-gray-800">
+                  Card Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Icons & Graphics",
+
+              description:
+                "Applying contrast filters to SVG icons for visual clarity.",
+
+              code: `<svg class="contrast-150 w-12 h-12 text-blue-600" fill="currentColor"><path d="M0 0h24v24H0z" /></svg>`,
+
+              preview: (
+                <div className="contrast-150 w-12 h-12 bg-blue-600"></div>
+              ),
+            },
+
+            {
+              title: "Themed Components",
+
+              description:
+                "Combine contrast with other filters to achieve dark or light mode visual consistency.",
+
+              code: `<div class="contrast-125 saturate-150 w-64 h-40 rounded bg-gradient-to-r from-green-400 to-blue-600"></div>`,
+
+              preview: (
+                <div className="contrast-125 saturate-150 w-64 h-40 rounded bg-gradient-to-r from-green-400 to-blue-600"></div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Overexposed Contrast",
+              reason:
+                "Excessive contrast can reduce readability or appear harsh.",
+              example: `<div class="contrast-200">Too intense</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Neglecting Child Elements",
+              reason:
+                "Filters affect all children; apply selectively to avoid unintended effects.",
+              example: `<div class="contrast-150"><p>Child text affected</p></div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Dark Mode",
+              reason:
+                "High contrast may clash with dark themes; test both modes.",
+              example: `<div class="contrast-150 bg-black text-black">Unreadable</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Using on Text Only",
+              reason:
+                "Contrast works visually but does not affect actual color accessibility; avoid relying solely on filters for accessibility.",
+              example: `<p class="contrast-150">Text alone</p>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine Filters:",
+              text: "Use contrast with brightness or saturation for nuanced visual effects.",
+            },
+
+            {
+              bold: "Hover Interactivity:",
+              text: "Adjust contrast on hover to indicate actionable elements.",
+            },
+
+            {
+              bold: "Performance:",
+              text: "Heavy filter stacking may impact rendering; test on target devices.",
+            },
+
+            {
+              bold: "Accessibility:",
+              text: "Do not rely solely on contrast filters for accessibility; use semantic colors.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["filters", "grayscale"],
+
+    title: "Grayscale",
+
+    description:
+      "Apply grayscale effects to elements, removing color and converting visuals to shades of gray. Useful for hover states, disabled content, or stylistic effects while preserving layout and contrast.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Grayscale",
+
+          description:
+            "The grayscale utility converts an element's colors to gray scale, removing color saturation. This is commonly used for stylistic effects, image placeholders, hover interactions, or to indicate disabled states.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Conceptual Explanation",
+
+          description:
+            "Grayscale works by adjusting the color saturation of an element. Think of it as overlaying a black-and-white filter over images or content to emphasize or de-emphasize visual prominence.",
+
+          features: [
+            "Controls element color saturation",
+
+            "Supports hover and responsive modifiers",
+
+            "Can indicate disabled or inactive state",
+
+            "Non-destructive visual styling",
+
+            "Composes with other filter utilities",
+          ],
+
+          layerAssignment: "Visual Effects Layer",
+
+          browserBehavior:
+            "Maps directly to the CSS `filter: grayscale()` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "grayscale", desc: "Full grayscale effect (100%)" },
+
+            { cls: "grayscale-0", desc: "No grayscale, full color" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Grayscale Playground",
+
+          description:
+            "Experiment with grayscale levels on images or content to see visual effects and interaction patterns.",
+
+          options: ["grayscale", "grayscale-0"],
+
+          defaultValue: "grayscale",
+
+          buildMarkup: (value: string) =>
+            `<img class="${value} w-64 h-40 object-cover" src="https://via.placeholder.com/256x160" alt="Placeholder"/>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <img
+                className={`${value} w-64 h-40 object-cover rounded shadow`}
+                src="[https://via.placeholder.com/256x160](https://via.placeholder.com/256x160)"
+                alt="Preview"
+              />{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Highlight the Hover",
+
+          description:
+            "You want to apply a grayscale effect that activates on hover for a product image. Choose the correct utility to achieve this.",
+
+          codeSnippet:
+            '<img class="w-64 h-40 object-cover {input}" src="https://via.placeholder.com/256x160" alt="Product"/>',
+
+          options: [
+            "grayscale-0",
+            "hover:grayscale",
+            "grayscale",
+            "hover:grayscale-0",
+          ],
+
+          correctOption: "hover:grayscale",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <img
+                className={`transition-all duration-500 ${userClass} w-64 h-40 object-cover rounded shadow`}
+                src="[https://via.placeholder.com/256x160](https://via.placeholder.com/256x160)"
+                alt="Target"
+              />{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Disabled State Image",
+
+              description:
+                "Grayscale applied to indicate a non-interactive or disabled image.",
+
+              code: `<img class="grayscale w-48 h-32 object-cover" src="https://via.placeholder.com/192x128"/>`,
+
+              preview: (
+                <img
+                  className="grayscale w-48 h-32 object-cover"
+                  src="https://via.placeholder.com/192x128"
+                  alt="Disabled"
+                />
+              ),
+            },
+
+            {
+              title: "Hover Effect",
+
+              description:
+                "Image appears in full color when hovered over using `hover:grayscale-0`.",
+
+              code: `<img class="grayscale hover:grayscale-0 w-48 h-32 object-cover" src="https://via.placeholder.com/192x128"/>`,
+
+              preview: (
+                <img
+                  className="grayscale hover:grayscale-0 w-48 h-32 object-cover"
+                  src="https://via.placeholder.com/192x128"
+                  alt="Hover Effect"
+                />
+              ),
+            },
+
+            {
+              title: "Gallery Thumbnails",
+
+              description:
+                "Grayscale used on secondary thumbnails to de-emphasize them.",
+
+              code: `<div class="flex gap-2"><img class="grayscale w-24 h-24 object-cover" src="https://via.placeholder.com/96"/><img class="w-24 h-24 object-cover" src="https://via.placeholder.com/96"/></div>`,
+
+              preview: (
+                <div className="flex gap-2">
+                  <img
+                    className="grayscale w-24 h-24 object-cover"
+                    src="https://via.placeholder.com/96"
+                    alt="Thumbnail"
+                  />
+                  <img
+                    className="w-24 h-24 object-cover"
+                    src="https://via.placeholder.com/96"
+                    alt="Active Thumbnail"
+                  />
+                </div>
+              ),
+            },
+
+            {
+              title: "Portfolio Cards",
+
+              description:
+                "Card images start grayscale and transition to color on hover to draw attention.",
+
+              code: `<div class="group"><img class="grayscale group-hover:grayscale-0 w-64 h-40 object-cover" src="https://via.placeholder.com/256x160"/></div>`,
+
+              preview: (
+                <div className="group">
+                  <img
+                    className="grayscale group-hover:grayscale-0 w-64 h-40 object-cover"
+                    src="https://via.placeholder.com/256x160"
+                    alt="Portfolio Card"
+                  />
+                </div>
+              ),
+            },
+
+            {
+              title: "Editorial Images",
+
+              description:
+                "Grayscale used for stylistic effect on editorial content.",
+
+              code: `<img class="grayscale w-full h-64 object-cover" src="https://via.placeholder.com/512x256"/>`,
+
+              preview: (
+                <img
+                  className="grayscale w-full h-64 object-cover"
+                  src="https://via.placeholder.com/512x256"
+                  alt="Editorial"
+                />
+              ),
+            },
+
+            {
+              title: "Product Highlights",
+
+              description:
+                "Full color images for featured products, grayscale for others.",
+
+              code: `<div class="flex gap-4"><img class="w-32 h-32 object-cover" src="https://via.placeholder.com/128"/><img class="grayscale w-32 h-32 object-cover" src="https://via.placeholder.com/128"/></div>`,
+
+              preview: (
+                <div className="flex gap-4">
+                  <img
+                    className="w-32 h-32 object-cover"
+                    src="https://via.placeholder.com/128"
+                    alt="Featured"
+                  />
+                  <img
+                    className="grayscale w-32 h-32 object-cover"
+                    src="https://via.placeholder.com/128"
+                    alt="Secondary"
+                  />
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Overuse",
+
+              reason:
+                "Applying grayscale to all images removes visual hierarchy and interest.",
+
+              example: `<img class="grayscale w-48 h-32" src="..."/>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Incorrect Hover Target",
+
+              reason:
+                "Applying `hover:grayscale` to a parent element with multiple children may not behave as expected.",
+
+              example: `<div class="hover:grayscale"><img src="..."/></div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Accessibility Issues",
+
+              reason:
+                "Do not rely solely on grayscale to indicate state; combine with text or icons.",
+
+              example: `<img class="grayscale w-48 h-32" src="..."/>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Performance Overhead",
+
+              reason:
+                "Excessive use of CSS filters can impact rendering performance on large images or complex layouts.",
+
+              example: `<img class="grayscale w-full h-auto" src="..."/>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with Hover:",
+              text: "Use `hover:grayscale-0` to create interactive reveal effects.",
+            },
+
+            {
+              bold: "Pair with Other Filters:",
+              text: "Combine grayscale with `contrast` or `brightness` for more nuanced visuals.",
+            },
+
+            {
+              bold: "Use Sparingly:",
+              text: "Reserve grayscale for secondary content or stylistic purposes to maintain emphasis.",
+            },
+
+            {
+              bold: "Accessibility Consideration:",
+              text: "Do not convey essential information through grayscale alone; include text or icons.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["filters", "hue-rotate"],
+
+    title: "Hue Rotate",
+
+    description:
+      "Adjust the hue of an element to shift its colors around the color wheel. Use hue rotation to create dynamic visual effects, color transitions, or theme variations. This utility is primarily used with images, backgrounds, or SVGs that rely on color perception.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Hue Rotate",
+
+          description:
+            "Control the overall hue of an element by rotating its color spectrum. This affects all colors within the element and can be combined with other filter utilities for advanced visual effects.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Color Wheel Twist",
+
+          description:
+            "Hue rotate manipulates the color wheel of an element, effectively shifting all its colors by a specified angle. Think of it as spinning the color dial on a painting to get a different mood or tone.",
+
+          features: [
+            "Adjusts hue dynamically in degrees",
+
+            "Composable with other filter utilities",
+
+            "Supports responsive and state-based variants",
+
+            "Useful for thematic color effects",
+
+            "Affects images, SVGs, and backgrounds",
+          ],
+
+          layerAssignment: "Visual / Filter Layer",
+
+          browserBehavior:
+            "Maps directly to the CSS `filter: hue-rotate(<angle>deg)` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "hue-rotate-0", desc: "No hue rotation applied" },
+
+            { cls: "hue-rotate-15", desc: "Rotate hue by 15 degrees" },
+
+            { cls: "hue-rotate-30", desc: "Rotate hue by 30 degrees" },
+
+            { cls: "hue-rotate-60", desc: "Rotate hue by 60 degrees" },
+
+            { cls: "hue-rotate-90", desc: "Rotate hue by 90 degrees" },
+
+            { cls: "hue-rotate-180", desc: "Rotate hue by 180 degrees" },
+
+            { cls: "hue-rotate-270", desc: "Rotate hue by 270 degrees" },
+
+            {
+              cls: "hue-rotate-360",
+              desc: "Full color rotation back to original",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Hue Rotate Playground",
+
+          description:
+            "Experiment with different hue rotation angles to see how they affect images or backgrounds. Combine with `saturate` or `invert` for advanced color effects.",
+
+          options: [
+            "hue-rotate-0",
+            "hue-rotate-30",
+            "hue-rotate-60",
+            "hue-rotate-90",
+          ],
+
+          defaultValue: "hue-rotate-30",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-32 h-32 bg-gradient-to-r from-red-500 to-yellow-500"></div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="w-32 h-32 bg-gradient-to-r from-red-500 to-yellow-500 rounded shadow" />{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Color Shift",
+
+          description:
+            "An image looks too red under a warm theme. Apply a hue rotation to balance it toward cooler tones.",
+
+          codeSnippet:
+            '<img class="... {input}" src="sample.jpg" alt="Sample"/>',
+
+          options: [
+            "hue-rotate-0",
+            "hue-rotate-90",
+            "hue-rotate-180",
+            "hue-rotate-270",
+          ],
+
+          correctOption: "hue-rotate-180",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <img
+                className={`${userClass} w-48 h-48 object-cover rounded`}
+                src="[https://via.placeholder.com/150](https://via.placeholder.com/150)"
+                alt="Sample"
+              />{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Themed Buttons",
+              description:
+                "Apply subtle hue rotation to button backgrounds to differentiate primary and secondary actions.",
+              code: `<button class="hue-rotate-15 bg-blue-500 text-white px-4 py-2 rounded">Click Me</button>`,
+              preview: (
+                <button className="hue-rotate-15 bg-blue-500 text-white px-4 py-2 rounded">
+                  Click Me
+                </button>
+              ),
+            },
+
+            {
+              title: "Image Effects",
+              description:
+                "Rotate the hues of an image for hover states or seasonal themes.",
+              code: `<img class="hue-rotate-90" src="image.jpg"/>`,
+              preview: (
+                <img
+                  className="hue-rotate-90 w-32 h-32 object-cover rounded"
+                  src="https://via.placeholder.com/150"
+                />
+              ),
+            },
+
+            {
+              title: "SVG Coloring",
+              description:
+                "Shift SVG icon colors dynamically using hue rotation.",
+              code: `<svg class="hue-rotate-180 w-6 h-6" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>`,
+              preview: (
+                <svg
+                  className="hue-rotate-180 w-6 h-6 text-red-500"
+                  fill="currentColor"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                </svg>
+              ),
+            },
+
+            {
+              title: "Background Gradients",
+              description:
+                "Apply hue rotation to gradients for creative color transitions.",
+              code: `<div class="hue-rotate-60 bg-gradient-to-r from-green-400 to-blue-500 w-32 h-32"></div>`,
+              preview: (
+                <div className="hue-rotate-60 bg-gradient-to-r from-green-400 to-blue-500 w-32 h-32 rounded" />
+              ),
+            },
+
+            {
+              title: "Hover State Enhancements",
+              description:
+                "Animate hue rotation on hover to add interactive feedback.",
+              code: `<div class="hover:hue-rotate-90 bg-red-500 w-24 h-24"></div>`,
+              preview: (
+                <div className="hover:hue-rotate-90 bg-red-500 w-24 h-24 rounded transition-all duration-500" />
+              ),
+            },
+
+            {
+              title: "Themed Cards",
+              description:
+                "Rotate the hue of card backgrounds to match seasonal or thematic palettes.",
+              code: `<div class="hue-rotate-270 bg-yellow-400 p-4 rounded">Card Content</div>`,
+              preview: (
+                <div className="hue-rotate-270 bg-yellow-400 p-4 rounded">
+                  Card Content
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Overusing Extreme Rotations",
+              reason:
+                "Too high degrees can distort brand colors and readability.",
+              example: `<div class="hue-rotate-360">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Applying to Text",
+              reason:
+                "Hue rotation on text may reduce contrast and legibility.",
+              example: `<p class="hue-rotate-180">Sample text</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Combining Too Many Filters",
+              reason: "Multiple filters can create unexpected color blending.",
+              example: `<img class="hue-rotate-90 saturate-150 invert" src="image.jpg"/>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Dark Mode",
+              reason:
+                "Hue rotation may clash with dark mode palettes; test for accessibility.",
+              example: `<div class="hue-rotate-90 bg-white dark:bg-black">Content</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine With Filters:",
+              text: "Pair hue-rotate with `saturate` or `brightness` for nuanced effects.",
+            },
+
+            {
+              bold: "Use Subtle Rotations:",
+              text: "Small angles (15–60°) often produce visually appealing shifts without harsh distortion.",
+            },
+
+            {
+              bold: "Hover Animations:",
+              text: "Animate hue-rotate on hover for interactive color transitions.",
+            },
+
+            {
+              bold: "Test Across Themes:",
+              text: "Check rotated hues in both light and dark themes to maintain accessibility.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["filters", "opacity"],
+
+    title: "Opacity",
+
+    description:
+      "Control the transparency of an element. Use opacity utilities to adjust visibility, emphasize hierarchy, or create layered visual effects. It affects the element and its children, so use carefully to maintain readability and contrast.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Opacity",
+
+          description:
+            "Opacity utilities adjust the transparency level of elements in Tailwind. They are essential for creating emphasis, de-emphasis, and layered visual effects in UI design.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Transparency Layer",
+
+          description:
+            "Opacity sets the transparency of an element, including its content and children. Think of it as applying a semi-transparent veil over the element that dims underlying colors.",
+
+          features: [
+            "Supports responsive and state modifiers",
+
+            "Affects element and all child content",
+
+            "Useful for hover/focus visual cues",
+
+            "Can layer multiple elements for depth",
+
+            "Directly composable with other filters",
+          ],
+
+          layerAssignment: "Visual Layer - Filters",
+
+          browserBehavior: "Maps directly to the CSS `opacity` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "opacity-0", desc: "Fully transparent (invisible)" },
+
+            { cls: "opacity-5", desc: "Very low visibility" },
+
+            { cls: "opacity-10", desc: "Slightly visible" },
+
+            { cls: "opacity-20", desc: "Faint visibility" },
+
+            { cls: "opacity-25", desc: "Quarter visible" },
+
+            { cls: "opacity-30", desc: "Slightly transparent" },
+
+            { cls: "opacity-40", desc: "Semi-transparent" },
+
+            { cls: "opacity-50", desc: "Half visible" },
+
+            { cls: "opacity-60", desc: "Moderately transparent" },
+
+            { cls: "opacity-70", desc: "Mostly visible" },
+
+            { cls: "opacity-75", desc: "Three-quarters visible" },
+
+            { cls: "opacity-80", desc: "Slightly less than fully visible" },
+
+            { cls: "opacity-90", desc: "Almost fully visible" },
+
+            { cls: "opacity-95", desc: "Nearly opaque" },
+
+            { cls: "opacity-100", desc: "Fully opaque (default)" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Opacity Playground",
+
+          description:
+            "Experiment with different opacity levels to see how transparency affects the element and its children.",
+
+          options: [
+            "opacity-0",
+
+            "opacity-25",
+
+            "opacity-50",
+
+            "opacity-75",
+
+            "opacity-100",
+          ],
+
+          defaultValue: "opacity-75",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} p-8 bg-blue-200 rounded-lg text-center">Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Preview Content
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Invisible Button",
+
+          description:
+            "A call-to-action button is barely visible due to too low opacity. Adjust the class to make it more prominent.",
+
+          codeSnippet:
+            '<button class="bg-blue-500 text-white p-4 rounded {input}">Click Me</button>',
+
+          options: ["opacity-0", "opacity-25", "opacity-50", "opacity-100"],
+
+          correctOption: "opacity-100",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <button
+                className={`transition-all duration-500 ${userClass} bg-blue-500 text-white p-4 rounded`}
+              >
+                Click Me
+              </button>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Disabled Button",
+
+              description: "Reduce opacity to indicate disabled state.",
+
+              code: `<button class="opacity-50 bg-gray-500 text-white p-2 rounded">Submit</button>`,
+
+              preview: (
+                <button className="opacity-50 bg-gray-500 text-white p-2 rounded">
+                  Submit
+                </button>
+              ),
+            },
+
+            {
+              title: "Hover Fade",
+
+              description: "Opacity changes on hover for visual feedback.",
+
+              code: `<div class="opacity-75 hover:opacity-100 p-4 bg-blue-200 rounded">Hover me</div>`,
+
+              preview: (
+                <div className="opacity-75 hover:opacity-100 p-4 bg-blue-200 rounded">
+                  Hover me
+                </div>
+              ),
+            },
+
+            {
+              title: "Background Overlay",
+
+              description:
+                "Semi-transparent overlay effect for modals or images.",
+
+              code: `<div class="opacity-50 bg-black w-full h-32 absolute top-0 left-0"></div>`,
+
+              preview: (
+                <div className="opacity-50 bg-black w-full h-32 absolute top-0 left-0"></div>
+              ),
+            },
+
+            {
+              title: "Layered Cards",
+
+              description:
+                "Use opacity to differentiate stacked card elements.",
+
+              code: `<div class="opacity-80 bg-white p-4 rounded shadow">Card</div>`,
+
+              preview: (
+                <div className="opacity-80 bg-white p-4 rounded shadow">
+                  Card
+                </div>
+              ),
+            },
+
+            {
+              title: "Faded Text",
+
+              description: "Dim secondary text content for hierarchy.",
+
+              code: `<p class="opacity-50 text-gray-600">Secondary information</p>`,
+
+              preview: (
+                <p className="opacity-50 text-gray-600">
+                  Secondary information
+                </p>
+              ),
+            },
+
+            {
+              title: "Image Transparency",
+
+              description: "Adjust image opacity for background effects.",
+
+              code: `<img src="/image.jpg" class="opacity-75 rounded-lg" />`,
+
+              preview: (
+                <img src="/image.jpg" className="opacity-75 rounded-lg" />
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Too Low Opacity",
+              reason: "Elements become unreadable or invisible.",
+              example: `<div class="opacity-0">Hidden content</div>`,
+              level: "critical",
+            },
+
+            {
+              title: "Opacity on Text Only",
+              reason: "Child elements also inherit opacity; use caution.",
+              example: `<p class="opacity-50"><span>Text</span></p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Combining Multiple Opacity Classes",
+              reason:
+                "Only the last class takes effect, earlier ones are overridden.",
+              example: `<div class="opacity-25 opacity-75">Content</div>`,
+              level: "info",
+            },
+
+            {
+              title: "Ignoring Contrast Needs",
+              reason:
+                "Low opacity on dark text over dark backgrounds reduces legibility.",
+              example: `<p class="opacity-25 text-gray-800 bg-gray-900">Hard to read</p>`,
+              level: "critical",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use for State Indicators:",
+              text: "Lower opacity to visually indicate disabled or inactive elements.",
+            },
+
+            {
+              bold: "Combine with Transitions:",
+              text: "Pair with `transition-opacity` for smooth fade effects.",
+            },
+
+            {
+              bold: "Layering Elements:",
+              text: "Use different opacity levels to create depth and hierarchy in UI layouts.",
+            },
+
+            {
+              bold: "Responsive Opacity:",
+              text: "Apply responsive modifiers like `sm:opacity-50` to adapt to different screen sizes.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["filters", "saturate"],
+
+    title: "Saturate",
+
+    description:
+      "Control the intensity of colors on an element by adjusting its saturation. Use saturate utilities to emphasize or mute visual content without altering the original color values directly. Useful for images, backgrounds, and UI elements where color vibrancy matters.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Saturate",
+
+          description:
+            "Saturate utilities adjust the CSS `filter: saturate()` value, allowing developers to increase or decrease the intensity of colors on an element. This is particularly useful for visual emphasis, hover effects, or creating muted designs while maintaining semantic color values.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Color Amplifier",
+
+          description:
+            "Saturate affects how vivid or muted colors appear by scaling the saturation component of colors. Think of it as turning up or down a color intensity knob for the element's visual presentation.",
+
+          features: [
+            "Adjusts perceived color intensity",
+
+            "Supports responsive and hover variants",
+
+            "Can be combined with other filters",
+
+            "Non-destructive to original color values",
+
+            "Affects images, text, and backgrounds",
+          ],
+
+          layerAssignment: "Visual / Filters",
+
+          browserBehavior:
+            "Maps directly to the CSS `filter: saturate()` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "saturate-0", desc: "Completely desaturated (grayscale)" },
+
+            { cls: "saturate-50", desc: "Half saturation" },
+
+            { cls: "saturate-100", desc: "Default saturation (1x)" },
+
+            { cls: "saturate-150", desc: "Increase saturation by 1.5x" },
+
+            { cls: "saturate-200", desc: "Double saturation" },
+
+            { cls: "saturate-[value]", desc: "Custom numeric saturation" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Saturate Playground",
+
+          description:
+            "Experiment with different saturation levels to see how colors intensify or fade. Useful for hover effects or theming elements dynamically.",
+
+          options: [
+            "saturate-0",
+            "saturate-50",
+            "saturate-100",
+            "saturate-150",
+            "saturate-200",
+          ],
+
+          defaultValue: "saturate-100",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-32 h-32 bg-blue-500"></div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="w-32 h-32 bg-blue-500 rounded shadow"></div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Muted Button",
+
+          description:
+            "The call-to-action button appears too dull. Apply the correct saturate utility to make its colors vibrant while keeping the design intact.",
+
+          codeSnippet:
+            '<button class="bg-green-500 p-4 rounded {input}">Click Me</button>',
+
+          options: [
+            "saturate-0",
+            "saturate-50",
+            "saturate-150",
+            "saturate-200",
+          ],
+
+          correctOption: "saturate-150",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <button
+                className={`bg-green-500 text-white p-4 rounded transition-all duration-500 ${userClass}`}
+              >
+                Click Me
+              </button>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Image Hover Effect",
+
+              description:
+                "Increase saturation on hover to emphasize featured images.",
+
+              code: `<img src="photo.jpg" class="transition saturate-100 hover:saturate-150" />`,
+
+              preview: (
+                <div className="w-32 h-32 bg-gray-300 saturate-100 hover:saturate-150 transition duration-300"></div>
+              ),
+            },
+
+            {
+              title: "Muted Background",
+
+              description:
+                "Reduce saturation to create a subtle background effect.",
+
+              code: `<div class="bg-pink-500 saturate-50 p-4">Muted Background</div>`,
+
+              preview: (
+                <div className="bg-pink-500 saturate-50 p-4 text-white rounded">
+                  Muted Background
+                </div>
+              ),
+            },
+
+            {
+              title: "Accent Button",
+
+              description:
+                "Boost saturation for buttons to draw user attention.",
+
+              code: `<button class="bg-yellow-400 saturate-200 p-2 rounded">Click</button>`,
+
+              preview: (
+                <button className="bg-yellow-400 saturate-200 p-2 rounded">
+                  Click
+                </button>
+              ),
+            },
+
+            {
+              title: "Text Emphasis",
+
+              description:
+                "Apply saturation filter to colored text for emphasis.",
+
+              code: `<p class="text-red-500 saturate-150">Important!</p>`,
+
+              preview: (
+                <p className="text-red-500 saturate-150 font-bold">
+                  Important!
+                </p>
+              ),
+            },
+
+            {
+              title: "Icon Vibrancy",
+
+              description: "Enhance icon visibility by increasing saturation.",
+
+              code: `<svg class="w-6 h-6 saturate-150 fill-current" viewBox="0 0 24 24"><path d="..."/></svg>`,
+
+              preview: (
+                <div className="w-6 h-6 bg-blue-500 saturate-150 rounded"></div>
+              ),
+            },
+
+            {
+              title: "Card Highlight",
+
+              description:
+                "Use subtle desaturation to differentiate inactive cards.",
+
+              code: `<div class="bg-gray-400 saturate-75 p-4 rounded">Inactive</div>`,
+
+              preview: (
+                <div className="bg-gray-400 saturate-75 p-4 rounded text-white">
+                  Inactive
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Over-saturation",
+              reason:
+                "Excessive saturation can cause colors to appear unnatural.",
+              example: `<div class="saturate-200 bg-red-500">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Context",
+              reason:
+                "High saturation may clash with surrounding elements, reducing readability.",
+              example: `<p class="saturate-150 text-green-500">...</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Combining Too Many Filters",
+              reason:
+                "Stacking multiple filters with high saturation may create unintended visual effects.",
+              example: `<div class="saturate-150 brightness-125 contrast-150">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Lack of Responsiveness",
+              reason:
+                "Not adjusting saturation for hover/focus states can result in inconsistent design feedback.",
+              example: `<button class="saturate-100 hover:saturate-100">...</button>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with Transitions:",
+              text: "Use `transition` classes for smooth saturation changes on hover or focus.",
+            },
+
+            {
+              bold: "Use Moderation:",
+              text: "Avoid extreme values to keep designs visually balanced.",
+            },
+
+            {
+              bold: "Layer with Other Filters:",
+              text: "Combine with `brightness`, `contrast`, or `grayscale` for richer effects.",
+            },
+
+            {
+              bold: "Responsive Variants:",
+              text: "Adjust saturation for different screen sizes or states to maintain consistency.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["filters", "sepia"],
+
+    title: "Sepia",
+
+    description:
+      "Apply a warm, brownish tone to elements, simulating a vintage photograph effect. Use sepia filters to evoke nostalgia or unify visuals with a retro aesthetic. The effect is achieved via the CSS `filter` property, so it can be combined with other filters for layered effects.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Sepia",
+
+          description:
+            "Apply a warm, brownish tone to elements, simulating a vintage photograph effect. Sepia is useful for stylistic purposes, highlighting content in a retro or cinematic context.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Vintage Tone Layer",
+
+          description:
+            "The sepia utility manipulates the element's color output using a filter chain, converting colors into brownish tones. Think of it as placing a warm lens over your content to evoke nostalgia.",
+
+          features: [
+            "Applies a warm, brownish filter",
+
+            "Supports responsive and hover variants",
+
+            "Composable with other filter utilities",
+
+            "Smoothly animatable with transitions",
+
+            "Non-destructive to original content colors",
+          ],
+
+          layerAssignment: "Visual Effects Layer - Filter-based styling",
+
+          browserBehavior:
+            "Maps directly to the CSS `filter: sepia()` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "sepia-0", desc: "No sepia effect" },
+
+            { cls: "sepia", desc: "Default 100% sepia" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Sepia Playground",
+
+          description:
+            "Experiment with different sepia values and observe how the tone affects imagery and UI components.",
+
+          options: ["sepia-0", "sepia"],
+
+          defaultValue: "sepia",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-64 h-40 bg-gradient-to-r from-blue-400 to-pink-400 rounded-lg flex items-center justify-center">Sample</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="w-64 h-40 bg-gradient-to-r from-blue-400 to-pink-400 rounded-lg flex items-center justify-center text-white font-semibold">
+                Sepia Preview{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken UI",
+
+          description:
+            "An image looks too vibrant in a retro-themed card. Apply the correct sepia utility to achieve a warm, vintage tone.",
+
+          codeSnippet: '<div class="w-64 h-40 rounded-lg {input}">Image</div>',
+
+          options: ["sepia-0", "sepia", "brightness-150", "contrast-50"],
+
+          correctOption: "sepia",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-64 h-40 rounded-lg bg-gradient-to-r from-blue-400 to-pink-400 flex items-center justify-center text-white font-bold transition-all duration-500 ${userClass}`}
+              >
+                Image{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Hero Banner Effect",
+
+              description:
+                "Apply a sepia filter to a hero background image for a cinematic, nostalgic feel.",
+
+              code: `<div class="w-full h-64 bg-cover bg-center sepia" style="background-image: url('hero.jpg');"></div>`,
+
+              preview: (
+                <div
+                  className="w-full h-64 bg-cover bg-center sepia"
+                  style={{ backgroundImage: "url('hero.jpg')" }}
+                ></div>
+              ),
+            },
+
+            {
+              title: "Profile Card Styling",
+
+              description: "Use sepia on user avatars for a retro UI theme.",
+
+              code: `<img class="w-24 h-24 rounded-full sepia" src="avatar.jpg" alt="User"/>`,
+
+              preview: (
+                <img
+                  className="w-24 h-24 rounded-full sepia"
+                  src="avatar.jpg"
+                  alt="User"
+                />
+              ),
+            },
+
+            {
+              title: "Image Gallery",
+
+              description:
+                "Combine sepia with hover effects to create dynamic photo galleries.",
+
+              code: `<img class="w-32 h-32 sepia hover:sepia-0 transition" src="photo.jpg"/>`,
+
+              preview: (
+                <img
+                  className="w-32 h-32 sepia hover:sepia-0 transition"
+                  src="photo.jpg"
+                />
+              ),
+            },
+
+            {
+              title: "Callout Sections",
+
+              description:
+                "Sepia filter helps unify images in callout or feature sections.",
+
+              code: `<div class="w-full h-48 sepia bg-cover" style="background-image: url('feature.jpg');"></div>`,
+
+              preview: (
+                <div
+                  className="w-full h-48 sepia bg-cover"
+                  style={{ backgroundImage: "url('feature.jpg')" }}
+                ></div>
+              ),
+            },
+
+            {
+              title: "Blog Thumbnails",
+
+              description:
+                "Apply subtle sepia to thumbnails for a consistent blog aesthetic.",
+
+              code: `<img class="w-48 h-32 sepia" src="blog-thumbnail.jpg"/>`,
+
+              preview: (
+                <img className="w-48 h-32 sepia" src="blog-thumbnail.jpg" />
+              ),
+            },
+
+            {
+              title: "Retro UI Buttons",
+
+              description:
+                "Add sepia to button backgrounds or icons to achieve vintage visual cues.",
+
+              code: `<button class="px-4 py-2 bg-blue-500 sepia text-white rounded">Click Me</button>`,
+
+              preview: (
+                <button className="px-4 py-2 bg-blue-500 sepia text-white rounded">
+                  Click Me
+                </button>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Overusing Sepia",
+
+              reason:
+                "Too much sepia can make content look muddy and reduce contrast.",
+
+              example: `<img class="sepia sepia" src="image.jpg"/>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Combining with Conflicting Filters",
+
+              reason:
+                "Applying sepia with extreme saturation or hue-rotate may produce unexpected colors.",
+
+              example: `<img class="sepia saturate-200 hue-rotate-90" src="image.jpg"/>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Applying to Text",
+
+              reason:
+                "Sepia is primarily for images; applying it to text can reduce legibility.",
+
+              example: `<p class="sepia">Hello World</p>`,
+
+              level: "info",
+            },
+
+            {
+              title: "Ignoring Dark Mode Context",
+
+              reason:
+                "Sepia on dark backgrounds may make content appear washed out.",
+
+              example: `<img class="sepia" src="dark-bg.jpg"/>`,
+
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine Filters:",
+              text: "Layer sepia with brightness, contrast, or grayscale for nuanced effects.",
+            },
+
+            {
+              bold: "Transitions:",
+              text: "Use `transition` utilities to animate sepia changes smoothly.",
+            },
+
+            {
+              bold: "Use Sparingly:",
+              text: "Apply sepia selectively to maintain readability and focus.",
+            },
+
+            {
+              bold: "Responsive Control:",
+              text: "Apply different sepia levels for mobile vs desktop with responsive variants.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["layout", "flex"],
+
+    title: "Flex",
+
+    description:
+      "Control the flexible layout behavior of containers and their children. Flex utilities enable responsive, adaptive alignment and distribution of items along a single axis, ideal for navigation bars, cards, and complex UI components.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Flex",
+
+          description:
+            "Flex utilities control how elements are laid out in a flexible container, distributing space and aligning items efficiently along a main axis. They are essential for building responsive and adaptive interfaces without relying on floats or manual positioning.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Flexible Box",
+
+          description:
+            "Flexbox acts like a dynamic row or column where items grow, shrink, and wrap based on available space. Containers define the axis and alignment, while children respond proportionally, allowing predictable layouts even with varying content sizes.",
+
+          features: [
+            "Responsive alignment and distribution",
+
+            "Supports wrapping and direction changes",
+
+            "Child items can grow and shrink",
+
+            "Simplifies vertical and horizontal centering",
+
+            "Compatible with nested flex containers",
+          ],
+
+          layerAssignment:
+            "Layout Layer - Directly controls element positioning",
+
+          browserBehavior:
+            "Maps directly to the CSS `display: flex` property and related flex properties (`flex-direction`, `justify-content`, `align-items`, `flex-wrap`).",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "flex", desc: "Applies `display: flex` to container" },
+
+            {
+              cls: "inline-flex",
+              desc: "Applies `display: inline-flex` to container",
+            },
+
+            { cls: "flex-row", desc: "Main axis horizontal (default)" },
+
+            { cls: "flex-row-reverse", desc: "Reverse horizontal axis" },
+
+            { cls: "flex-col", desc: "Main axis vertical" },
+
+            { cls: "flex-col-reverse", desc: "Reverse vertical axis" },
+
+            {
+              cls: "flex-wrap",
+              desc: "Allow items to wrap onto multiple lines",
+            },
+
+            { cls: "flex-wrap-reverse", desc: "Wrap items in reverse order" },
+
+            { cls: "flex-nowrap", desc: "Prevent wrapping of flex items" },
+
+            {
+              cls: "items-start",
+              desc: "Align items at the start of cross axis",
+            },
+
+            {
+              cls: "items-center",
+              desc: "Align items in the center of cross axis",
+            },
+
+            { cls: "items-end", desc: "Align items at the end of cross axis" },
+
+            { cls: "items-baseline", desc: "Align items along baseline" },
+
+            { cls: "items-stretch", desc: "Stretch items to fill cross axis" },
+
+            { cls: "justify-start", desc: "Align items at start of main axis" },
+
+            {
+              cls: "justify-center",
+              desc: "Align items in center of main axis",
+            },
+
+            { cls: "justify-end", desc: "Align items at end of main axis" },
+
+            {
+              cls: "justify-between",
+              desc: "Distribute items evenly with space between",
+            },
+
+            {
+              cls: "justify-around",
+              desc: "Distribute items evenly with space around",
+            },
+
+            {
+              cls: "justify-evenly",
+              desc: "Distribute items with equal spacing",
+            },
+
+            {
+              cls: "flex-1",
+              desc: "Allow an item to grow and fill available space",
+            },
+
+            { cls: "flex-auto", desc: "Item grows and shrinks as needed" },
+
+            { cls: "flex-initial", desc: "Item maintains its initial size" },
+
+            { cls: "flex-none", desc: "Item does not grow or shrink" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Flex Playground",
+
+          description:
+            "Experiment with flex directions, alignment, and growth. Observe how changing `flex-wrap`, `justify-*`, or `items-*` affects layout behavior.",
+
+          options: [
+            "flex flex-row justify-start items-center",
+
+            "flex flex-col justify-center items-start",
+
+            "flex flex-row-reverse justify-between items-end",
+
+            "flex flex-col-reverse flex-wrap justify-evenly items-stretch",
+          ],
+
+          defaultValue: "flex flex-row justify-start items-center",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} gap-4 p-4 border border-slate-200">  <div class="bg-blue-500 w-16 h-16"></div>  <div class="bg-red-500 w-16 h-16"></div>  <div class="bg-green-500 w-16 h-16"></div></div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="flex gap-4">
+                {" "}
+                <div className="bg-blue-500 w-16 h-16"></div>{" "}
+                <div className="bg-red-500 w-16 h-16"></div>{" "}
+                <div className="bg-green-500 w-16 h-16"></div>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken UI",
+
+          description:
+            "A card layout is stacking vertically when it should be horizontal. Apply the correct flex class to align items in a row.",
+
+          codeSnippet:
+            '<div class="... {input} gap-4">  <div>Item 1</div>  <div>Item 2</div>  <div>Item 3</div></div>',
+
+          options: ["flex-col", "flex-row", "flex-wrap", "inline-flex"],
+
+          correctOption: "flex-row",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div className={`transition-all duration-500 ${userClass} gap-4`}>
+                {" "}
+                <div className="bg-blue-500 w-16 h-16"></div>{" "}
+                <div className="bg-red-500 w-16 h-16"></div>{" "}
+                <div className="bg-green-500 w-16 h-16"></div>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Horizontal Navigation",
+              description:
+                "Using `flex` to arrange nav links in a row with spacing.",
+              code: `<nav class="flex flex-row gap-4">...</nav>`,
+              preview: (
+                <div className="flex flex-row gap-4">
+                  <span>Home</span>
+                  <span>About</span>
+                  <span>Contact</span>
+                </div>
+              ),
+            },
+
+            {
+              title: "Vertical Sidebar",
+              description:
+                "Stacking sidebar items using `flex-col` for vertical layout.",
+              code: `<aside class="flex flex-col gap-2">...</aside>`,
+              preview: (
+                <div className="flex flex-col gap-2">
+                  <div>Dashboard</div>
+                  <div>Settings</div>
+                  <div>Profile</div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Centered Card",
+              description:
+                "Centering content with `justify-center` and `items-center`.",
+              code: `<div class="flex justify-center items-center h-64">Card</div>`,
+              preview: (
+                <div className="flex justify-center items-center h-32 bg-slate-200">
+                  Card
+                </div>
+              ),
+            },
+
+            {
+              title: "Responsive Wrapping",
+              description:
+                "Wrapping items onto multiple lines with `flex-wrap`.",
+              code: `<div class="flex flex-wrap gap-2">...</div>`,
+              preview: (
+                <div className="flex flex-wrap gap-2">
+                  <div className="w-24 h-24 bg-blue-500"></div>
+                  <div className="w-24 h-24 bg-red-500"></div>
+                  <div className="w-24 h-24 bg-green-500"></div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Reverse Row",
+              description: "Reversing the main axis with `flex-row-reverse`.",
+              code: `<div class="flex flex-row-reverse gap-4">...</div>`,
+              preview: (
+                <div className="flex flex-row-reverse gap-4">
+                  <div>A</div>
+                  <div>B</div>
+                  <div>C</div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Equal Growth",
+              description: "Using `flex-1` to let children grow evenly.",
+              code: `<div class="flex gap-2">  <div class="flex-1">A</div>  <div class="flex-1">B</div>  <div class="flex-1">C</div></div>`,
+              preview: (
+                <div className="flex gap-2">
+                  <div className="flex-1 bg-blue-400 h-12"></div>
+                  <div className="flex-1 bg-red-400 h-12"></div>
+                  <div className="flex-1 bg-green-400 h-12"></div>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Forgetting `flex` on container",
+              reason:
+                "Children won't behave as flex items unless parent has `display: flex`.",
+              example: `<div class="justify-center"><div>Item</div></div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Mixing flex directions incorrectly",
+              reason:
+                "Using `flex-row` with `flex-wrap` may not produce expected layout if misaligned.",
+              example: `<div class="flex flex-col flex-wrap">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Not setting size for flex children",
+              reason:
+                "Flex items may collapse or overflow without proper width/height or `flex-*` classes.",
+              example: `<div class="flex"><div></div></div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overusing `justify-*` and `items-*`",
+              reason:
+                "Conflicting alignment utilities can produce unexpected layout results.",
+              example: `<div class="flex justify-center items-start items-end">...</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Gap:",
+              text: "Prefer `gap-*` utilities instead of margin for spacing between items.",
+            },
+
+            {
+              bold: "Combine Responsively:",
+              text: "Use responsive prefixes (`sm:flex-row`, `md:flex-col`) to adjust layout per breakpoint.",
+            },
+
+            {
+              bold: "Nested Flex:",
+              text: "Nested flex containers can be used for complex layouts but keep hierarchy clear.",
+            },
+
+            {
+              bold: "Avoid Inline Styles:",
+              text: "Use Tailwind classes over inline flex styles for consistency and maintainability.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["grid", "grid-column"],
+
+    title: "Grid Column",
+
+    description:
+      "Control how many columns an element spans in a CSS grid. Useful for defining layout structure, responsive grids, and alignment of content across multiple breakpoints. Tailwind provides a set of predefined span classes to simplify this process.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Grid Column",
+
+          description:
+            "Control how many columns an element spans in a CSS grid. This is essential for creating responsive layouts and aligning content consistently across different screen sizes.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Column Spanning Analogy",
+
+          description:
+            "Think of the grid as a table of columns. Each element can stretch across one or more columns to create flexible layouts without manual CSS calculations.",
+
+          features: [
+            "Responsive support with breakpoint prefixes",
+
+            "Precise column span control",
+
+            "Supports auto-placement and grid gaps",
+          ],
+
+          layerAssignment: "Layout",
+
+          browserBehavior: "Maps directly to the CSS `grid-column` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "col-span-1", desc: "Span 1 column" },
+
+            { cls: "col-span-2", desc: "Span 2 columns" },
+
+            { cls: "col-span-3", desc: "Span 3 columns" },
+
+            { cls: "col-span-4", desc: "Span 4 columns" },
+
+            { cls: "col-span-5", desc: "Span 5 columns" },
+
+            { cls: "col-span-6", desc: "Span 6 columns" },
+
+            { cls: "col-span-7", desc: "Span 7 columns" },
+
+            { cls: "col-span-8", desc: "Span 8 columns" },
+
+            { cls: "col-span-9", desc: "Span 9 columns" },
+
+            { cls: "col-span-10", desc: "Span 10 columns" },
+
+            { cls: "col-span-11", desc: "Span 11 columns" },
+
+            { cls: "col-span-12", desc: "Span 12 columns" },
+
+            { cls: "col-start-1", desc: "Start at column 1" },
+
+            { cls: "col-start-2", desc: "Start at column 2" },
+
+            { cls: "col-start-3", desc: "Start at column 3" },
+
+            { cls: "col-start-4", desc: "Start at column 4" },
+
+            { cls: "col-start-5", desc: "Start at column 5" },
+
+            { cls: "col-start-6", desc: "Start at column 6" },
+
+            { cls: "col-start-7", desc: "Start at column 7" },
+
+            { cls: "col-start-8", desc: "Start at column 8" },
+
+            { cls: "col-start-9", desc: "Start at column 9" },
+
+            { cls: "col-start-10", desc: "Start at column 10" },
+
+            { cls: "col-start-11", desc: "Start at column 11" },
+
+            { cls: "col-start-12", desc: "Start at column 12" },
+
+            { cls: "col-start-auto", desc: "Automatic column start" },
+
+            { cls: "col-end-1", desc: "End at column 1" },
+
+            { cls: "col-end-2", desc: "End at column 2" },
+
+            { cls: "col-end-3", desc: "End at column 3" },
+
+            { cls: "col-end-4", desc: "End at column 4" },
+
+            { cls: "col-end-5", desc: "End at column 5" },
+
+            { cls: "col-end-6", desc: "End at column 6" },
+
+            { cls: "col-end-7", desc: "End at column 7" },
+
+            { cls: "col-end-8", desc: "End at column 8" },
+
+            { cls: "col-end-9", desc: "End at column 9" },
+
+            { cls: "col-end-10", desc: "End at column 10" },
+
+            { cls: "col-end-11", desc: "End at column 11" },
+
+            { cls: "col-end-12", desc: "End at column 12" },
+
+            { cls: "col-end-auto", desc: "Automatic column end" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Grid Column Playground",
+
+          description:
+            "Experiment with different column spans and start/end positions. Observe how content adjusts within the grid container.",
+
+          options: ["col-span-1", "col-span-6", "col-span-12", "col-start-3"],
+
+          defaultValue: "col-span-6",
+
+          buildMarkup: (value: string) =>
+            `<div class="grid grid-cols-12 gap-4"><div class="${value} bg-blue-500 text-white p-4">Content</div></div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg transition-all duration-300 grid grid-cols-12 gap-4`}
+            >
+              <div
+                className={`${value} bg-blue-500 text-white p-4 rounded text-center`}
+              >
+                Preview Content
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Column Layout",
+
+          description:
+            "An element is overlapping adjacent columns because it does not span enough columns. Adjust the class to fix the layout.",
+
+          codeSnippet:
+            '<div class="col-span-1 {input} bg-blue-400 p-4">Box</div>',
+
+          options: ["col-span-1", "col-span-3", "col-span-6", "col-span-12"],
+
+          correctOption: "col-span-6",
+
+          renderPreview: (userClass: string) => (
+            <div className="grid grid-cols-12 gap-4 w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg p-4">
+              <div
+                className={`${userClass} bg-blue-400 p-4 rounded text-center transition-all duration-500`}
+              >
+                Target Element
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Two-Column Layout",
+              description: "A 12-column grid split evenly into two elements.",
+              code: `<div class="grid grid-cols-12 gap-4"><div class="col-span-6">Left</div><div class="col-span-6">Right</div></div>`,
+              preview: (
+                <div className="grid grid-cols-12 gap-4">
+                  <div className="col-span-6 bg-blue-200 p-2">Left</div>
+                  <div className="col-span-6 bg-green-200 p-2">Right</div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Sidebar Layout",
+              description: "Sidebar spans 3 columns, main content 9 columns.",
+              code: `<div class="grid grid-cols-12 gap-4"><div class="col-span-3">Sidebar</div><div class="col-span-9">Content</div></div>`,
+              preview: (
+                <div className="grid grid-cols-12 gap-4">
+                  <div className="col-span-3 bg-blue-200 p-2">Sidebar</div>
+                  <div className="col-span-9 bg-green-200 p-2">Content</div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Full Width Header",
+              description: "Header spans all 12 columns.",
+              code: `<div class="grid grid-cols-12 gap-4"><div class="col-span-12">Header</div></div>`,
+              preview: (
+                <div className="grid grid-cols-12 gap-4">
+                  <div className="col-span-12 bg-purple-200 p-2">Header</div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Mixed Span Layout",
+              description:
+                "A mix of different spans to create varied content blocks.",
+              code: `<div class="grid grid-cols-12 gap-4"><div class="col-span-4">A</div><div class="col-span-8">B</div></div>`,
+              preview: (
+                <div className="grid grid-cols-12 gap-4">
+                  <div className="col-span-4 bg-blue-200 p-2">A</div>
+                  <div className="col-span-8 bg-green-200 p-2">B</div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Nested Grid",
+              description: "Nested grid inside a column to manage sub-layouts.",
+              code: `<div class="grid grid-cols-12 gap-4"><div class="col-span-6 grid grid-cols-6 gap-2"><div class="col-span-3">Nested</div></div></div>`,
+              preview: (
+                <div className="grid grid-cols-12 gap-4">
+                  <div className="col-span-6 grid grid-cols-6 gap-2">
+                    <div className="col-span-3 bg-blue-200 p-2">Nested</div>
+                  </div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Responsive Grid Columns",
+              description: "Adjust column spans at different breakpoints.",
+              code: `<div class="grid grid-cols-12 gap-4"><div class="col-span-12 md:col-span-6 lg:col-span-4">Responsive</div></div>`,
+              preview: (
+                <div className="grid grid-cols-12 gap-4">
+                  <div className="col-span-12 md:col-span-6 lg:col-span-4 bg-blue-200 p-2">
+                    Responsive
+                  </div>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Incorrect Column Span",
+              reason:
+                "Element spans fewer columns than needed, breaking layout.",
+              example: `<div class="col-span-1">Content</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Gaps",
+              reason:
+                "Forgetting to include `gap-x`/`gap-y` can make layouts visually cramped.",
+              example: `<div class="grid grid-cols-12"><div class="col-span-6">A</div><div class="col-span-6">B</div></div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Non-Responsive Spans",
+              reason:
+                "Not using responsive prefixes can break layout on small screens.",
+              example: `<div class="col-span-6">Content</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overlapping Columns",
+              reason:
+                "Start and end classes conflict causing elements to overlap.",
+              example: `<div class="col-start-2 col-span-12">Content</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Breakpoints:",
+              text: "Combine `sm:col-span-*` and `lg:col-span-*` for responsive grids.",
+            },
+
+            {
+              bold: "Leverage auto-placement:",
+              text: "Use `col-start-auto` to let grid place elements automatically.",
+            },
+
+            {
+              bold: "Combine with Gap Utilities:",
+              text: "Always pair with `gap-x-*` or `gap-y-*` to control spacing.",
+            },
+
+            {
+              bold: "Nested Grids:",
+              text: "Nested grids can create complex layouts without extra wrappers.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["grid", "grid-row"],
+
+    title: "Grid Row",
+
+    description:
+      "Control the vertical placement and span of grid items within a grid container. Useful for defining layouts that require precise row alignment or multi-row spanning, enhancing modularity and responsiveness.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Grid Row",
+
+          description:
+            "Control the vertical placement and span of items inside a CSS grid. Grid row utilities allow for explicit positioning, making layouts predictable and flexible for complex designs.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Vertical Grid Lines",
+
+          description:
+            "Grid row utilities set the CSS `grid-row-start` and `grid-row-end` properties. Think of rows as horizontal bands; these utilities let you place items precisely across these bands.",
+
+          features: [
+            "Supports responsive row placement",
+
+            "Enables multi-row spanning",
+
+            "Works with auto and fixed row sizes",
+
+            "Integrates with column placement utilities",
+
+            "Predictable layout behavior across browsers",
+          ],
+
+          layerAssignment: "Layout Layer - Directly affects grid placement",
+
+          browserBehavior:
+            "Maps directly to CSS `grid-row-start`, `grid-row-end`, and `grid-row` shorthand properties.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "row-auto",
+              desc: "Automatic row placement based on source order",
+            },
+
+            { cls: "row-span-1", desc: "Item spans 1 row" },
+
+            { cls: "row-span-2", desc: "Item spans 2 rows" },
+
+            { cls: "row-span-3", desc: "Item spans 3 rows" },
+
+            { cls: "row-span-4", desc: "Item spans 4 rows" },
+
+            { cls: "row-span-5", desc: "Item spans 5 rows" },
+
+            { cls: "row-span-6", desc: "Item spans 6 rows" },
+
+            { cls: "row-start-1", desc: "Item starts at row line 1" },
+
+            { cls: "row-start-2", desc: "Item starts at row line 2" },
+
+            { cls: "row-start-3", desc: "Item starts at row line 3" },
+
+            { cls: "row-start-4", desc: "Item starts at row line 4" },
+
+            { cls: "row-start-5", desc: "Item starts at row line 5" },
+
+            { cls: "row-start-6", desc: "Item starts at row line 6" },
+
+            { cls: "row-start-7", desc: "Item starts at row line 7" },
+
+            { cls: "row-end-1", desc: "Item ends at row line 1" },
+
+            { cls: "row-end-2", desc: "Item ends at row line 2" },
+
+            { cls: "row-end-3", desc: "Item ends at row line 3" },
+
+            { cls: "row-end-4", desc: "Item ends at row line 4" },
+
+            { cls: "row-end-5", desc: "Item ends at row line 5" },
+
+            { cls: "row-end-6", desc: "Item ends at row line 6" },
+
+            { cls: "row-end-7", desc: "Item ends at row line 7" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Grid Row Playground",
+
+          description:
+            "Experiment with row placement and spanning to see how items align within a grid.",
+
+          options: ["row-auto", "row-span-2", "row-span-3", "row-start-2"],
+
+          defaultValue: "row-auto",
+
+          buildMarkup: (value: string) =>
+            `<div class="grid grid-rows-6 gap-2"><div class="${value} bg-blue-500 text-white p-2">Item</div></div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`grid grid-rows-6 gap-2 p-8 bg-slate-50 dark:bg-slate-950 rounded-lg`}
+            >
+              <div
+                className={`${value} bg-blue-500 text-white p-4 rounded text-center`}
+              >
+                Preview Item
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken Grid",
+
+          description:
+            "An item is overlapping other rows. Adjust its placement using the correct row utility.",
+
+          codeSnippet:
+            '<div class="grid grid-rows-3 gap-2"><div class="{input} bg-red-500 p-2">Item</div></div>',
+
+          options: ["row-span-1", "row-span-3", "row-start-2", "row-auto"],
+
+          correctOption: "row-span-3",
+
+          renderPreview: (userClass: string) => (
+            <div className="grid grid-rows-3 gap-2 w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg p-4">
+              <div
+                className={`${userClass} bg-red-500 p-4 text-white text-center`}
+              >
+                Target Item
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Full Height Card",
+              description: "Make a card span multiple rows for emphasis.",
+              code: `<div class="grid grid-rows-4 gap-2"><div class="row-span-2 bg-blue-500 p-2">Card</div></div>`,
+              preview: (
+                <div className="grid grid-rows-4 gap-2">
+                  <div className="row-span-2 bg-blue-500 p-4 text-white text-center">
+                    Card
+                  </div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Sidebar Layout",
+              description: "Place sidebar spanning two rows.",
+              code: `<div class="grid grid-rows-3 gap-2"><div class="row-span-2 bg-gray-700 p-2">Sidebar</div></div>`,
+              preview: (
+                <div className="grid grid-rows-3 gap-2">
+                  <div className="row-span-2 bg-gray-700 p-4 text-white text-center">
+                    Sidebar
+                  </div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Header Alignment",
+              description: "Start content at row 2 for spacing.",
+              code: `<div class="grid grid-rows-4 gap-2"><div class="row-start-2 bg-green-500 p-2">Header</div></div>`,
+              preview: (
+                <div className="grid grid-rows-4 gap-2">
+                  <div className="row-start-2 bg-green-500 p-4 text-white text-center">
+                    Header
+                  </div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Gallery Item",
+              description: "Span an image across three rows for prominence.",
+              code: `<div class="grid grid-rows-6 gap-2"><div class="row-span-3 bg-purple-500 p-2">Image</div></div>`,
+              preview: (
+                <div className="grid grid-rows-6 gap-2">
+                  <div className="row-span-3 bg-purple-500 p-4 text-white text-center">
+                    Image
+                  </div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Form Layout",
+              description: "Align input fields starting from row 2.",
+              code: `<div class="grid grid-rows-5 gap-2"><input class="row-start-2 p-2 border" /></div>`,
+              preview: (
+                <div className="grid grid-rows-5 gap-2">
+                  <input
+                    className="row-start-2 p-2 border"
+                    placeholder="Input Field"
+                  />
+                </div>
+              ),
+            },
+
+            {
+              title: "Dashboard Widget",
+              description: "Span a widget across multiple rows to fill space.",
+              code: `<div class="grid grid-rows-6 gap-2"><div class="row-span-4 bg-yellow-500 p-2">Widget</div></div>`,
+              preview: (
+                <div className="grid grid-rows-6 gap-2">
+                  <div className="row-span-4 bg-yellow-500 p-4 text-white text-center">
+                    Widget
+                  </div>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Overlapping Items",
+              reason: "Incorrect row span can cause visual overlap.",
+              example: `<div class="row-span-1">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Grid Definition",
+              reason: "Row utilities have no effect without a parent grid.",
+              example: `<div class="row-span-2">...</div>`,
+              level: "critical",
+            },
+
+            {
+              title: "Exceeding Row Lines",
+              reason: "Spanning beyond defined rows may collapse layout.",
+              example: `<div class="row-span-10">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Mixing Auto and Explicit",
+              reason: "Auto-placement conflicts with manual row-start/row-end.",
+              example: `<div class="row-auto row-start-2">...</div>`,
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Explicit Placement:",
+              text: "Combine row-start with row-span for precise control.",
+            },
+
+            {
+              bold: "Responsive Rows:",
+              text: "Apply different row spans at different breakpoints.",
+            },
+
+            {
+              bold: "Avoid Overlaps:",
+              text: "Ensure spans do not exceed the number of defined rows.",
+            },
+
+            {
+              bold: "Integrate with Columns:",
+              text: "Pair with grid-column utilities for complete grid layout.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["grid", "grid-template-columns"],
+
+    title: "Grid Template Columns",
+
+    description:
+      "Define the number and width of columns in a grid container. This utility is essential for creating responsive layouts and complex component arrangements efficiently.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Grid Template Columns",
+
+          description:
+            "Define the number and width of columns in a grid container. Use these utilities to control layout structure, spacing, and alignment in modern web interfaces.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Column Blueprint",
+
+          description:
+            "Grid template column utilities set the CSS `grid-template-columns` property. They allow developers to define fixed, fractional, or auto-sizing columns, giving precise control over the grid layout.",
+
+          features: [
+            "Responsive support with breakpoints",
+
+            "Fractional and fixed sizing options",
+
+            "Supports auto and minmax patterns",
+
+            "Integrates with gap and row utilities",
+
+            "Critical for structured layouts",
+          ],
+
+          layerAssignment:
+            "Layout Layer - Defines structure of grid containers",
+
+          browserBehavior:
+            "Maps directly to the CSS `grid-template-columns` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "grid-cols-1", desc: "Single column layout" },
+
+            { cls: "grid-cols-2", desc: "Two equal-width columns" },
+
+            { cls: "grid-cols-3", desc: "Three equal-width columns" },
+
+            { cls: "grid-cols-4", desc: "Four equal-width columns" },
+
+            { cls: "grid-cols-5", desc: "Five equal-width columns" },
+
+            { cls: "grid-cols-6", desc: "Six equal-width columns" },
+
+            { cls: "grid-cols-7", desc: "Seven equal-width columns" },
+
+            { cls: "grid-cols-8", desc: "Eight equal-width columns" },
+
+            { cls: "grid-cols-9", desc: "Nine equal-width columns" },
+
+            { cls: "grid-cols-10", desc: "Ten equal-width columns" },
+
+            { cls: "grid-cols-11", desc: "Eleven equal-width columns" },
+
+            { cls: "grid-cols-12", desc: "Twelve equal-width columns" },
+
+            { cls: "col-span-1", desc: "Element spans one column" },
+
+            { cls: "col-span-2", desc: "Element spans two columns" },
+
+            { cls: "col-span-3", desc: "Element spans three columns" },
+
+            { cls: "col-span-4", desc: "Element spans four columns" },
+
+            { cls: "col-span-5", desc: "Element spans five columns" },
+
+            { cls: "col-span-6", desc: "Element spans six columns" },
+
+            { cls: "col-span-7", desc: "Element spans seven columns" },
+
+            { cls: "col-span-8", desc: "Element spans eight columns" },
+
+            { cls: "col-span-9", desc: "Element spans nine columns" },
+
+            { cls: "col-span-10", desc: "Element spans ten columns" },
+
+            { cls: "col-span-11", desc: "Element spans eleven columns" },
+
+            { cls: "col-span-12", desc: "Element spans twelve columns" },
+
+            {
+              cls: "auto-cols-auto",
+              desc: "Columns sized automatically based on content",
+            },
+
+            {
+              cls: "auto-cols-min",
+              desc: "Columns sized to minimum content width",
+            },
+
+            {
+              cls: "auto-cols-max",
+              desc: "Columns sized to maximum content width",
+            },
+
+            { cls: "auto-cols-fr", desc: "Columns sized fractionally" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Grid Columns Playground",
+
+          description:
+            "Test different column configurations and spans. Observe how changing column counts affects layout responsiveness.",
+
+          options: ["grid-cols-1", "grid-cols-3", "grid-cols-6", "col-span-2"],
+
+          defaultValue: "grid-cols-3",
+
+          buildMarkup: (value: string) =>
+            `<div class="grid ${value} gap-4"><div class='bg-blue-200 p-4'>1</div><div class='bg-blue-300 p-4'>2</div><div class='bg-blue-400 p-4'>3</div></div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg transition-all duration-300 grid ${value} gap-4`}
+            >
+              {" "}
+              <div className="bg-blue-200 p-4 rounded text-center">1</div>{" "}
+              <div className="bg-blue-300 p-4 rounded text-center">2</div>{" "}
+              <div className="bg-blue-400 p-4 rounded text-center">3</div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Grid Layout",
+
+          description:
+            "A three-item grid is rendering as a single column on desktop. Adjust the grid column classes to make it display as three columns.",
+
+          codeSnippet: `<div class="grid {input} gap-4">  <div>1</div><div>2</div><div>3</div></div>`,
+
+          options: ["grid-cols-1", "grid-cols-2", "grid-cols-3", "grid-cols-4"],
+
+          correctOption: "grid-cols-3",
+
+          renderPreview: (userClass: string) => (
+            <div
+              className={`w-full h-64 p-8 bg-slate-100 dark:bg-slate-900 rounded-lg grid ${userClass} gap-4`}
+            >
+              {" "}
+              <div className="bg-blue-200 p-4 text-center rounded">1</div>{" "}
+              <div className="bg-blue-300 p-4 text-center rounded">2</div>{" "}
+              <div className="bg-blue-400 p-4 text-center rounded">3</div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Three Column Card Layout",
+
+              description:
+                "Cards distributed evenly in three equal-width columns for dashboard interfaces.",
+
+              code: `<div class="grid grid-cols-3 gap-4"><div>Card 1</div><div>Card 2</div><div>Card 3</div></div>`,
+
+              preview: (
+                <div className="grid grid-cols-3 gap-4 p-4">
+                  <div className="bg-blue-200 p-4 rounded">Card 1</div>
+                  <div className="bg-blue-300 p-4 rounded">Card 2</div>
+                  <div className="bg-blue-400 p-4 rounded">Card 3</div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Two Column Blog Layout",
+
+              description:
+                "Main content and sidebar displayed in a two-column grid.",
+
+              code: `<div class="grid grid-cols-2 gap-6"><div>Main</div><div>Sidebar</div></div>`,
+
+              preview: (
+                <div className="grid grid-cols-2 gap-6 p-4">
+                  <div className="bg-blue-200 p-4 rounded">Main</div>
+                  <div className="bg-blue-300 p-4 rounded">Sidebar</div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Responsive Grid",
+
+              description:
+                "Grid adapts from one to four columns based on viewport width.",
+
+              code: `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"><div>1</div><div>2</div><div>3</div><div>4</div></div>`,
+
+              preview: (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
+                  <div className="bg-blue-200 p-4 rounded">1</div>
+                  <div className="bg-blue-300 p-4 rounded">2</div>
+                  <div className="bg-blue-400 p-4 rounded">3</div>
+                  <div className="bg-blue-500 p-4 rounded">4</div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Nested Grid Layout",
+
+              description:
+                "Use a grid inside a grid to create complex component layouts.",
+
+              code: `<div class="grid grid-cols-2 gap-4"><div class="grid grid-cols-2 gap-2"><div>A</div><div>B</div></div><div>C</div></div>`,
+
+              preview: (
+                <div className="grid grid-cols-2 gap-4 p-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-blue-200 p-2 rounded">A</div>
+                    <div className="bg-blue-300 p-2 rounded">B</div>
+                  </div>
+                  <div className="bg-blue-400 p-4 rounded">C</div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Fractional Column Widths",
+
+              description:
+                "Columns with different fractional widths for flexible layouts.",
+
+              code: `<div class="grid grid-cols-[2fr_1fr] gap-4"><div>Wide</div><div>Narrow</div></div>`,
+
+              preview: (
+                <div className="grid grid-cols-[2fr_1fr] gap-4 p-4">
+                  <div className="bg-blue-200 p-4 rounded">Wide</div>
+                  <div className="bg-blue-300 p-4 rounded">Narrow</div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Auto-Fit Columns",
+
+              description:
+                "Automatically generate as many columns as fit in the container using `auto-fit`.",
+
+              code: `<div class="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-4"><div>1</div><div>2</div><div>3</div></div>`,
+
+              preview: (
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-4 p-4">
+                  <div className="bg-blue-200 p-4 rounded">1</div>
+                  <div className="bg-blue-300 p-4 rounded">2</div>
+                  <div className="bg-blue-400 p-4 rounded">3</div>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Not Setting Columns Explicitly",
+              reason:
+                "Grid defaults to one column, causing unexpected stacking.",
+              example: `<div class="grid">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Gaps",
+              reason: "Elements touch without spacing if `gap` is not applied.",
+              example: `<div class="grid grid-cols-3">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overusing Fixed Columns",
+              reason:
+                "Fixed columns prevent responsiveness. Prefer fractional units or auto-fit.",
+              example: `<div class="grid grid-cols-12">...</div>`,
+              level: "info",
+            },
+
+            {
+              title: "Nested Grids Without Care",
+              reason:
+                "Nested grids can collapse spacing if gaps aren't applied consistently.",
+              example: `<div class="grid grid-cols-2"><div class="grid">...</div></div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with Gap:",
+              text: "Always pair grid-cols with `gap-x-*` and `gap-y-*` for proper spacing.",
+            },
+
+            {
+              bold: "Responsive Columns:",
+              text: "Use breakpoint prefixes to adjust column count on different screens.",
+            },
+
+            {
+              bold: "Fractional Units:",
+              text: "Use `fr` units for flexible layouts instead of fixed pixel widths.",
+            },
+
+            {
+              bold: "Auto Columns:",
+              text: "Leverage `auto-cols-*` for content-driven column sizing.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["grid", "grid-template-rows"],
+
+    title: "Grid Template Rows",
+
+    description:
+      "Define explicit row structure within a CSS grid container. Use row utilities to control the number and size of rows, enabling precise layout alignment and spacing. Ideal for complex grid layouts and responsive designs.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Grid Template Rows",
+
+          description:
+            "Control the number and sizing of rows in a CSS grid container. This utility allows precise alignment and spacing of content across multiple rows for responsive layouts.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Row Blueprint",
+
+          description:
+            "Think of a grid container as a blueprint. Grid row utilities define horizontal bands where elements can be placed, controlling both quantity and relative sizing.",
+
+          features: [
+            "Responsive support with modifiers",
+
+            "Supports fixed, fractional, and auto sizing",
+
+            "Aligns child items vertically",
+
+            "Works with nested grids",
+
+            "Facilitates consistent spacing and layout",
+          ],
+
+          layerAssignment: "Layout",
+
+          browserBehavior:
+            "Maps directly to the CSS `grid-template-rows` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "grid-rows-1", desc: "Single row" },
+
+            { cls: "grid-rows-2", desc: "Two equal rows" },
+
+            { cls: "grid-rows-3", desc: "Three equal rows" },
+
+            { cls: "grid-rows-4", desc: "Four equal rows" },
+
+            { cls: "grid-rows-5", desc: "Five equal rows" },
+
+            { cls: "grid-rows-6", desc: "Six equal rows" },
+
+            { cls: "auto-rows-auto", desc: "Rows sized by content" },
+
+            { cls: "auto-rows-min", desc: "Minimum content size" },
+
+            { cls: "auto-rows-max", desc: "Maximum content size" },
+
+            { cls: "auto-rows-fr", desc: "Fractional row sizing" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Grid Row Playground",
+
+          description:
+            "Experiment with different row counts and sizing modes to understand how content flows and aligns vertically.",
+
+          options: [
+            "grid-rows-1",
+            "grid-rows-2",
+            "grid-rows-3",
+            "auto-rows-auto",
+          ],
+
+          defaultValue: "grid-rows-3",
+
+          buildMarkup: (value: string) =>
+            `<div class="grid ${value} gap-2"><div class='bg-blue-500 h-12'></div><div class='bg-green-500 h-12'></div><div class='bg-red-500 h-12'></div></div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg transition-all duration-300 grid ${value} gap-2`}
+            >
+              {" "}
+              <div className="bg-blue-500 h-12 rounded" />{" "}
+              <div className="bg-green-500 h-12 rounded" />{" "}
+              <div className="bg-red-500 h-12 rounded" />{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix Uneven Rows",
+
+          description:
+            "The grid items are stacked too closely because the container has only one row. Adjust the utility to create three rows of equal height.",
+
+          codeSnippet: '<div class="grid ... {input} gap-2">...</div>',
+
+          options: [
+            "grid-rows-1",
+            "grid-rows-2",
+            "grid-rows-3",
+            "auto-rows-auto",
+          ],
+
+          correctOption: "grid-rows-3",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex flex-col gap-2 p-4">
+              <div className={`grid ${userClass} gap-2 h-full`}>
+                {" "}
+                <div className="bg-blue-500 rounded h-12" />{" "}
+                <div className="bg-green-500 rounded h-12" />{" "}
+                <div className="bg-red-500 rounded h-12" />{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Three-Row Layout",
+
+              description:
+                "Define three rows for a dashboard layout, with equal height for charts and tables.",
+
+              code: `<div class="grid grid-rows-3 gap-4">...</div>`,
+
+              preview: (
+                <div className="grid grid-rows-3 gap-4 p-4 bg-slate-50 rounded-lg">
+                  <div className="bg-blue-500 h-12" />
+                  <div className="bg-green-500 h-12" />
+                  <div className="bg-red-500 h-12" />
+                </div>
+              ),
+            },
+
+            {
+              title: "Header-Main-Footer",
+
+              description:
+                "Separate header, main, and footer sections using three rows.",
+
+              code: `<div class="grid grid-rows-3 gap-2">...</div>`,
+
+              preview: (
+                <div className="grid grid-rows-3 gap-2 p-4 bg-slate-50 rounded-lg">
+                  <div className="bg-blue-400 h-12">Header</div>
+                  <div className="bg-green-400 h-32">Main</div>
+                  <div className="bg-red-400 h-12">Footer</div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Auto-Sizing Rows",
+
+              description:
+                "Use `auto-rows-auto` to let rows expand based on content height.",
+
+              code: `<div class="grid auto-rows-auto gap-2">...</div>`,
+
+              preview: (
+                <div className="grid auto-rows-auto gap-2 p-4 bg-slate-50 rounded-lg">
+                  <div className="bg-blue-500 h-12">Short</div>
+                  <div className="bg-green-500 h-24">Tall</div>
+                  <div className="bg-red-500 h-16">Medium</div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Fractional Rows",
+
+              description:
+                "Distribute available height equally among rows using `auto-rows-fr`.",
+
+              code: `<div class="grid auto-rows-fr gap-2 h-64">...</div>`,
+
+              preview: (
+                <div className="grid auto-rows-fr gap-2 h-64 p-4 bg-slate-50 rounded-lg">
+                  <div className="bg-blue-500" />
+                  <div className="bg-green-500" />
+                  <div className="bg-red-500" />
+                </div>
+              ),
+            },
+
+            {
+              title: "Nested Grids",
+
+              description:
+                "Apply row utilities to nested grids for complex layout composition.",
+
+              code: `<div class="grid grid-rows-2 gap-2"><div class="grid grid-rows-2 gap-1">...</div></div>`,
+
+              preview: (
+                <div className="grid grid-rows-2 gap-2 p-4 bg-slate-50 rounded-lg">
+                  <div className="grid grid-rows-2 gap-1">
+                    <div className="bg-blue-500 h-12" />
+                    <div className="bg-green-500 h-12" />
+                  </div>
+                  <div className="bg-red-500 h-12" />
+                </div>
+              ),
+            },
+
+            {
+              title: "Responsive Row Control",
+
+              description:
+                "Adjust row counts at different breakpoints for responsive design.",
+
+              code: `<div class="grid grid-rows-2 md:grid-rows-4 gap-2">...</div>`,
+
+              preview: (
+                <div className="grid grid-rows-2 md:grid-rows-4 gap-2 p-4 bg-slate-50 rounded-lg">
+                  <div className="bg-blue-500 h-12" />
+                  <div className="bg-green-500 h-12" />
+                  <div className="bg-red-500 h-12" />
+                  <div className="bg-yellow-500 h-12" />
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Not Defining Rows",
+              reason:
+                "Grid container defaults to a single row, causing layout collapse.",
+              example: `<div class="grid">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overlapping Content",
+              reason: "Insufficient rows can cause content to overlap.",
+              example: `<div class="grid grid-rows-1">...</div>`,
+              level: "critical",
+            },
+
+            {
+              title: "Ignoring Auto-Sizing",
+              reason:
+                "Using fixed rows prevents content from expanding naturally.",
+              example: `<div class="grid grid-rows-3">Tall content clipped</div>`,
+              level: "info",
+            },
+
+            {
+              title: "Misaligned Nested Grids",
+              reason:
+                "Nested grids without row control can break layout consistency.",
+              example: `<div class="grid grid-rows-2"><div class="grid">...</div></div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Fractions for Flexibility:",
+              text: "Apply `auto-rows-fr` to evenly distribute available height.",
+            },
+
+            {
+              bold: "Combine with Gap:",
+              text: "Always use `gap-*` utilities for consistent spacing between rows.",
+            },
+
+            {
+              bold: "Responsive Modifiers:",
+              text: "Control row counts per breakpoint for adaptable layouts.",
+            },
+
+            {
+              bold: "Nested Grid Strategy:",
+              text: "Define rows for both parent and child grids to maintain structure.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["grid", "order"],
+
+    title: "Order",
+
+    description:
+      "Control the visual order of flex or grid items independently from the DOM order. Use order utilities to adjust layout sequencing for responsiveness, visual hierarchy, or accessibility without changing markup.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Order",
+
+          description:
+            "Control the visual order of flex or grid items independently from the DOM order. This is useful for responsive layouts, rearranging elements visually, or prioritizing content without altering the HTML structure.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Visual Sequencer",
+
+          description:
+            "Order utilities assign numeric values that affect the CSS `order` property of flex or grid items. Higher numbers push items later in the visual sequence, while lower numbers bring them forward, without affecting the source order in the DOM.",
+
+          features: [
+            "Adjusts visual position without changing HTML",
+
+            "Supports responsive breakpoints",
+
+            "Works with both flex and grid layouts",
+
+            "Enables content prioritization and reflow",
+
+            "Supports auto value for default ordering",
+          ],
+
+          layerAssignment:
+            "Layout Layer - Controls item positioning in flex/grid containers",
+
+          browserBehavior:
+            "Sets the CSS `order` property. Default value is 0; items with the same order follow DOM sequence.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "order-1", desc: "Sets item order to 1" },
+
+            { cls: "order-2", desc: "Sets item order to 2" },
+
+            { cls: "order-3", desc: "Sets item order to 3" },
+
+            { cls: "order-4", desc: "Sets item order to 4" },
+
+            { cls: "order-5", desc: "Sets item order to 5" },
+
+            { cls: "order-6", desc: "Sets item order to 6" },
+
+            { cls: "order-7", desc: "Sets item order to 7" },
+
+            { cls: "order-8", desc: "Sets item order to 8" },
+
+            { cls: "order-9", desc: "Sets item order to 9" },
+
+            { cls: "order-10", desc: "Sets item order to 10" },
+
+            { cls: "order-11", desc: "Sets item order to 11" },
+
+            { cls: "order-12", desc: "Sets item order to 12" },
+
+            {
+              cls: "order-first",
+              desc: "Sets item order to -9999 (first visually)",
+            },
+
+            {
+              cls: "order-last",
+              desc: "Sets item order to 9999 (last visually)",
+            },
+
+            { cls: "order-none", desc: "Resets to default order (0)" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Order Playground",
+
+          description:
+            "Experiment with different order classes to change the visual sequence of items within a flex or grid container. Observe how responsive ordering affects layout without altering the markup.",
+
+          options: ["order-none", "order-1", "order-2", "order-last"],
+
+          defaultValue: "order-1",
+
+          buildMarkup: (value: string) =>
+            `<div class="flex space-x-4"><div class="${value} bg-blue-500 text-white p-4">Box A</div><div class="bg-green-500 text-white p-4">Box B</div><div class="bg-red-500 text-white p-4">Box C</div></div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg transition-all duration-300 flex space-x-4`}
+            >
+              <div className={`${value} bg-blue-500 text-white p-4 rounded`}>
+                Box A
+              </div>{" "}
+              <div className="bg-green-500 text-white p-4 rounded">Box B</div>{" "}
+              <div className="bg-red-500 text-white p-4 rounded">Box C</div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Reorder Navigation Items",
+
+          description:
+            "A navigation bar needs to visually prioritize the 'Profile' link first, but in the DOM it is last. Use order utilities to fix it.",
+
+          codeSnippet: `<ul class="flex space-x-4">  <li class="bg-blue-500 p-2 text-white">Home</li>  <li class="bg-green-500 p-2 text-white">About</li>  <li class="bg-red-500 p-2 text-white {input}">Profile</li></ul>`,
+
+          options: ["order-1", "order-last", "order-none", "order-3"],
+
+          correctOption: "order-first",
+
+          renderPreview: (userClass: string) => (
+            <ul className="flex space-x-4 p-8 bg-slate-100 dark:bg-slate-900 rounded-lg">
+              {" "}
+              <li className="bg-blue-500 p-2 text-white rounded">Home</li>{" "}
+              <li className="bg-green-500 p-2 text-white rounded">About</li>
+              <li
+                className={`bg-red-500 p-2 text-white rounded transition-all duration-500 ${userClass}`}
+              >
+                Profile
+              </li>{" "}
+            </ul>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Responsive Flex Ordering",
+
+              description:
+                "Adjust item order on small screens to prioritize featured content.",
+
+              code: `<div class="flex"><div class="order-2 sm:order-1">Feature</div><div class="order-1 sm:order-2">Sidebar</div></div>`,
+
+              preview: (
+                <div className="flex space-x-4">
+                  <div className="order-2 sm:order-1 bg-blue-500 text-white p-4 rounded">
+                    Feature
+                  </div>
+                  <div className="order-1 sm:order-2 bg-green-500 text-white p-4 rounded">
+                    Sidebar
+                  </div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Footer Link Prioritization",
+
+              description:
+                "Place critical links first visually without changing DOM.",
+
+              code: `<ul class="flex"><li class="order-last">Legal</li><li class="order-first">Contact</li></ul>`,
+
+              preview: (
+                <ul className="flex space-x-2">
+                  <li className="order-last bg-gray-500 text-white p-2 rounded">
+                    Legal
+                  </li>
+                  <li className="order-first bg-blue-500 text-white p-2 rounded">
+                    Contact
+                  </li>
+                </ul>
+              ),
+            },
+
+            {
+              title: "Card Reordering",
+
+              description: "Visually rearrange cards for layout emphasis.",
+
+              code: `<div class="flex"><div class="order-3">Card 1</div><div class="order-1">Card 2</div></div>`,
+
+              preview: (
+                <div className="flex space-x-4">
+                  <div className="order-3 bg-red-500 text-white p-4 rounded">
+                    Card 1
+                  </div>
+                  <div className="order-1 bg-green-500 text-white p-4 rounded">
+                    Card 2
+                  </div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Sidebar First on Mobile",
+
+              description:
+                "Use responsive order to move sidebar above main content on small devices.",
+
+              code: `<div class="flex"><aside class="order-2 sm:order-1">Sidebar</aside><main class="order-1 sm:order-2">Content</main></div>`,
+
+              preview: (
+                <div className="flex space-x-4">
+                  <aside className="order-2 sm:order-1 bg-gray-500 text-white p-4 rounded">
+                    Sidebar
+                  </aside>
+                  <main className="order-1 sm:order-2 bg-blue-500 text-white p-4 rounded">
+                    Content
+                  </main>
+                </div>
+              ),
+            },
+
+            {
+              title: "Grid Item Reordering",
+
+              description:
+                "Change grid item sequence visually without altering HTML.",
+
+              code: `<div class="grid grid-cols-3"><div class="order-2">Item A</div><div class="order-1">Item B</div></div>`,
+
+              preview: (
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="order-2 bg-blue-500 text-white p-4 rounded">
+                    Item A
+                  </div>
+                  <div className="order-1 bg-green-500 text-white p-4 rounded">
+                    Item B
+                  </div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Stacked List Reordering",
+
+              description: "Reorder list items in a vertical stack visually.",
+
+              code: `<ul class="flex flex-col"><li class="order-3">Step 1</li><li class="order-1">Step 2</li><li class="order-2">Step 3</li></ul>`,
+
+              preview: (
+                <ul className="flex flex-col space-y-2">
+                  <li className="order-3 bg-blue-500 text-white p-2 rounded">
+                    Step 1
+                  </li>
+                  <li className="order-1 bg-green-500 text-white p-2 rounded">
+                    Step 2
+                  </li>
+                  <li className="order-2 bg-red-500 text-white p-2 rounded">
+                    Step 3
+                  </li>
+                </ul>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Misordering DOM for SEO",
+              reason:
+                "Changing visual order does not change the source order for screen readers or SEO.",
+              example: `<div class="order-last">Important</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Responsive Context",
+              reason:
+                "Using static order classes can break layout on smaller screens.",
+              example: `<div class="order-3">Box</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overusing High/Low Values",
+              reason: "Extreme order values can make layouts unpredictable.",
+              example: `<div class="order-9999">Box</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Relying on Order Alone",
+              reason:
+                "Visual order should complement, not replace, semantic structure.",
+              example: `<div class="order-2">Content</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Responsively:",
+              text: "Combine with responsive prefixes like `sm:order-1` to adjust layouts per breakpoint.",
+            },
+
+            {
+              bold: "Keep Source Logical:",
+              text: "Maintain semantic DOM order for accessibility even when using order utilities.",
+            },
+
+            {
+              bold: "Avoid Extreme Values:",
+              text: "Stick to `order-1` through `order-12` or predefined first/last for predictability.",
+            },
+
+            {
+              bold: "Combine with Flex/Grow:",
+              text: "Use with `flex` and `grow` utilities to create dynamic and adaptive layouts.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["interactivity", "scroll-behavior"],
+
+    title: "Scroll Behavior",
+
+    description:
+      "Control the scrolling animation behavior of an element. Use these utilities to provide smooth scrolling experiences for anchor links or programmatically scrolled content, improving navigation clarity and user experience.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Scroll Behavior",
+
+          description:
+            "Control the scrolling animation behavior of an element. Use these utilities to provide smooth scrolling experiences for anchor links or programmatically scrolled content, improving navigation clarity and user experience.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Scroll Animator",
+
+          description:
+            "Scroll behavior utilities set how scrolling occurs within an element—either instantly or smoothly over time. Think of it as defining the speed and transition of content movement when navigated programmatically or via anchor links.",
+
+          features: [
+            "Supports instant and smooth scrolling",
+
+            "Enhances navigation clarity and UX",
+
+            "Works with anchor links and JS scroll APIs",
+
+            "Cascades to scrollable containers",
+
+            "Minimal performance impact",
+          ],
+
+          layerAssignment: "Interaction Layer - Controls viewport movement",
+
+          browserBehavior:
+            "Maps directly to the CSS `scroll-behavior` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "scroll-auto", desc: "Default instant scrolling" },
+
+            { cls: "scroll-smooth", desc: "Animate scrolling smoothly" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Scroll Behavior Playground",
+
+          description:
+            "Experiment with instant vs smooth scrolling behavior on a scrollable container.",
+
+          options: ["scroll-auto", "scroll-smooth"],
+
+          defaultValue: "scroll-smooth",
+
+          buildMarkup: (value: string) =>
+            `<div class="h-32 overflow-y-scroll ${value} border p-2">  <div class="h-64">Scrollable content...</div></div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`h-32 overflow-y-scroll ${value} border p-2 bg-slate-50 dark:bg-slate-950 rounded-lg`}
+            >
+              {" "}
+              <div className="h-64 bg-gradient-to-b from-blue-200 to-blue-400 dark:from-blue-800 dark:to-blue-900 flex items-center justify-center font-medium text-slate-700 dark:text-slate-200">
+                Scroll Content
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Jumping Scroll",
+
+          description:
+            "A long container scrolls instantly when clicking links. Apply the correct utility to enable smooth scrolling behavior.",
+
+          codeSnippet:
+            '<div class="h-32 overflow-y-scroll ... {input}">  <div class="h-64">Content</div></div>',
+
+          options: [
+            "scroll-auto",
+            "scroll-smooth",
+            "scroll-none",
+            "scroll-fast",
+          ],
+
+          correctOption: "scroll-smooth",
+
+          renderPreview: (userClass: string) => (
+            <div className="h-32 overflow-y-scroll border p-2 rounded-lg bg-slate-100 dark:bg-slate-900">
+              <div
+                className={`h-64 bg-gradient-to-b from-green-200 to-green-400 dark:from-green-800 dark:to-green-900 flex items-center justify-center transition-all duration-500 ${userClass}`}
+              >
+                Scroll Content{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Smooth Anchor Navigation",
+
+              description:
+                "Enhance page navigation by smoothly scrolling to anchor links.",
+
+              code: `<a href="#section1" class="scroll-smooth">Go to Section 1</a>`,
+
+              preview: (
+                <div className="p-4">Anchor link with smooth scroll</div>
+              ),
+            },
+
+            {
+              title: "Scrollable Card Container",
+
+              description:
+                "Apply smooth scrolling on overflowing card containers for a polished UI.",
+
+              code: `<div class="h-32 overflow-y-scroll scroll-smooth">...</div>`,
+
+              preview: <div className="p-4">Scrollable card container</div>,
+            },
+
+            {
+              title: "Programmatic Scroll Behavior",
+
+              description:
+                "Use scroll utilities with JS scroll APIs for smooth transitions.",
+
+              code: `<div class="scroll-smooth" id="scrollable">...</div>`,
+
+              preview: (
+                <div className="p-4">Programmatically scrolled container</div>
+              ),
+            },
+
+            {
+              title: "Modal Overflow Handling",
+
+              description:
+                "Smoothly scroll modal content when using overflow containers.",
+
+              code: `<div class="overflow-y-auto h-64 scroll-smooth">Modal content</div>`,
+
+              preview: <div className="p-4">Scrollable modal content</div>,
+            },
+
+            {
+              title: "Sidebar Navigation",
+
+              description:
+                "Smooth scrolling enhances sidebar anchor link navigation.",
+
+              code: `<nav class="scroll-smooth">...</nav>`,
+
+              preview: <div className="p-4">Sidebar nav container</div>,
+            },
+
+            {
+              title: "Content Carousels",
+
+              description:
+                "Apply smooth scrolling to horizontal scroll containers for carousels.",
+
+              code: `<div class="overflow-x-auto scroll-smooth flex gap-4">...</div>`,
+
+              preview: (
+                <div className="p-4 flex gap-2">Horizontal scroll carousel</div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Instant Scroll Surprise",
+              reason:
+                "Using `scroll-auto` results in abrupt jumps instead of smooth animation.",
+              example: `<div class="scroll-auto">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Non-Scrollable Container",
+              reason:
+                "Applying scroll utilities to non-scrollable elements has no effect.",
+              example: `<div class="scroll-smooth">No scroll here</div>`,
+              level: "info",
+            },
+
+            {
+              title: "Mixed Scroll Behaviors",
+              reason:
+                "Combining conflicting scroll utilities may produce inconsistent scrolling.",
+              example: `<div class="scroll-auto scroll-smooth">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Browser Support Assumptions",
+              reason: "Older browsers may not fully support `scroll-behavior`.",
+              example: `<div class="scroll-smooth">...</div>`,
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Anchor Links:",
+              text: "Use `scroll-smooth` on the scroll container to enhance anchor navigation.",
+            },
+
+            {
+              bold: "Performance:",
+              text: "Smooth scrolling has minimal overhead; use it on containers where UX is critical.",
+            },
+
+            {
+              bold: "Programmatic Scroll:",
+              text: "Combine with JS scroll methods (`element.scrollTo`) for smooth transitions.",
+            },
+
+            {
+              bold: "Fallback:",
+              text: "Consider defaulting to `scroll-auto` for unsupported browsers.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["layout", "aspect-ratio"],
+
+    title: "Aspect Ratio",
+
+    description:
+      "Control the proportional relationship between an element's width and height. Useful for maintaining consistent sizing of media, cards, and embedded content regardless of container dimensions. Ensures predictable layouts across responsive breakpoints.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Aspect Ratio",
+
+          description:
+            "Maintain a consistent width-to-height ratio for elements. This is critical for media like videos, images, or cards where distortion must be avoided, and for creating responsive layouts that preserve design proportions.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Resizable Container Frame",
+
+          description:
+            "Aspect ratio utilities set the CSS `aspect-ratio` property on an element, defining a width-to-height proportion that the browser preserves automatically. This prevents content stretching and ensures consistent visual balance across varying container sizes.",
+
+          features: [
+            "Maintains element proportions automatically",
+
+            "Responsive by design",
+
+            "Works with intrinsic or explicit sizing",
+
+            "Supports multiple ratio presets",
+
+            "Prevents media distortion",
+          ],
+
+          layerAssignment: "Layout Layer - Controls sizing and spatial balance",
+
+          browserBehavior:
+            "Maps directly to the CSS `aspect-ratio` property. Overrides height if set with `auto` or `min-content`.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "aspect-auto", desc: "Use intrinsic size of content" },
+
+            { cls: "aspect-square", desc: "Force a 1:1 square ratio" },
+
+            { cls: "aspect-video", desc: "Maintain a 16:9 video ratio" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Aspect Ratio Playground",
+
+          description:
+            "Experiment with different aspect ratios to see how they scale and maintain proportions across responsive layouts.",
+
+          options: [
+            "aspect-auto",
+            "aspect-square",
+            "aspect-video",
+            "aspect-[4/3]",
+          ],
+
+          defaultValue: "aspect-video",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} bg-slate-200 rounded-lg flex items-center justify-center">Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center w-full h-full flex items-center justify-center">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Preview Content
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken UI",
+
+          description:
+            "A card element appears stretched on mobile screens. Apply the correct aspect ratio to maintain its proportions.",
+
+          codeSnippet:
+            '<div class="bg-blue-200 rounded-lg ... {input}">Content</div>',
+
+          options: [
+            "aspect-auto",
+            "aspect-square",
+            "aspect-video",
+            "aspect-[3/2]",
+          ],
+
+          correctOption: "aspect-video",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`transition-all duration-500 ${userClass} bg-blue-200 rounded-lg flex items-center justify-center w-full h-full`}
+              >
+                Target Element{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Video Embed",
+              description: "Maintain 16:9 aspect ratio for embedded videos.",
+              code: `<div class="aspect-video bg-black">Video</div>`,
+              preview: (
+                <div className="aspect-video bg-black flex items-center justify-center text-white">
+                  Video
+                </div>
+              ),
+            },
+
+            {
+              title: "Square Card",
+              description: "Use 1:1 square ratio for profile cards or icons.",
+              code: `<div class="aspect-square bg-slate-200">Profile</div>`,
+              preview: (
+                <div className="aspect-square bg-slate-200 flex items-center justify-center">
+                  Profile
+                </div>
+              ),
+            },
+
+            {
+              title: "Custom Ratio",
+              description: "Maintain 4:3 ratio for images.",
+              code: `<div class="aspect-[4/3] bg-slate-300">Image</div>`,
+              preview: (
+                <div className="aspect-[4/3] bg-slate-300 flex items-center justify-center">
+                  Image
+                </div>
+              ),
+            },
+
+            {
+              title: "Responsive Layout",
+              description: "Cards adapt width but preserve 1:1 ratio.",
+              code: `<div class="aspect-square w-1/3 bg-slate-100">Card</div>`,
+              preview: (
+                <div className="aspect-square w-1/3 bg-slate-100 flex items-center justify-center">
+                  Card
+                </div>
+              ),
+            },
+
+            {
+              title: "Media Container",
+              description: "Container that scales media proportionally.",
+              code: `<div class="aspect-video w-full bg-gray-800">Media</div>`,
+              preview: (
+                <div className="aspect-video w-full bg-gray-800 flex items-center justify-center text-white">
+                  Media
+                </div>
+              ),
+            },
+
+            {
+              title: "Image Placeholder",
+              description: "Placeholders maintain consistent ratio.",
+              code: `<div class="aspect-[3/2] bg-slate-400">Placeholder</div>`,
+              preview: (
+                <div className="aspect-[3/2] bg-slate-400 flex items-center justify-center">
+                  Placeholder
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Forgetting Aspect Ratio",
+              reason:
+                "Elements stretch inconsistently across screen sizes without a ratio.",
+              example: `<div class="w-full h-64 bg-slate-200">Content</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Using Auto for Fixed Media",
+              reason:
+                "aspect-auto may distort videos or images if container is resized.",
+              example: `<div class="aspect-auto bg-black">Video</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Incorrect Custom Ratio Syntax",
+              reason:
+                "Custom ratios require brackets: aspect-[4/3]. Omitting brackets breaks utility.",
+              example: `<div class="aspect-4/3 bg-gray-300">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Conflicting Height Classes",
+              reason:
+                "Setting explicit height with aspect ratio can override intended proportions.",
+              example: `<div class="h-48 aspect-square bg-slate-200">Card</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with Responsive Widths:",
+              text: "Aspect ratio works best when width is fluid, ensuring content scales proportionally.",
+            },
+
+            {
+              bold: "Media Containers:",
+              text: "Use aspect ratios for video, images, or iframe embeds to prevent distortion.",
+            },
+
+            {
+              bold: "Custom Ratios:",
+              text: "Define custom ratios using square brackets: `aspect-[3/2]`.",
+            },
+
+            {
+              bold: "Avoid Fixed Heights:",
+              text: "Let aspect ratio control height; avoid conflicting `h-*` classes.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["layout", "box-decoration-break"],
+
+    title: "Box Decoration Break",
+
+    description:
+      "Control how element fragments are rendered across multiple lines or pages. Useful for maintaining consistent background, border, and padding when inline elements wrap. Implement carefully to ensure expected visual continuity.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Box Decoration Break",
+
+          description:
+            "Control how backgrounds, borders, and padding are applied to fragments of an element that wrap across multiple lines. This is crucial for multi-line text, inline blocks, or elements spanning pages in print layouts.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Fragmented Box Control",
+
+          description:
+            "Box decoration break utilities determine whether decorations are applied to each fragment of a wrapping box or maintained as a continuous box. Think of it as deciding if a broken vase should retain its pattern on each shard or appear seamless.",
+
+          features: [
+            "Maintains visual continuity across line breaks",
+
+            "Supports `slice` or `clone` behavior",
+
+            "Useful for inline-block and wrapped elements",
+
+            "Affects print layouts and multi-line spans",
+
+            "Helps consistent background and border rendering",
+          ],
+
+          layerAssignment: "Layout Layer - Fragment rendering and decoration",
+
+          browserBehavior:
+            "Maps directly to the CSS `box-decoration-break` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "box-decoration-slice",
+              desc: "Keep decorations continuous across fragments",
+            },
+
+            {
+              cls: "box-decoration-clone",
+              desc: "Duplicate decorations for each fragment",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Playground",
+
+          description:
+            "Experiment with `slice` and `clone` to see how backgrounds and borders behave on wrapped content.",
+
+          options: ["box-decoration-slice", "box-decoration-clone"],
+
+          defaultValue: "box-decoration-slice",
+
+          buildMarkup: (value: string) =>
+            `<p class="${value} inline-block bg-blue-200 border border-blue-400 p-2">This is a long wrapped text example to illustrate box decoration break.</p>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg transition-all duration-300`}
+            >
+              <p
+                className={`${value} inline-block bg-blue-200 border border-blue-400 p-2 w-full max-w-xs break-words`}
+              >
+                This is a long wrapped text example to illustrate box decoration
+                break.{" "}
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken Decoration",
+
+          description:
+            "A multi-line inline-block element shows broken background patterns when wrapping. Choose the correct utility to maintain consistent decoration.",
+
+          codeSnippet:
+            '<p class="inline-block p-4 bg-green-200 border {input} w-64">Wrapped content example text that spans multiple lines</p>',
+
+          options: [
+            "box-decoration-slice",
+            "box-decoration-clone",
+            "wrong-class-1",
+            "wrong-class-2",
+          ],
+
+          correctOption: "box-decoration-clone",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-start justify-start p-4">
+              <p
+                className={`inline-block p-4 bg-green-200 border ${userClass} w-64 break-words`}
+              >
+                Wrapped content example text that spans multiple lines{" "}
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Multi-Line Badge",
+
+              description:
+                "Maintain consistent background and border when badges wrap across lines.",
+
+              code: `<span class="inline-block bg-purple-200 border border-purple-400 p-1 box-decoration-clone">New Feature Badge Wrapped</span>`,
+
+              preview: (
+                <div className="p-4">
+                  <span className="inline-block bg-purple-200 border border-purple-400 p-1 box-decoration-clone">
+                    New Feature Badge Wrapped
+                  </span>
+                </div>
+              ),
+            },
+
+            {
+              title: "Inline Button Group",
+
+              description:
+                "Keep button decorations consistent when text wraps on small screens.",
+
+              code: `<button class="inline-block bg-blue-200 border border-blue-400 p-2 box-decoration-clone">Click Me for More Information</button>`,
+
+              preview: (
+                <div className="p-4">
+                  <button className="inline-block bg-blue-200 border border-blue-400 p-2 box-decoration-clone">
+                    Click Me for More Information
+                  </button>
+                </div>
+              ),
+            },
+
+            {
+              title: "Code Snippet Highlight",
+
+              description:
+                "Preserve background highlighting across wrapped code lines.",
+
+              code: `<code class="inline-block bg-gray-100 border border-gray-300 p-1 box-decoration-clone">const example = 'wrapped code';</code>`,
+
+              preview: (
+                <div className="p-4">
+                  <code className="inline-block bg-gray-100 border border-gray-300 p-1 box-decoration-clone">
+                    const example = 'wrapped code';
+                  </code>
+                </div>
+              ),
+            },
+
+            {
+              title: "Tag Cloud Item",
+
+              description:
+                "Ensure tag backgrounds appear intact when wrapping in responsive layouts.",
+
+              code: `<span class="inline-block bg-amber-200 border border-amber-400 p-1 box-decoration-clone">Responsive Tag Example</span>`,
+
+              preview: (
+                <div className="p-4">
+                  <span className="inline-block bg-amber-200 border border-amber-400 p-1 box-decoration-clone">
+                    Responsive Tag Example
+                  </span>
+                </div>
+              ),
+            },
+
+            {
+              title: "Inline Notification",
+
+              description:
+                "Notifications maintain visual decoration when text wraps.",
+
+              code: `<p class="inline-block bg-red-200 border border-red-400 p-2 box-decoration-clone">Important message spanning multiple lines for demonstration</p>`,
+
+              preview: (
+                <div className="p-4">
+                  <p className="inline-block bg-red-200 border border-red-400 p-2 box-decoration-clone">
+                    Important message spanning multiple lines for demonstration
+                  </p>
+                </div>
+              ),
+            },
+
+            {
+              title: "Badge Group",
+
+              description:
+                "Grouped badges keep their individual decorations when wrapping.",
+
+              code: `<div class="flex flex-wrap gap-2"><span class="inline-block bg-green-200 border border-green-400 p-1 box-decoration-clone">Beta</span><span class="inline-block bg-blue-200 border border-blue-400 p-1 box-decoration-clone">Alpha</span></div>`,
+
+              preview: (
+                <div className="p-4 flex flex-wrap gap-2">
+                  <span className="inline-block bg-green-200 border border-green-400 p-1 box-decoration-clone">
+                    Beta
+                  </span>
+                  <span className="inline-block bg-blue-200 border border-blue-400 p-1 box-decoration-clone">
+                    Alpha
+                  </span>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using slice on wrapped content",
+
+              reason:
+                "Backgrounds and borders may break visually across fragments when `slice` is used.",
+
+              example: `<p class="box-decoration-slice">Wrapped text example</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Forgetting to apply to inline-block",
+
+              reason:
+                "The utility only applies to elements that generate box fragments, like inline-block or inline-table.",
+
+              example: `<span class="box-decoration-clone">Text</span>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Relying on defaults",
+
+              reason:
+                "Default browser behavior may not preserve decoration; explicit utility usage is needed for consistency.",
+
+              example: `<p>Wrapped text without class</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Misusing on block elements",
+
+              reason:
+                "Block-level elements do not fragment visually in the same way; the utility has no effect.",
+
+              example: `<div class="box-decoration-clone">Block element</div>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Clone for Wrapped Text:",
+              text: "Apply `box-decoration-clone` to ensure decorations repeat on each line.",
+            },
+
+            {
+              bold: "Slice for Continuous Boxes:",
+              text: "Use `box-decoration-slice` to keep decorations as a single continuous box.",
+            },
+
+            {
+              bold: "Combine with Inline-Block:",
+              text: "Ensure the element is `inline-block` to see the effect.",
+            },
+
+            {
+              bold: "Responsive Wrapping:",
+              text: "Test on small screens to verify consistent background and border behavior.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["layout", "box-sizing"],
+
+    title: "Box Sizing",
+
+    description:
+      "Control how width and height are calculated for elements. Use box-sizing utilities to include or exclude padding and borders from the element's total size, ensuring predictable layouts across components.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Box Sizing",
+
+          description:
+            "Box sizing determines whether padding and borders are included in an element's width and height. Proper use ensures consistent sizing across layouts and prevents overflow or misalignment issues.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Sizing Calculation Model",
+
+          description:
+            "Box sizing utilities adjust the CSS `box-sizing` property. `border-box` includes padding and borders in the width/height, while `content-box` excludes them. Think of it as choosing whether to measure the full element including internal spacing or just the content area.",
+
+          features: [
+            "Controls element width and height calculation",
+
+            "Prevents layout shifts and overflow issues",
+
+            "Supports responsive design patterns",
+          ],
+
+          layerAssignment: "Layout Layer - Affects element sizing",
+
+          browserBehavior: "Maps directly to the CSS `box-sizing` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "box-border",
+              desc: "Width/height includes padding and border",
+            },
+
+            { cls: "box-content", desc: "Width/height includes content only" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Playground",
+
+          description:
+            "Experiment with box sizing on different elements. Switch between `box-border` and `box-content` to observe how padding and borders affect total dimensions.",
+
+          options: ["box-border", "box-content"],
+
+          defaultValue: "box-border",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} p-4 border-2 border-slate-500 w-32 h-32">Box</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <div
+                className={`${value} p-4 border-2 border-slate-500 w-32 h-32 bg-white dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 font-medium`}
+              >
+                Box{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken Box",
+
+          description:
+            "A card layout is overflowing its container because the box-sizing is set incorrectly. Use the correct utility to include padding and border in the element's total width.",
+
+          codeSnippet:
+            '<div class="p-4 border-2 w-64 h-32 {input}">Content</div>',
+
+          options: [
+            "box-content",
+            "box-border",
+            "incorrect-class",
+            "another-wrong",
+          ],
+
+          correctOption: "box-border",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`transition-all duration-500 ${userClass} p-4 border-2 w-64 h-32 bg-white dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300`}
+              >
+                Content{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Card Component",
+              description:
+                "Use `box-border` on cards to include padding and borders in fixed width.",
+              code: `<div class="box-border p-4 border w-64">Card</div>`,
+              preview: (
+                <div className="p-4 border box-border w-64 bg-white dark:bg-slate-800">
+                  Card
+                </div>
+              ),
+            },
+
+            {
+              title: "Form Input",
+              description:
+                "Ensure input fields use `box-border` to prevent overflow when adding padding.",
+              code: `<input class="box-border p-2 border w-64" />`,
+              preview: (
+                <input
+                  className="box-border p-2 border w-64"
+                  placeholder="Input field"
+                />
+              ),
+            },
+
+            {
+              title: "Content Box",
+              description:
+                "Use `box-content` to measure only the content area, ignoring padding and borders.",
+              code: `<div class="box-content p-4 border w-64">Content Only</div>`,
+              preview: (
+                <div className="box-content p-4 border w-64 bg-white dark:bg-slate-800">
+                  Content Only
+                </div>
+              ),
+            },
+
+            {
+              title: "Nested Layout",
+              description:
+                "Maintain predictable nested elements by consistently applying `box-border`.",
+              code: `<div class="box-border p-4 border w-64"><div class="box-border p-2 border w-full">Nested</div></div>`,
+              preview: (
+                <div className="box-border p-4 border w-64 bg-white dark:bg-slate-800">
+                  <div className="box-border p-2 border w-full bg-slate-50 dark:bg-slate-700">
+                    Nested
+                  </div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Button Padding",
+              description:
+                "Buttons with borders and padding need `box-border` for consistent sizing.",
+              code: `<button class="box-border p-2 border w-32">Click</button>`,
+              preview: (
+                <button className="box-border p-2 border w-32 bg-blue-500 text-white rounded">
+                  Click
+                </button>
+              ),
+            },
+
+            {
+              title: "Responsive Card",
+              description:
+                "Apply `box-border` across breakpoints to prevent layout shifts on resize.",
+              code: `<div class="box-border p-4 border md:w-80 w-64">Responsive Card</div>`,
+              preview: (
+                <div className="box-border p-4 border md:w-80 w-64 bg-white dark:bg-slate-800">
+                  Responsive Card
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Incorrect Sizing",
+              reason:
+                "Using `box-content` on padded elements causes unexpected overflow.",
+              example: `<div class="box-content p-4 border w-64">Overflow</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Mixing Utilities",
+              reason:
+                "Combining `box-content` and `box-border` inconsistently leads to layout issues.",
+              example: `<div class="box-content p-4"><div class="box-border p-2">Nested</div></div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Borders",
+              reason:
+                "Not accounting for border width can break alignment in grid/flex layouts.",
+              example: `<div class="box-content border-4 w-64">Misaligned</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Responsive Oversight",
+              reason:
+                "Failing to apply consistent box-sizing across breakpoints may shift elements.",
+              example: `<div class="box-content md:box-border p-4">Shift</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Global Reset:",
+              text: "Apply `* { box-sizing: border-box; }` for predictable sizing across the project.",
+            },
+
+            {
+              bold: "Consistent Layout:",
+              text: "Use `box-border` for all container elements to simplify padding calculations.",
+            },
+
+            {
+              bold: "Nested Elements:",
+              text: "Maintain the same box-sizing for child elements to prevent overflow or layout shifts.",
+            },
+
+            {
+              bold: "Debugging Overflow:",
+              text: "Switch to `box-content` temporarily to identify sizing issues with padding and borders.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["layout", "clear"],
+
+    title: "Clear",
+
+    description:
+      "Control how elements behave around floated siblings. Use clear utilities to prevent content overlap and maintain predictable document flow, ensuring consistent layout across different browsers and responsive contexts.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Clear",
+
+          description:
+            "Clear utilities dictate whether an element can appear next to floated elements. They are crucial for maintaining layout integrity, particularly in float-based designs or legacy components.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Flow Breaker",
+
+          description:
+            "Clear utilities act like a barrier that prevents an element from wrapping around floated siblings. They allow the element to start below floated content, preserving readability and layout structure.",
+
+          features: [
+            "Controls positioning relative to floats",
+
+            "Prevents content overlap with floated elements",
+
+            "Supports responsive modifiers",
+
+            "Ensures consistent vertical spacing",
+
+            "Simple composition with other layout utilities",
+          ],
+
+          layerAssignment: "Layout Layer - Affects flow and stacking",
+
+          browserBehavior: "Maps directly to the CSS `clear` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "clear-left",
+              desc: "Prevents elements from appearing on the left of floated siblings",
+            },
+
+            {
+              cls: "clear-right",
+              desc: "Prevents elements from appearing on the right of floated siblings",
+            },
+
+            {
+              cls: "clear-both",
+              desc: "Prevents elements from appearing on either side of floated siblings",
+            },
+
+            {
+              cls: "clear-none",
+              desc: "Allows elements to appear beside floated siblings",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Clear Playground",
+
+          description:
+            "Experiment with different clear values to see how content moves around floated elements.",
+
+          options: ["clear-left", "clear-right", "clear-both", "clear-none"],
+
+          defaultValue: "clear-both",
+
+          buildMarkup: (value: string) =>
+            `<div class="float-left w-24 h-24 bg-blue-500 mr-4 mb-4"></div><div class="${value} p-2 bg-slate-200">Cleared Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div className="p-8 bg-slate-50 dark:bg-slate-950 rounded-lg transition-all duration-300">
+              {" "}
+              <div className="float-left w-24 h-24 bg-blue-500 mr-4 mb-4"></div>
+              <div
+                className={`${value} p-4 bg-white dark:bg-slate-800 rounded shadow`}
+              >
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Cleared Content
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken Layout",
+
+          description:
+            "A paragraph overlaps a floated image. Use the correct clear utility to restore normal flow.",
+
+          codeSnippet:
+            '<div class="float-left w-24 h-24 bg-blue-500 mr-4 mb-4"></div><p class="{input}">Paragraph text</p>',
+
+          options: ["clear-left", "clear-right", "clear-both", "clear-none"],
+
+          correctOption: "clear-both",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg p-4">
+              {" "}
+              <div className="float-left w-24 h-24 bg-blue-500 mr-4 mb-4"></div>
+              <p
+                className={`${userClass} p-2 bg-white dark:bg-slate-800 rounded shadow`}
+              >
+                Paragraph text
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Image with Caption",
+
+              description:
+                "Ensure captions appear below floated images using `clear-both`.",
+
+              code: `<div class="float-left w-32 h-32 bg-blue-500 mr-4 mb-4"></div><p class="clear-both">Caption text</p>`,
+
+              preview: (
+                <div className="p-4">
+                  <div className="float-left w-32 h-32 bg-blue-500 mr-4 mb-4"></div>
+                  <p className="clear-both">Caption text</p>
+                </div>
+              ),
+            },
+
+            {
+              title: "Form Layout",
+
+              description:
+                "Align form elements properly beneath floated labels.",
+
+              code: `<label class="float-left w-24">Name</label><input class="clear-left border p-1" />`,
+
+              preview: (
+                <div className="p-4">
+                  <label className="float-left w-24">Name</label>
+                  <input className="clear-left border p-1" />
+                </div>
+              ),
+            },
+
+            {
+              title: "Sidebar Clearing",
+
+              description:
+                "Clear content after a floated sidebar to maintain proper flow.",
+
+              code: `<aside class="float-left w-48 bg-slate-200 h-64"></aside><main class="clear-left p-4 bg-white">Main content</main>`,
+
+              preview: (
+                <div className="p-4">
+                  <aside className="float-left w-48 bg-slate-200 h-64"></aside>
+                  <main className="clear-left p-4 bg-white">Main content</main>
+                </div>
+              ),
+            },
+
+            {
+              title: "Text Blocks",
+
+              description: "Use `clear-right` to avoid right-floated elements.",
+
+              code: `<div class="float-right w-32 h-32 bg-red-500"></div><p class="clear-right">Block text</p>`,
+
+              preview: (
+                <div className="p-4">
+                  <div className="float-right w-32 h-32 bg-red-500"></div>
+                  <p className="clear-right">Block text</p>
+                </div>
+              ),
+            },
+
+            {
+              title: "Multiple Floats",
+
+              description: "Clear both sides after multiple floated elements.",
+
+              code: `<div class="float-left w-24 h-24 bg-green-500"></div><div class="float-right w-24 h-24 bg-yellow-500"></div><p class="clear-both">Content below floats</p>`,
+
+              preview: (
+                <div className="p-4">
+                  <div className="float-left w-24 h-24 bg-green-500"></div>
+                  <div className="float-right w-24 h-24 bg-yellow-500"></div>
+                  <p className="clear-both">Content below floats</p>
+                </div>
+              ),
+            },
+
+            {
+              title: "Nested Floats",
+
+              description:
+                "Clearing inside nested floated containers to maintain hierarchy.",
+
+              code: `<div class="float-left w-32 h-32 bg-purple-500"><p class="clear-both">Nested cleared</p></div>`,
+
+              preview: (
+                <div className="p-4">
+                  <div className="float-left w-32 h-32 bg-purple-500">
+                    <p className="clear-both">Nested cleared</p>
+                  </div>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Forgetting to Clear",
+              reason: "Paragraphs may overlap floated elements.",
+              example: `<p>Text overlaps float</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Using Wrong Side",
+              reason: "Clear-left has no effect on right floats.",
+              example: `<p class="clear-left">Still overlaps</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overusing clear-none",
+              reason: "Content may wrap unpredictably around floats.",
+              example: `<p class="clear-none">Messy layout</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Neglecting Responsive",
+              reason: "Clears may need responsive modifiers for small screens.",
+              example: `<p class="sm:clear-both">Broken on mobile</p>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with Floats:",
+              text: "Always pair clear utilities with floated elements to control flow.",
+            },
+
+            {
+              bold: "Responsive Usage:",
+              text: "Use responsive variants like `sm:clear-both` to adapt layouts.",
+            },
+
+            {
+              bold: "Avoid Overuse:",
+              text: "Use only when necessary; modern flex/grid may reduce need for floats.",
+            },
+
+            {
+              bold: "Visual Debugging:",
+              text: "Add temporary backgrounds to see cleared sections during layout testing.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["layout", "float"],
+
+    title: "Float",
+
+    description:
+      "Control the horizontal positioning of an element relative to its container, allowing text and inline elements to wrap around it. Use float utilities to create simple text flows or image alignments without full flex/grid layouts. Consider clearing floats to avoid layout collapse.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Float",
+
+          description:
+            "Float utilities position elements to the left or right of their container, allowing surrounding inline content to wrap. Essential for images, icons, and small layout adjustments in responsive designs.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Floating Block",
+
+          description:
+            "Floating moves elements out of the normal flow horizontally while letting text and inline elements wrap around them. Think of it as an element 'floating' on the left or right edge of its parent container.",
+
+          features: [
+            "Positions elements left or right",
+
+            "Wraps surrounding inline content",
+
+            "Supports responsive variants",
+
+            "Requires clearing for container flow",
+
+            "Simple alignment without flex/grid",
+          ],
+
+          layerAssignment: "Layout Layer - Visual flow adjustment",
+
+          browserBehavior:
+            "Maps directly to the CSS `float` property. Clearing uses `clear` property to restore flow.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "float-left", desc: "Float element to the left" },
+
+            { cls: "float-right", desc: "Float element to the right" },
+
+            { cls: "float-none", desc: "Remove float from element" },
+
+            {
+              cls: "clear-left",
+              desc: "Prevent floating elements on the left",
+            },
+
+            {
+              cls: "clear-right",
+              desc: "Prevent floating elements on the right",
+            },
+
+            {
+              cls: "clear-both",
+              desc: "Prevent floating elements on both sides",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Float Playground",
+
+          description:
+            "Experiment with floating elements to see how surrounding content wraps. Try combining floats with margin or padding to adjust spacing.",
+
+          options: ["float-left", "float-right", "float-none", "clear-both"],
+
+          defaultValue: "float-left",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-32 h-32 bg-blue-500 m-2"></div><p>Floating content wraps around this block.</p>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg transition-all duration-300`}
+            >
+              <div className={`${value} w-32 h-32 bg-blue-500 m-2`}></div>{" "}
+              <p className="text-slate-700 dark:text-slate-300 mt-2">
+                Floating content wraps around this block.
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken Layout",
+
+          description:
+            "A block of text wraps under an image incorrectly because the image float is missing. Apply the correct float utility to fix the flow.",
+
+          codeSnippet:
+            '<img src="image.jpg" class="{input}" alt="Sample"/><p>Text wraps around the image...</p>',
+
+          options: ["float-none", "float-left", "float-right", "clear-both"],
+
+          correctOption: "float-left",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg p-4">
+              <img
+                src="[https://via.placeholder.com/100](https://via.placeholder.com/100)"
+                className={`${userClass} m-2`}
+                alt="Sample"
+              />{" "}
+              <p className="text-slate-700 dark:text-slate-300 mt-2">
+                Text wraps around the image...
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Image in Article",
+
+              description:
+                "Float an image left so text wraps on the right side.",
+
+              code: `<img src="img.jpg" class="float-left m-2"/><p>Article text wraps around image...</p>`,
+
+              preview: (
+                <div className="p-4">
+                  <div className="float-left w-24 h-24 bg-blue-500 m-2"></div>
+                  <p>Article text wraps around image...</p>
+                </div>
+              ),
+            },
+
+            {
+              title: "Right-Aligned Icon",
+
+              description:
+                "Float a decorative icon to the right in a notification box.",
+
+              code: `<div class="p-4 border"><span class="float-right">Icon</span>Notification text</div>`,
+
+              preview: (
+                <div className="p-4 border">
+                  <span className="float-right bg-red-500 w-6 h-6 inline-block"></span>
+                  Notification text
+                </div>
+              ),
+            },
+
+            {
+              title: "Clearing Floats",
+
+              description:
+                "Use `clear-both` on a footer element to prevent wrapping under floated content.",
+
+              code: `<div class="float-left w-32 h-32 bg-blue-500"></div><div class="clear-both">Footer content</div>`,
+
+              preview: (
+                <div>
+                  <div className="float-left w-32 h-32 bg-blue-500 m-2"></div>
+                  <div className="clear-both mt-4">Footer content</div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Text Flow Around Image",
+
+              description:
+                "Apply float-right to an image so text wraps to the left.",
+
+              code: `<img src="img.jpg" class="float-right m-2"/><p>Text flows left of image...</p>`,
+
+              preview: (
+                <div className="p-4">
+                  <div className="float-right w-24 h-24 bg-green-500 m-2"></div>
+                  <p>Text flows left of image...</p>
+                </div>
+              ),
+            },
+
+            {
+              title: "Multiple Floats",
+
+              description:
+                "Float two elements left and right for a balanced header layout.",
+
+              code: `<div class="float-left">Left</div><div class="float-right">Right</div>`,
+
+              preview: (
+                <div className="p-4 border">
+                  <div className="float-left bg-blue-500 w-16 h-16 m-1"></div>
+                  <div className="float-right bg-red-500 w-16 h-16 m-1"></div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Cleared Paragraph",
+
+              description:
+                "Ensure a paragraph starts below floated elements using clear-both.",
+
+              code: `<div class="float-left w-32 h-32 bg-blue-500 m-2"></div><p class="clear-both">Starts below float</p>`,
+
+              preview: (
+                <div>
+                  <div className="float-left w-32 h-32 bg-blue-500 m-2"></div>
+                  <p className="clear-both mt-4">Starts below float</p>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Forgetting Clear",
+              reason: "Not clearing floats can cause container collapse.",
+              example: `<div class="float-left">Box</div><div>Footer</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overusing Floats",
+              reason:
+                "Using floats for layout instead of flex/grid can create brittle designs.",
+              example: `<div class="float-left">A</div><div class="float-right">B</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Margin",
+              reason:
+                "Floated elements without margin can collide with surrounding content.",
+              example: `<div class="float-left">Box</div><p>Text</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Using on Block-Only Elements",
+              reason:
+                "Floats have no effect on inline elements without setting display to block.",
+              example: `<span class="float-left">Text</span>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use With Padding:",
+              text: "Add padding or margin around floated elements for proper spacing.",
+            },
+
+            {
+              bold: "Combine With Clear:",
+              text: "Always clear floats on subsequent blocks to maintain layout integrity.",
+            },
+
+            {
+              bold: "Responsive Floats:",
+              text: "Use responsive prefixes like `sm:float-right` for adaptive designs.",
+            },
+
+            {
+              bold: "Minimal Layout Role:",
+              text: "Reserve floats for simple wrap scenarios; prefer flex/grid for complex layouts.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["layout", "isolation"],
+
+    title: "Isolation",
+
+    description:
+      "Control the stacking context of an element to prevent blending effects with siblings. Use isolation utilities to manage layering and visual separation, ensuring compositional independence in complex layouts.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Isolation",
+
+          description:
+            "Control the stacking context of an element to prevent blending effects with siblings. Useful when creating layered UI components that should not inherit isolation from parent elements.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Stacking Context Control",
+
+          description:
+            "Isolation utilities create a new stacking context for an element. Think of it as creating a separate layer in which the element and its children render independently, preventing unwanted z-index conflicts or blending with background elements.",
+
+          features: [
+            "Creates independent stacking context",
+
+            "Prevents backdrop and blend interference",
+
+            "Supports complex layered UI components",
+          ],
+
+          layerAssignment: "Layout Layer - Rendering Context",
+
+          browserBehavior: "Maps directly to the CSS `isolation` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "isolate", desc: "Creates a new stacking context" },
+
+            { cls: "isolation-auto", desc: "Resets to default behavior" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Isolation Playground",
+
+          description:
+            "Experiment with `isolate` and `isolation-auto` to see how elements behave in layered contexts. Useful for testing z-index and blending interactions.",
+
+          options: ["isolate", "isolation-auto"],
+
+          defaultValue: "isolate",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} p-6 bg-blue-100">Layered Box</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex flex-col gap-4 ${value}`}
+            >
+              {" "}
+              <div className="p-6 bg-blue-200 rounded shadow">
+                Sibling Layer 1
+              </div>{" "}
+              <div className="p-6 bg-blue-400 rounded shadow">
+                Sibling Layer 2
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Blended Layer",
+
+          description:
+            "Two elements overlap with blend effects applied. The top element should render independently without inheriting blend properties from the parent. Fix this by applying the correct isolation class.",
+
+          codeSnippet: '<div class="relative {input}">Content Layer</div>',
+
+          options: ["isolate", "isolation-auto", "no-isolate", "z-auto"],
+
+          correctOption: "isolate",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center relative">
+              <div
+                className={`p-6 bg-pink-400 text-white rounded shadow ${userClass}`}
+              >
+                Layered Element{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Modal Dialog",
+
+              description:
+                "Ensuring modals render on top without inheriting parent blend or stacking issues.",
+
+              code: `<div class="isolate z-50 p-4 bg-white shadow-lg">Modal Content</div>`,
+
+              preview: (
+                <div className="p-4 bg-slate-50 rounded shadow isolate z-50">
+                  Modal Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Dropdown Menu",
+
+              description:
+                "Dropdown menu maintains its stacking context independent of parent components.",
+
+              code: `<ul class="isolate absolute mt-2 bg-white border rounded shadow">Menu Items</ul>`,
+
+              preview: (
+                <ul className="isolate absolute mt-2 bg-white border rounded shadow p-2">
+                  Menu Items
+                </ul>
+              ),
+            },
+
+            {
+              title: "Tooltip Layering",
+
+              description:
+                "Tooltip should not inherit blending effects from container backgrounds.",
+
+              code: `<div class="isolate absolute p-2 bg-gray-800 text-white rounded">Tooltip</div>`,
+
+              preview: (
+                <div className="isolate absolute p-2 bg-gray-800 text-white rounded">
+                  Tooltip
+                </div>
+              ),
+            },
+
+            {
+              title: "Floating Action Button",
+
+              description:
+                "Ensures FAB renders above all content without z-index conflicts.",
+
+              code: `<button class="isolate fixed bottom-4 right-4 bg-blue-600 text-white p-4 rounded-full shadow">+</button>`,
+
+              preview: (
+                <button className="isolate fixed bottom-4 right-4 bg-blue-600 text-white p-4 rounded-full shadow">
+                  +
+                </button>
+              ),
+            },
+
+            {
+              title: "Card Overlay",
+
+              description:
+                "Overlay within a card maintains its stacking without affecting siblings.",
+
+              code: `<div class="relative isolate p-4 bg-white shadow">Card Overlay</div>`,
+
+              preview: (
+                <div className="relative isolate p-4 bg-white shadow">
+                  Card Overlay
+                </div>
+              ),
+            },
+
+            {
+              title: "Notification Toast",
+
+              description:
+                "Toast notifications render independently of underlying layout blending.",
+
+              code: `<div class="isolate fixed top-4 right-4 bg-green-600 text-white p-3 rounded shadow">Success</div>`,
+
+              preview: (
+                <div className="isolate fixed top-4 right-4 bg-green-600 text-white p-3 rounded shadow">
+                  Success
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Not Using Isolation When Needed",
+
+              reason:
+                "Without `isolate`, child elements may inherit unintended blend effects from parents.",
+
+              example: `<div class="relative">  <div class="p-4 bg-blue-200">Child Layer</div></div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overusing Isolation",
+
+              reason:
+                "Applying `isolate` unnecessarily can create extra stacking contexts, complicating z-index management.",
+
+              example: `<div class="isolate isolate isolate">Redundant stacking contexts</div>`,
+
+              level: "info",
+            },
+
+            {
+              title: "Mixing Isolation with z-index Conflicts",
+
+              reason:
+                "Elements with `isolate` may still have z-index issues if not managed properly.",
+
+              example: `<div class="isolate z-10">Overlapping Issue</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Assuming Isolation Affects Layout",
+
+              reason:
+                "`isolate` only affects stacking context; it does not change positioning or flow.",
+
+              example: `<div class="isolate">No layout change</div>`,
+
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Sparingly:",
+              text: "Only apply `isolate` to elements that require independent stacking.",
+            },
+
+            {
+              bold: "Combine with z-index:",
+              text: "Use `z-*` classes to control stacking order within isolated contexts.",
+            },
+
+            {
+              bold: "Test Blend Effects:",
+              text: "Check for unintended backdrop-filter or opacity blending when isolation is omitted.",
+            },
+
+            {
+              bold: "Modal & Tooltip Best Practice:",
+              text: "Always isolate floating UI components to avoid stacking conflicts.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["layout", "overscroll-behavior"],
+
+    title: "Overscroll Behavior",
+
+    description:
+      "Control how a container reacts when the user scrolls past its boundaries. Use overscroll behavior utilities to prevent unwanted scroll chaining or enable controlled bounce effects on touch devices, ensuring a polished UX across nested scrollable regions.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Overscroll Behavior",
+
+          description:
+            "Control how a container reacts when users scroll past its content boundaries. These utilities help manage scroll chaining, bounce effects, and containment of scroll gestures within nested elements, improving usability on both desktop and mobile devices.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Scroll Containment Analogy",
+
+          description:
+            "Think of overscroll behavior as setting invisible 'end zones' on scrollable areas. It determines whether scrolling continues to parent containers or stops, allowing developers to isolate scrollable regions or allow natural momentum-based scrolling.",
+
+          features: [
+            "Prevents scroll chaining in nested containers",
+
+            "Supports horizontal and vertical directions",
+
+            "Customizable containment per axis",
+
+            "Enhances mobile touch scrolling UX",
+
+            "Works seamlessly with momentum and bounce effects",
+          ],
+
+          layerAssignment: "Layout Layer - Scroll Interaction",
+
+          browserBehavior:
+            "Maps directly to the CSS `overscroll-behavior` property with values `auto`, `contain`, and `none`.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "overscroll-auto",
+              desc: "Default scrolling behavior with normal chaining",
+            },
+
+            {
+              cls: "overscroll-contain",
+              desc: "Prevents scroll chaining but allows scroll within element",
+            },
+
+            {
+              cls: "overscroll-none",
+              desc: "Prevents both scroll chaining and overscroll effects",
+            },
+
+            {
+              cls: "overscroll-y-auto",
+              desc: "Vertical scroll behaves normally with chaining",
+            },
+
+            {
+              cls: "overscroll-y-contain",
+              desc: "Vertical scroll contained within element",
+            },
+
+            {
+              cls: "overscroll-y-none",
+              desc: "Disables vertical overscroll and chaining",
+            },
+
+            {
+              cls: "overscroll-x-auto",
+              desc: "Horizontal scroll behaves normally with chaining",
+            },
+
+            {
+              cls: "overscroll-x-contain",
+              desc: "Horizontal scroll contained within element",
+            },
+
+            {
+              cls: "overscroll-x-none",
+              desc: "Disables horizontal overscroll and chaining",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Overscroll Behavior Playground",
+
+          description:
+            "Experiment with different overscroll behaviors. Observe how `contain` and `none` prevent scroll chaining while `auto` allows the natural scroll flow.",
+
+          options: [
+            "overscroll-auto",
+            "overscroll-contain",
+            "overscroll-none",
+            "overscroll-y-none",
+          ],
+
+          defaultValue: "overscroll-auto",
+
+          buildMarkup: (value: string) =>
+            `<div class="h-32 overflow-auto ${value} border p-2">Scrollable content here</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-start justify-center transition-all duration-300`}
+            >
+              <div
+                className={`h-32 w-64 overflow-auto border p-2 ${value} bg-white dark:bg-slate-800 rounded shadow`}
+              >
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Scrollable content inside container. Try dragging or
+                  scrolling!
+                </p>{" "}
+                <p className="text-slate-400 text-sm mt-2">
+                  Scroll to test overscroll behavior
+                </p>{" "}
+                <div className="h-40 bg-slate-100 dark:bg-slate-700 mt-2"></div>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Prevent Scroll Bleed",
+
+          description:
+            "Nested scrollable divs allow scrolling to bubble to the parent container. Fix it so the inner div scrolls independently without affecting the outer container.",
+
+          codeSnippet:
+            '<div class="h-64 overflow-auto border p-2">  <div class="h-32 overflow-auto {input}">Inner content</div></div>',
+
+          options: [
+            "overscroll-auto",
+            "overscroll-contain",
+            "overscroll-none",
+            "overscroll-y-auto",
+          ],
+
+          correctOption: "overscroll-contain",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-start justify-center p-4">
+              {" "}
+              <div className="h-64 overflow-auto w-64 border p-2 bg-white dark:bg-slate-800 rounded shadow">
+                <div
+                  className={`h-32 overflow-auto ${userClass} bg-slate-50 dark:bg-slate-950 p-2 rounded`}
+                >
+                  Inner scrollable content. Try scrolling.{" "}
+                </div>{" "}
+                <div className="h-16 mt-2 bg-slate-200 dark:bg-slate-700"></div>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Contained Chat Window",
+
+              description:
+                "Prevent scroll chaining when the chat container reaches its bottom.",
+
+              code: `<div class="h-64 overflow-auto overscroll-contain">Messages here...</div>`,
+
+              preview: (
+                <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-lg border h-64 overflow-auto overscroll-contain">
+                  Messages here...
+                </div>
+              ),
+            },
+
+            {
+              title: "Full Page Scroll Bounce",
+
+              description:
+                "Allow normal scroll behavior on the page, including native bounce on touch devices.",
+
+              code: `<div class="overscroll-auto h-screen">Page content...</div>`,
+
+              preview: (
+                <div className="overscroll-auto h-32 border p-2 bg-white dark:bg-slate-800">
+                  Page content...
+                </div>
+              ),
+            },
+
+            {
+              title: "Horizontal Scroll Gallery",
+
+              description:
+                "Contain horizontal scrolling to the gallery without affecting vertical scroll.",
+
+              code: `<div class="overflow-x-auto overscroll-x-contain flex space-x-4">Items...</div>`,
+
+              preview: (
+                <div className="overflow-x-auto overscroll-x-contain flex space-x-4 p-2 bg-slate-50 dark:bg-slate-950 rounded">
+                  Items...
+                </div>
+              ),
+            },
+
+            {
+              title: "Prevent Vertical Scroll on Modal",
+
+              description:
+                "Disable overscroll when a modal is open to keep the background fixed.",
+
+              code: `<div class="overscroll-none h-64 overflow-auto">Modal content...</div>`,
+
+              preview: (
+                <div className="overscroll-none h-32 overflow-auto p-2 border rounded bg-white dark:bg-slate-800">
+                  Modal content...
+                </div>
+              ),
+            },
+
+            {
+              title: "Nested Scroll Panels",
+
+              description:
+                "Ensure inner panels scroll independently without propagating to outer container.",
+
+              code: `<div class="h-64 overflow-auto">  <div class="h-32 overflow-auto overscroll-contain">Inner panel</div></div>`,
+
+              preview: (
+                <div className="h-64 overflow-auto border p-2 bg-slate-50 dark:bg-slate-950 rounded">
+                  {" "}
+                  <div className="h-32 overflow-auto overscroll-contain p-2 bg-white dark:bg-slate-800 rounded">
+                    Inner panel
+                  </div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Touch Scroll Isolation",
+
+              description:
+                "On mobile devices, isolate touch scroll to prevent scroll chaining to parent elements.",
+
+              code: `<div class="h-40 overflow-auto overscroll-contain">Scrollable touch area</div>`,
+
+              preview: (
+                <div className="h-40 overflow-auto overscroll-contain p-2 border bg-white dark:bg-slate-800 rounded">
+                  Scrollable touch area
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using overscroll-auto when isolation is needed",
+
+              reason:
+                "Default chaining may cause inner scrolls to bubble to parent containers unexpectedly.",
+
+              example: `<div class="overflow-auto overscroll-auto">...</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overusing overscroll-none",
+
+              reason:
+                "Completely disabling overscroll can make touch interfaces feel unresponsive.",
+
+              example: `<div class="overscroll-none">...</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Incorrect axis application",
+
+              reason:
+                "Applying overscroll-x-* classes to vertical scroll containers has no effect.",
+
+              example: `<div class="overscroll-x-none overflow-y-auto">...</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Neglecting mobile testing",
+
+              reason:
+                "Overscroll behavior impacts touch momentum scrolling; desktop testing alone can miss issues.",
+
+              example: `<div class="overscroll-contain">...</div>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Axis-Specific Control:",
+              text: "Use `overscroll-x-*` or `overscroll-y-*` to control scrolling per axis precisely.",
+            },
+
+            {
+              bold: "Nested Scroll Panels:",
+              text: "Combine `overscroll-contain` with `overflow-auto` to isolate inner scroll regions.",
+            },
+
+            {
+              bold: "Mobile UX:",
+              text: "Test on touch devices; momentum scrolling and bounce effects are axis-sensitive.",
+            },
+
+            {
+              bold: "Fallbacks:",
+              text: "Remember older browsers may not fully respect overscroll properties; provide sensible scroll containment via container sizing.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["layout", "position"],
+    title: "Position",
+    description:
+      "Control the positioning of elements within the layout. Use position utilities to manage static, relative, absolute, fixed, and sticky elements and to define how they interact with surrounding content.",
+    sections: [
+      {
+        type: "hero",
+        props: {
+          title: "Position",
+          description:
+            "Control the positioning of elements within the layout. Position utilities allow you to set an element as static, relative, absolute, fixed, or sticky, affecting its placement and stacking context in the DOM.",
+        },
+      },
+      {
+        type: "mental-model",
+        props: {
+          title: "Stacking and Flow Control",
+          description:
+            "Position utilities modify the CSS `position` property. Relative positions move elements relative to their original spot. Absolute positions detach elements from the flow. Fixed positions attach them to the viewport. Sticky positions toggle between relative and fixed based on scroll position.",
+          features: [
+            "Supports all standard positioning types",
+            "Interacts with top/right/bottom/left offsets",
+            "Impacts stacking context and z-index",
+            "Responsive-friendly via prefixes",
+            "Useful for layering UI components",
+          ],
+          layerAssignment:
+            "Layout Layer - Controls element placement and stacking",
+          browserBehavior: "Maps directly to the CSS `position` property.",
+        },
+      },
+      {
+        type: "utility-grid",
+        props: {
+          title: "Common Classes",
+          items: [
+            { cls: "static", desc: "Default flow position" },
+            { cls: "relative", desc: "Relative to original position" },
+            {
+              cls: "absolute",
+              desc: "Positioned relative to nearest positioned ancestor",
+            },
+            { cls: "fixed", desc: "Fixed relative to viewport" },
+            {
+              cls: "sticky",
+              desc: "Switches between relative and fixed on scroll",
+            },
+          ],
+        },
+      },
+      {
+        type: "playground",
+        props: {
+          title: "Position Playground",
+          description:
+            "Experiment with different position types. Note: We use a CSS transform on the parent to contain 'fixed' elements within this preview box.",
+          options: ["static", "relative", "absolute", "fixed", "sticky"],
+          defaultValue: "relative",
+          buildMarkup: (value: string) =>
+            `<div class="${value} top-4 left-4 p-4 border bg-blue-100">
+  Target
+</div>`,
+          renderPreview: (value: string) => (
+            <div className="p-8 bg-slate-50 dark:bg-slate-950 rounded-lg relative h-64 w-full border border-slate-200 dark:border-slate-800 overflow-hidden transform translate-z-0">
+              {/* The transform class above prevents 'fixed' children from escaping the box */}
+              <div className="absolute inset-0 p-4 text-slate-300 dark:text-slate-700 text-sm">
+                Container Boundary (Relative Parent)
+              </div>
+              <div
+                className={`${value} top-8 left-8 p-6 bg-white dark:bg-slate-800 rounded shadow-lg border border-blue-200 dark:border-blue-900 text-center transition-all duration-300 z-10`}
+              >
+                <p className="text-slate-600 dark:text-slate-300 font-bold">
+                  Target Element
+                </p>
+                <p className="text-xs text-slate-400 mt-1">{value}</p>
+              </div>
+              <div className="mt-20 p-4 text-slate-400 text-xs">
+                <p>Sibling content to show flow...</p>
+                <p>Sibling content to show flow...</p>
+              </div>
+            </div>
+          ),
+        },
+      },
+      {
+        type: "interactive-challenge",
+        props: {
+          title: "Fix the Overlapping Box",
+          description:
+            "A child box overlaps other content due to improper positioning. Apply the correct position utility to make it align properly to the top-right corner of its relative container.",
+          codeSnippet: `<div class="p-4 border relative h-32">
+  <div class="bg-slate-200 h-full">Main Content</div>
+  <div class="{input} top-0 right-0 p-2 bg-blue-600 text-white">
+    Badge
+  </div>
+</div>`,
+          options: ["static", "relative", "absolute", "fixed"],
+          correctOption: "absolute",
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-32 bg-white dark:bg-slate-900 rounded-lg relative border border-slate-300 dark:border-slate-700 overflow-hidden">
+              <div className="bg-slate-100 dark:bg-slate-800 h-full p-4 text-slate-400 text-sm">
+                Main Content Area
+              </div>
+              <div
+                className={`p-2 bg-blue-600 text-white text-xs font-bold shadow-md top-0 right-0 transition-all duration-300 ${userClass}`}
+              >
+                Badge
+              </div>
+            </div>
+          ),
+        },
+      },
+      {
+        type: "examples",
+        props: {
+          title: "Real-World Patterns",
+          examples: [
+            {
+              title: "Sticky Header",
+              description:
+                "Keep a navigation bar visible at the top while scrolling content below.",
+              code: `<div class="h-48 overflow-y-auto relative">
+  <header class="sticky top-0 bg-blue-600 text-white p-4 shadow z-10">
+    Sticky Header
+  </header>
+  <div class="p-4 space-y-4">
+    <p>Scroll me...</p>
+    </div>
+</div>`,
+              preview: (
+                <div className="h-48 w-full bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700 overflow-y-auto relative">
+                  <header className="sticky top-0 bg-blue-600 text-white p-3 shadow-md z-10 font-bold text-sm">
+                    Sticky Header
+                  </header>
+                  <div className="p-4 space-y-4 text-sm text-slate-600 dark:text-slate-400">
+                    <p>Scroll down to see the effect.</p>
+                    <p>
+                      The header stays pinned to the top of this container while
+                      you scroll.
+                    </p>
+                    <p>Content block 1</p>
+                    <p>Content block 2</p>
+                    <p>Content block 3</p>
+                    <p>Content block 4</p>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Floating Action Button (FAB)",
+              description:
+                "Use absolute positioning to float a button at the bottom-right of a container.",
+              code: `<div class="relative h-40 bg-slate-100">
+  <button class="absolute bottom-4 right-4 bg-indigo-600 text-white p-3 rounded-full shadow-lg">
+    +
+  </button>
+</div>`,
+              preview: (
+                <div className="relative h-40 w-full bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
+                  <div className="p-4 text-slate-400 text-sm">Card Content</div>
+                  <button className="absolute bottom-4 right-4 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg flex items-center justify-center font-bold text-xl transition-transform hover:scale-110">
+                    +
+                  </button>
+                </div>
+              ),
+            },
+            {
+              title: "Fixed Modal Overlay",
+              description:
+                "Use positioning to create a modal that covers the screen. (Preview uses absolute to stay inside box)",
+              code: `<div class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+  <div class="bg-white p-6 rounded shadow-xl">
+    Modal Content
+  </div>
+</div>`,
+              preview: (
+                <div className="relative h-48 w-full bg-slate-200 dark:bg-slate-800 rounded overflow-hidden">
+                  {/* Simulated background content */}
+                  <div className="p-4">
+                    <div className="h-4 w-3/4 bg-slate-300 dark:bg-slate-700 rounded mb-2"></div>
+                    <div className="h-4 w-1/2 bg-slate-300 dark:bg-slate-700 rounded"></div>
+                  </div>
+                  {/* The Modal (Absolute used for preview containment) */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-2xl border border-slate-200 dark:border-slate-700 max-w-[200px] text-center">
+                      <h4 className="font-bold text-slate-900 dark:text-white mb-2">
+                        Confirm?
+                      </h4>
+                      <button className="bg-red-500 text-white text-xs px-3 py-1 rounded">
+                        Yes, delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Notification Badge",
+              description:
+                "Position a small badge relative to an icon or button.",
+              code: `<div class="relative inline-block">
+  <button class="p-2 bg-white border rounded">Icon</button>
+  <span class="absolute -top-1 -right-1 flex h-3 w-3">
+    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+    <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+  </span>
+</div>`,
+              preview: (
+                <div className="flex items-center justify-center h-24 bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800">
+                  <div className="relative">
+                    <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded flex items-center justify-center text-xl">
+                      🔔
+                    </div>
+                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Layered Cards (Z-Index)",
+              description:
+                "Stack cards using relative positioning and negative margins to create a deck effect.",
+              code: `<div class="relative">
+  <div class="relative z-10 p-4 bg-white shadow-md">Top Card</div>
+  <div class="relative -top-10 scale-95 z-0 p-4 bg-gray-50">Bottom</div>
+</div>`,
+              preview: (
+                <div className="flex flex-col items-center justify-center h-48 bg-slate-50 dark:bg-slate-950 rounded">
+                  <div className="relative z-20 w-48 h-24 bg-white dark:bg-slate-800 shadow-xl rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center font-bold text-slate-800 dark:text-white">
+                    Front Card
+                  </div>
+                  <div className="relative z-10 w-48 h-24 bg-slate-200 dark:bg-slate-700 shadow-md rounded-lg border border-slate-300 dark:border-slate-600 flex items-center justify-center -mt-20 scale-95 opacity-80"></div>
+                  <div className="relative z-0 w-48 h-24 bg-slate-300 dark:bg-slate-600 shadow-sm rounded-lg border border-slate-400 dark:border-slate-500 flex items-center justify-center -mt-20 scale-90 opacity-60"></div>
+                </div>
+              ),
+            },
+            {
+              title: "Fixed Footer Bar",
+              description:
+                "A footer pinned to the bottom. (Preview contained via absolute)",
+              code: `<footer class="fixed bottom-0 left-0 w-full bg-slate-900 text-white p-4">
+  Pinned Footer
+</footer>`,
+              preview: (
+                <div className="relative h-40 w-full bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
+                  <div className="p-4 space-y-2">
+                    <div className="h-2 w-full bg-slate-300 dark:bg-slate-700 rounded"></div>
+                    <div className="h-2 w-full bg-slate-300 dark:bg-slate-700 rounded"></div>
+                    <div className="h-2 w-2/3 bg-slate-300 dark:bg-slate-700 rounded"></div>
+                  </div>
+                  <footer className="absolute bottom-0 left-0 w-full bg-slate-900 text-white p-3 text-center text-xs font-medium">
+                    Pinned Footer
+                  </footer>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+      {
+        type: "common-mistakes",
+        props: {
+          mistakes: [
+            {
+              title: "Misusing Static",
+              reason:
+                "By default, elements are static. Adding `top-4` or `z-10` to a static element does nothing. You must switch to `relative`, `absolute`, or `fixed`.",
+              example: `<div class="static top-4 z-50">...</div>`,
+              level: "warning",
+            },
+            {
+              title: "Absolute without Relative Parent",
+              reason:
+                "An `absolute` element looks up the DOM tree for the nearest positioned ancestor. If none is found, it positions itself relative to the entire page body.",
+              example: `<div> <div class="absolute top-0 right-0">...</div>
+</div>`,
+              level: "critical",
+            },
+            {
+              title: "Sticky without Threshold",
+              reason:
+                "A `sticky` element usually needs at least one threshold (like `top-0`) to know when to stick.",
+              example: `<div class="sticky">Sticks to what?</div>`,
+              level: "info",
+            },
+          ],
+        },
+      },
+      {
+        type: "tips",
+        props: {
+          tips: [
+            {
+              bold: "Z-Index Partner:",
+              text: "Position utilities are almost always paired with `z-index` to control vertical stacking order.",
+            },
+            {
+              bold: "Responsive Positioning:",
+              text: "Use prefixes like `md:absolute` to un-stick elements on mobile or fix them on desktop.",
+            },
+            {
+              bold: "Absolute Center:",
+              text: "A classic modern pattern: `absolute inset-0 flex items-center justify-center` perfectly centers content over an image or background.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["layout", "top-right-bottom-left"],
+    title: "Top / Right / Bottom / Left",
+    description:
+      "Control an element's offset within its containing block. Use inset utilities to precisely position absolute, fixed, and sticky elements for layouts like modals, tooltips, and floating actions.",
+    docsUrl: "https://tailwindcss.com/docs/top-right-bottom-left",
+    sections: [
+      {
+        type: "hero",
+        props: {
+          title: "Top / Right / Bottom / Left",
+          description:
+            "These utilities adjust an element's position along the top, right, bottom, or left axes relative to its containing block. They are essential for fine-tuning layouts and positioning elements in complex designs.",
+        },
+      },
+      {
+        type: "mental-model",
+        props: {
+          title: "Offset Control",
+          description:
+            "Inset utilities move elements along their respective axes. Imagine a draggable box within a frame—the top/right/bottom/left values determine how far the box is from each edge, giving you pixel-perfect control over placement.",
+          features: [
+            "Responsive support via breakpoint prefixes",
+            "Fractional, full, and negative spacing",
+            "Works with relative, absolute, fixed, and sticky positioning",
+            "Supports shorthand `inset` for multiple axes",
+          ],
+          layerAssignment: "Layout Layer - Controls element placement",
+          browserBehavior:
+            "Maps directly to the CSS `top`, `right`, `bottom`, and `left` properties.",
+        },
+      },
+      {
+        type: "utility-grid",
+        props: {
+          title: "Common Classes",
+          items: [
+            { cls: "top-0", desc: "Align element to the top edge" },
+            { cls: "right-0", desc: "Align element to the right edge" },
+            { cls: "bottom-0", desc: "Align element to the bottom edge" },
+            { cls: "left-0", desc: "Align element to the left edge" },
+            { cls: "inset-0", desc: "Stretch element to all edges" },
+            {
+              cls: "inset-x-0",
+              desc: "Stretch horizontally to left and right edges",
+            },
+            {
+              cls: "inset-y-0",
+              desc: "Stretch vertically to top and bottom edges",
+            },
+            { cls: "top-1/2", desc: "Position element at 50% from the top" },
+            { cls: "left-1/2", desc: "Position element at 50% from the left" },
+          ],
+        },
+      },
+      {
+        type: "playground",
+        props: {
+          title: "Inset Playground",
+          description:
+            "Experiment with different inset values to see how elements shift relative to their container.",
+          options: [
+            "top-0",
+            "right-0",
+            "bottom-0",
+            "left-0",
+            "inset-0",
+            "inset-x-4",
+            "inset-y-8",
+            "top-1/2 left-1/2",
+          ],
+          defaultValue: "top-0",
+          buildMarkup: (value: string) =>
+            `<div class="relative h-32 w-32 bg-slate-100">
+  <div class="absolute ${value} bg-blue-500 w-16 h-16"></div>
+</div>`,
+          renderPreview: (value: string) => (
+            <div className="p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center">
+              <div className="relative h-48 w-48 bg-slate-100 dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
+                  <div className="w-full h-[1px] bg-slate-500"></div>
+                  <div className="h-full w-[1px] bg-slate-500 absolute"></div>
+                </div>
+                <div
+                  className={`absolute bg-blue-500/80 backdrop-blur-sm w-16 h-16 rounded shadow-lg border border-blue-400 transition-all duration-300 ${value}`}
+                >
+                  <div className="w-full h-full flex items-center justify-center text-white text-xs font-mono">
+                    Box
+                  </div>
+                </div>
+              </div>
+            </div>
+          ),
+        },
+      },
+      {
+        type: "interactive-challenge",
+        props: {
+          title: "Center the Box",
+          description:
+            "You have a small box inside a larger container. It's currently stuck in the corner. Use the correct inset utility (and assume correct transforms are applied) to position it exactly in the top-left corner.",
+          codeSnippet: `<div class="relative h-32 w-32 bg-gray-100">
+  <div class="absolute {input} bg-blue-500 w-8 h-8"></div>
+</div>`,
+          options: ["top-1/2", "right-0", "top-0 left-0", "bottom-0"],
+          correctOption: "top-0 left-0",
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div className="relative h-32 w-32 bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700 shadow-sm">
+                <div
+                  className={`absolute bg-blue-500 w-8 h-8 rounded shadow-sm transition-all duration-300 ${userClass}`}
+                ></div>
+              </div>
+            </div>
+          ),
+        },
+      },
+      {
+        type: "examples",
+        props: {
+          title: "Real-World Patterns",
+          examples: [
+            {
+              title: "Tooltip Position",
+              description:
+                "Position a tooltip above its trigger using `bottom-full` and centering offsets.",
+              code: `<div class="relative inline-block">
+  <button class="bg-blue-600 text-white px-4 py-2 rounded">Hover Me</button>
+  <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded">
+    Tooltip
+  </div>
+</div>`,
+              preview: (
+                <div className="p-8 flex justify-center">
+                  <div className="relative inline-block group">
+                    <button className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">
+                      Hover Me
+                    </button>
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-900 text-white text-xs rounded shadow-lg whitespace-nowrap opacity-100 transition-opacity">
+                      Tooltip Content
+                      {/* Arrow */}
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900"></div>
+                    </div>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Sticky Header",
+              description:
+                "Keep a header fixed at the top of a scrollable container using `top-0`.",
+              code: `<div class="relative h-48 overflow-auto">
+  <header class="sticky top-0 w-full bg-white shadow p-4 z-10">Header</header>
+  <div class="p-4">Content...</div>
+</div>`,
+              preview: (
+                <div className="relative h-48 w-full bg-slate-100 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 overflow-y-auto">
+                  <header className="sticky top-0 w-full bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700 p-3 z-10 font-bold text-sm">
+                    Sticky Header
+                  </header>
+                  <div className="p-4 space-y-4 text-sm text-slate-600 dark:text-slate-400">
+                    <p>Scroll down...</p>
+                    <p>The header stays pinned to the top (top-0).</p>
+                    <p>Content block 1</p>
+                    <p>Content block 2</p>
+                    <p>Content block 3</p>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Floating Action Button",
+              description:
+                "Position a button in the bottom-right corner using `bottom-4 right-4`.",
+              code: `<div class="relative h-40 bg-slate-50">
+  <button class="absolute bottom-4 right-4 bg-indigo-600 text-white p-3 rounded-full shadow-lg">
+    +
+  </button>
+</div>`,
+              preview: (
+                <div className="relative h-40 w-full bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800">
+                  <div className="p-4 text-slate-400 text-sm">App Content</div>
+                  <button className="absolute bottom-4 right-4 bg-indigo-600 hover:bg-indigo-700 text-white w-10 h-10 rounded-full shadow-lg flex items-center justify-center font-bold text-xl transition-transform hover:scale-110">
+                    +
+                  </button>
+                </div>
+              ),
+            },
+            {
+              title: "Modal Centering",
+              description:
+                "Use `inset-0` on a fixed container to create a full-screen overlay for modals.",
+              code: `<div class="fixed inset-0 bg-black/50 flex items-center justify-center">
+  <div class="bg-white p-6 rounded shadow-lg">Modal</div>
+</div>`,
+              preview: (
+                <div className="relative h-48 w-full bg-slate-200 dark:bg-slate-800 rounded overflow-hidden">
+                  <div className="p-4 text-sm opacity-50">
+                    Background Content
+                  </div>
+                  {/* Modal Overlay */}
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]">
+                    <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 max-w-[200px] text-center">
+                      <h3 className="font-bold text-slate-900 dark:text-white mb-2">
+                        Confirm
+                      </h3>
+                      <button className="bg-blue-600 text-white text-xs px-3 py-1 rounded">
+                        OK
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Drawer Menu",
+              description:
+                "Slide a menu from the left using `top-0 bottom-0 left-0` to stretch it vertically.",
+              code: `<div class="relative h-48 overflow-hidden">
+  <aside class="absolute top-0 bottom-0 left-0 w-32 bg-slate-800 text-white p-4">
+    Menu
+  </aside>
+</div>`,
+              preview: (
+                <div className="relative h-48 w-full bg-slate-100 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 overflow-hidden">
+                  <aside className="absolute top-0 bottom-0 left-0 w-32 bg-slate-800 text-white p-4 shadow-xl flex flex-col gap-2">
+                    <div className="font-bold border-b border-slate-700 pb-2 mb-2">
+                      Menu
+                    </div>
+                    <div className="text-xs text-slate-400">Dashboard</div>
+                    <div className="text-xs text-slate-400">Settings</div>
+                  </aside>
+                  <div className="ml-32 p-4 text-sm text-slate-500">
+                    Main Content Area
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Avatar Badge",
+              description:
+                "Position a status badge at the top-right corner of an avatar using `top-0 right-0`.",
+              code: `<div class="relative inline-block">
+  <img class="w-12 h-12 rounded-full" src="..." />
+  <span class="absolute top-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+</div>`,
+              preview: (
+                <div className="flex justify-center items-center h-24 bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800">
+                  <div className="relative inline-block">
+                    <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xl">
+                      👤
+                    </div>
+                    <span className="absolute top-0 right-0 block h-3.5 w-3.5 rounded-full bg-green-500 ring-2 ring-white dark:ring-slate-900 transform translate-x-1/4 -translate-y-1/4"></span>
+                  </div>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+      {
+        type: "common-mistakes",
+        props: {
+          mistakes: [
+            {
+              title: "Using Inset Without Positioning",
+              reason:
+                "Inset utilities (`top-0`, `left-4`) require `relative`, `absolute`, `fixed`, or `sticky` positioning. Without it, they have no effect on static elements.",
+              example: `<div class="top-0">No effect (Static)</div>`,
+              level: "warning",
+            },
+            {
+              title: "Forgetting Negative Values",
+              reason:
+                "To pull an element *outside* its container (e.g., overlapping a border), you often need negative values like `-top-4`. Don't forget the dash prefix.",
+              example: `<div class="top-4">Pushed IN instead of OUT</div>`,
+              level: "info",
+            },
+            {
+              title: "Combining Conflicting Utilities",
+              reason:
+                "Using both `inset-0` (all sides) and `top-4` creates a conflict. The browser will prioritize based on specificity or document order, leading to unpredictable layouts.",
+              example: `<div class="inset-0 top-4">Conflicting rules</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+      {
+        type: "tips",
+        props: {
+          tips: [
+            {
+              bold: "Combine with Transforms:",
+              text: "Use `top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2` to perfectly center an absolute element.",
+            },
+            {
+              bold: "Use Shorthand Insets:",
+              text: "`inset-0` is shorthand for `top: 0; right: 0; bottom: 0; left: 0;`. Use `inset-x-0` for left/right only.",
+            },
+            {
+              bold: "Responsive Offsets:",
+              text: "Prefix with breakpoints like `md:top-0` to change positioning logic on larger screens.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["layout", "visibility"],
+
+    title: "Visibility",
+
+    description:
+      "Control whether an element is rendered in the layout or hidden from view. Visibility utilities allow you to hide elements without affecting the flow of surrounding content, useful for conditional UI or accessibility considerations.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Visibility",
+
+          description:
+            "Control whether an element is rendered in the layout or hidden from view. Visibility utilities are essential for managing conditional content, tooltips, and progressive disclosure patterns.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Show/Hide Toggle",
+
+          description:
+            "Visibility utilities toggle the CSS `visibility` property. Unlike `display:none`, hidden elements still occupy space in the layout, preserving surrounding element positions.",
+
+          features: [
+            "Maintains element layout space",
+
+            "Supports responsive modifiers",
+
+            "Can be combined with transitions",
+
+            "Useful for progressive disclosure",
+
+            "Preserves accessibility focus order",
+          ],
+
+          layerAssignment: "Layout Layer - Controls element render visibility",
+
+          browserBehavior: "Maps directly to the CSS `visibility` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "visible", desc: "Element is visible" },
+
+            { cls: "invisible", desc: "Element is hidden but occupies space" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Visibility Playground",
+
+          description:
+            "Experiment with showing or hiding elements while maintaining layout. Observe how invisible elements retain their space.",
+
+          options: ["visible", "invisible"],
+
+          defaultValue: "visible",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} p-4 bg-blue-100">Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex flex-col items-center justify-center transition-all duration-300`}
+            >
+              <div
+                className={`bg-white dark:bg-slate-800 p-4 rounded shadow text-center ${value}`}
+              >
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Preview Content
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Hidden Menu",
+
+          description:
+            "A menu element is visually hidden but you need it to appear without changing layout flow. Correct the utility to make it visible.",
+
+          codeSnippet: '<div class="... {input}">Menu Item</div>',
+
+          options: ["invisible", "visible", "hidden", "block"],
+
+          correctOption: "visible",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`transition-all duration-500 ${userClass} p-4 bg-blue-200 rounded`}
+              >
+                Menu Item{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Conditional Tooltips",
+
+              description:
+                "Show tooltips only on hover while keeping space for transitions.",
+
+              code: `<div class="relative group">  <button>Hover me</button>  <span class="invisible group-hover:visible absolute bg-gray-700 text-white p-2 rounded">Tooltip</span></div>`,
+
+              preview: <div className="p-4">Tooltip Example</div>,
+            },
+
+            {
+              title: "Maintaining Layout for Hidden Elements",
+
+              description:
+                "Hide a placeholder element but retain its space for alignment purposes.",
+
+              code: `<div class="invisible p-4 bg-gray-200">Hidden placeholder</div>`,
+
+              preview: (
+                <div className="p-4 bg-gray-100">Hidden placeholder space</div>
+              ),
+            },
+
+            {
+              title: "Progressive Disclosure",
+
+              description:
+                "Reveal content progressively while keeping layout intact.",
+
+              code: `<div class="invisible md:visible p-4 bg-green-100">Details on larger screens</div>`,
+
+              preview: (
+                <div className="p-4 bg-green-50">Responsive content</div>
+              ),
+            },
+
+            {
+              title: "Form Field Validation",
+
+              description:
+                "Show validation messages conditionally without collapsing the form layout.",
+
+              code: `<p class="invisible text-red-600 mt-1">Invalid email</p>`,
+
+              preview: <div className="p-4">Validation placeholder</div>,
+            },
+
+            {
+              title: "Accessible Offscreen Elements",
+
+              description:
+                "Hide elements visually but keep them accessible for screen readers.",
+
+              code: `<div class="invisible sr-only">Screen reader text</div>`,
+
+              preview: <div className="p-4">Hidden accessible text</div>,
+            },
+
+            {
+              title: "Interactive Modals",
+
+              description:
+                "Toggle modal visibility without affecting underlying layout until displayed.",
+
+              code: `<div class="invisible md:visible fixed top-0 left-0 w-full h-full bg-black/50"></div>`,
+
+              preview: <div className="p-4">Modal overlay placeholder</div>,
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using display instead of visibility",
+              reason:
+                "Changing `display:none` removes the element from layout.",
+              example: `<div class="hidden">Removed element</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Expecting invisible to collapse space",
+              reason:
+                "`invisible` preserves layout space; use `hidden` to remove it.",
+              example: `<div class="invisible">I still take space</div>`,
+              level: "info",
+            },
+
+            {
+              title: "Not combining with responsive modifiers",
+              reason:
+                "Visibility may need to change across breakpoints for adaptive UIs.",
+              example: `<div class="invisible md:visible">Responsive content</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Forgetting accessibility implications",
+              reason:
+                "Screen readers can still read `invisible` content; use ARIA attributes if needed.",
+              example: `<div class="invisible">Hidden info</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use with Hover/Focus:",
+              text: "Combine `invisible` with pseudo-class modifiers for dynamic interactivity.",
+            },
+
+            {
+              bold: "Preserve Layout:",
+              text: "Use `invisible` when you need to hide content without collapsing surrounding elements.",
+            },
+
+            {
+              bold: "Combine with Transitions:",
+              text: "Smoothly animate visibility changes using opacity and transitions for better UX.",
+            },
+
+            {
+              bold: "Accessibility First:",
+              text: "Check if hidden content should be accessible to screen readers; combine with `sr-only` when needed.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["layout", "z-index"],
+    title: "Z-Index",
+    description:
+      "Control the stacking order of elements along the z-axis. Use z-index utilities to manage overlapping content, modals, dropdowns, and tooltips, ensuring proper visual hierarchy and interaction behavior.",
+
+    sections: [
+      {
+        type: "hero",
+        props: {
+          title: "Z-Index",
+          description:
+            "Z-index utilities define the stack order of elements. Higher values appear above lower ones, making them essential for modals, dropdowns, tooltips, and other overlapping components.",
+        },
+      },
+      {
+        type: "mental-model",
+        props: {
+          title: "Stacking Context Control",
+          description:
+            "Z-index utilities set the CSS `z-index` property, influencing which elements appear on top of others. Proper use prevents accidental overlap issues and ensures important content is accessible and visually prominent.",
+          features: [
+            "Controls element stack order",
+            "Supports responsive adjustments",
+            "Interacts with stacking contexts",
+            "Essential for modals and dropdowns",
+            "Prevents overlap and visual conflicts",
+          ],
+          layerAssignment:
+            "Layout Layer - Controls stacking in the visual plane",
+          browserBehavior:
+            "Maps directly to the CSS `z-index` property; stacking depends on positioned ancestor elements (`relative`, `absolute`, `fixed`, `sticky`).",
+        },
+      },
+      {
+        type: "utility-grid",
+        props: {
+          title: "Common Classes",
+          items: [
+            { cls: "z-0", desc: "Default stacking" },
+            { cls: "z-10", desc: "Low priority overlay" },
+            { cls: "z-20", desc: "Moderate stacking" },
+            { cls: "z-30", desc: "Above moderate elements" },
+            { cls: "z-40", desc: "High priority overlay" },
+            { cls: "z-50", desc: "Top-most elements" },
+            { cls: "z-auto", desc: "Use browser default stacking" },
+          ],
+        },
+      },
+      {
+        type: "playground",
+        props: {
+          title: "Z-Index Playground",
+          description:
+            "Experiment with different z-index values on the middle box (Box 2) to see how it interacts with its siblings. Notice that negative z-index can push it behind the parent.",
+          options: ["z-0", "z-10", "z-20", "z-30", "z-40", "z-50", "z-auto"],
+          defaultValue: "z-10",
+          buildMarkup: (value: string) =>
+            `<div class="flex -space-x-4">
+  <div class="relative z-0 p-6 bg-blue-500 rounded-full">1</div>
+  <div class="relative ${value} p-6 bg-green-500 rounded-full">2</div>
+  <div class="relative z-0 p-6 bg-red-500 rounded-full">3</div>
+</div>`,
+          renderPreview: (value: string) => (
+            <div className="p-12 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center">
+              <div className="flex -space-x-4">
+                <div className="relative z-0 w-16 h-16 bg-blue-500 text-white font-bold flex items-center justify-center rounded-full shadow-lg border-4 border-white dark:border-slate-800">
+                  1
+                </div>
+                <div
+                  className={`relative w-16 h-16 bg-green-500 text-white font-bold flex items-center justify-center rounded-full shadow-lg border-4 border-white dark:border-slate-800 transition-all duration-300 ${value}`}
+                >
+                  2
+                </div>
+                <div className="relative z-0 w-16 h-16 bg-red-500 text-white font-bold flex items-center justify-center rounded-full shadow-lg border-4 border-white dark:border-slate-800">
+                  3
+                </div>
+              </div>
+            </div>
+          ),
+        },
+      },
+      {
+        type: "interactive-challenge",
+        props: {
+          title: "Fix the Modal Overlay",
+          description:
+            "A modal (black box) appears *below* the blue banner because it has the wrong z-index. Apply the correct utility to the modal so it sits on top of everything.",
+          codeSnippet: `<div class="relative h-48 w-full bg-gray-100 rounded-lg overflow-hidden">
+  <div class="absolute top-4 left-4 z-20 bg-blue-500 text-white p-2 rounded shadow">
+    Important Banner
+  </div>
+  <div class="absolute inset-0 flex items-center justify-center bg-black/80 text-white {input}">
+    Modal Overlay
+  </div>
+</div>`,
+          options: ["z-0", "z-10", "z-30", "z-auto"],
+          correctOption: "z-30",
+          renderPreview: (userClass: string) => (
+            <div className="relative w-full h-48 bg-slate-100 dark:bg-slate-900 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800">
+              {/* The "Banner" that is currently on top */}
+              <div className="absolute top-8 left-8 z-20 bg-blue-500 text-white px-4 py-2 rounded shadow-md font-bold">
+                Important Banner (z-20)
+              </div>
+
+              {/* The Modal Overlay - User controls this */}
+              <div
+                className={`absolute inset-0 bg-black/80 flex items-center justify-center text-white font-bold backdrop-blur-sm transition-all duration-300 ${userClass}`}
+              >
+                Modal Overlay
+              </div>
+            </div>
+          ),
+        },
+      },
+      {
+        type: "examples",
+        props: {
+          title: "Real-World Patterns",
+          examples: [
+            {
+              title: "Dropdown Menu",
+              description:
+                "Ensure the dropdown appears above other page elements using `z-50`.",
+              code: `<div class="relative inline-block text-left">
+  <button class="bg-white border p-2 rounded">Options</button>
+  <div class="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-50">
+    <a href="#" class="block px-4 py-2 hover:bg-gray-100">Edit</a>
+    <a href="#" class="block px-4 py-2 hover:bg-gray-100">Delete</a>
+  </div>
+</div>`,
+              preview: (
+                <div className="h-32 flex justify-center items-start pt-4 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800">
+                  <div className="relative inline-block text-left group">
+                    <button className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 px-4 py-2 rounded shadow-sm text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700">
+                      Options ▼
+                    </button>
+                    {/* Dropdown (visible for demo) */}
+                    <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg z-50">
+                      <div className="py-1">
+                        <div className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">
+                          Edit
+                        </div>
+                        <div className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer">
+                          Delete
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Sticky Header",
+              description:
+                "Combine `sticky` positioning with z-index to keep headers above scrolling content.",
+              code: `<div class="h-40 overflow-y-auto relative">
+  <header class="sticky top-0 z-40 bg-white shadow-sm p-3">
+    Sticky Header
+  </header>
+  <div class="p-4 space-y-4">
+    <div class="h-12 bg-slate-100 rounded"></div>
+    <div class="h-12 bg-slate-100 rounded"></div>
+    <div class="h-12 bg-slate-100 rounded"></div>
+  </div>
+</div>`,
+              preview: (
+                <div className="h-40 w-full bg-white dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 overflow-y-auto relative">
+                  <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-3 shadow-sm font-bold text-sm">
+                    Sticky Header (z-40)
+                  </header>
+                  <div className="p-4 space-y-3">
+                    <div className="h-12 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+                    <div className="h-12 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+                    <div className="h-12 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+                    <div className="h-12 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Notification Toast",
+              description:
+                "Use moderate z-index to stack toasts above main content but below modals.",
+              code: `<div class="relative h-32 bg-slate-50 overflow-hidden">
+  <div class="absolute top-4 right-4 z-30 bg-green-500 text-white px-4 py-2 rounded shadow-lg flex items-center gap-2">
+    <span>✓ Saved successfully</span>
+  </div>
+  <div class="p-8">Main Content Area...</div>
+</div>`,
+              preview: (
+                <div className="relative h-32 w-full bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800 overflow-hidden">
+                  <div className="absolute top-4 right-4 z-30 bg-green-600 text-white px-3 py-2 rounded-md shadow-lg text-xs font-medium flex items-center gap-2 animate-in slide-in-from-right duration-500">
+                    <span className="bg-white/20 rounded-full w-4 h-4 flex items-center justify-center">
+                      ✓
+                    </span>
+                    Saved successfully
+                  </div>
+                  <div className="p-8 text-slate-400 text-sm">
+                    Main content area (z-0)
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Overlapping Avatar Stack",
+              description:
+                "Use incremental z-index (or reverse margin order) to create a face-pile effect.",
+              code: `<div class="flex -space-x-2">
+  <img class="relative z-30 inline-block h-10 w-10 rounded-full ring-2 ring-white" src="..." />
+  <img class="relative z-20 inline-block h-10 w-10 rounded-full ring-2 ring-white" src="..." />
+  <img class="relative z-10 inline-block h-10 w-10 rounded-full ring-2 ring-white" src="..." />
+</div>`,
+              preview: (
+                <div className="flex items-center justify-center p-6 bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800">
+                  <div className="flex -space-x-3">
+                    <div className="relative z-30 h-10 w-10 rounded-full ring-2 ring-white dark:ring-slate-800 bg-blue-500 flex items-center justify-center text-xs text-white font-bold">
+                      A
+                    </div>
+                    <div className="relative z-20 h-10 w-10 rounded-full ring-2 ring-white dark:ring-slate-800 bg-purple-500 flex items-center justify-center text-xs text-white font-bold">
+                      B
+                    </div>
+                    <div className="relative z-10 h-10 w-10 rounded-full ring-2 ring-white dark:ring-slate-800 bg-pink-500 flex items-center justify-center text-xs text-white font-bold">
+                      C
+                    </div>
+                    <div className="relative z-0 h-10 w-10 rounded-full ring-2 ring-white dark:ring-slate-800 bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs text-slate-500 font-bold">
+                      +5
+                    </div>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Tooltip Above Button",
+              description:
+                "Ensure tooltips appear above other elements using high z-index.",
+              code: `<div class="relative group inline-block">
+  <button class="bg-indigo-600 text-white px-4 py-2 rounded">Hover Me</button>
+  <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-max px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">
+    Tooltip Info
+  </span>
+</div>`,
+              preview: (
+                <div className="h-24 flex items-end justify-center pb-4 bg-slate-50 dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-800">
+                  <div className="relative group inline-block">
+                    <button className="bg-indigo-600 text-white px-4 py-2 rounded shadow-sm text-sm">
+                      Hover Me
+                    </button>
+                    <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-max px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-100 shadow-md">
+                      Tooltip Info
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                    </span>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              title: "Full-Screen Modal",
+              description:
+                "A typical modal structure. The backdrop uses `z-40` or `z-50` to cover the entire page.",
+              code: `<div class="fixed inset-0 z-50 flex items-center justify-center">
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm"></div>
+  <div class="relative bg-white p-6 rounded-lg shadow-xl z-10 w-full max-w-sm">
+    <h3 class="font-bold">Modal Title</h3>
+    <p class="mt-2 text-sm text-gray-500">Dialog content...</p>
+  </div>
+</div>`,
+              preview: (
+                <div className="relative h-64 w-full bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 overflow-hidden">
+                  <div className="p-4">Background Page Content...</div>
+                  {/* Modal Container */}
+                  <div className="absolute inset-0 z-50 flex items-center justify-center p-4">
+                    {/* Backdrop */}
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]"></div>
+                    {/* Modal Card */}
+                    <div className="relative bg-white dark:bg-slate-900 p-6 rounded-lg shadow-2xl z-10 w-full max-w-[200px] text-center border border-slate-200 dark:border-slate-700">
+                      <h3 className="font-bold text-slate-900 dark:text-white">
+                        Confirm
+                      </h3>
+                      <p className="mt-2 text-xs text-slate-500">
+                        Are you sure?
+                      </p>
+                      <div className="mt-4 flex justify-center gap-2">
+                        <button className="px-3 py-1 bg-slate-200 dark:bg-slate-800 rounded text-xs">
+                          Cancel
+                        </button>
+                        <button className="px-3 py-1 bg-blue-600 text-white rounded text-xs">
+                          Yes
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+      {
+        type: "common-mistakes",
+        props: {
+          mistakes: [
+            {
+              title: "Ignoring Positioning Context",
+              reason:
+                "z-index only works on positioned elements (`relative`, `absolute`, `fixed`, `sticky`). If an element is `static` (default), `z-index` has no effect.",
+              example: `<div class="z-50">I will not stack!</div>`,
+              level: "warning",
+            },
+            {
+              title: "Using Arbitrary High Values",
+              reason:
+                "Using `z-[9999]` is bad practice and leads to 'z-index wars'. Stick to a defined scale (0-50) to keep your stacking context manageable.",
+              example: `<div class="z-[99999]">Overkill</div>`,
+              level: "warning",
+            },
+            {
+              title: "Neglecting Stacking Contexts",
+              reason:
+                "If a parent element has a z-index, its children cannot be 'raised' above that parent's siblings, no matter how high you set the child's z-index.",
+              example: `<div class="z-10 relative">
+  <div class="z-50 fixed">I am trapped by my parent</div>
+</div>`,
+              level: "info",
+            },
+          ],
+        },
+      },
+      {
+        type: "tips",
+        props: {
+          tips: [
+            {
+              bold: "Maintain a z-index Scale:",
+              text: "Stick to `z-0` through `z-50` for predictable stacking. Use `z-10` for dropdowns, `z-40` for sticky headers, and `z-50` for modals.",
+            },
+            {
+              bold: "Isolate Stacking Context:",
+              text: "Use the `isolation-isolate` utility to force a new stacking context without needing `z-index` or `position`.",
+            },
+            {
+              bold: "Negative Z-Index:",
+              text: "Use `-z-10` to push decorative elements behind their container's content (requires the container to be established as a stacking context).",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["sizing", "max-height"],
+
+    title: "Max Height",
+
+    description:
+      "Limit the maximum height of an element. Useful for preventing content overflow, creating scrollable containers, or maintaining consistent layout proportions across different screen sizes. Implements CSS constraints directly on the element while respecting intrinsic sizing rules.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Max Height",
+
+          description:
+            "Control the maximum height of elements to manage layout consistency and prevent overflow. Use these utilities to enforce size boundaries on cards, modals, or sections with dynamic content.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Height Ceiling",
+
+          description:
+            "Max height utilities act like an invisible ceiling for your element. Content inside can grow naturally up to the ceiling, after which overflow behavior takes over (scrolling or hidden). Think of it as giving elements room to breathe but not letting them expand uncontrollably.",
+
+          features: [
+            "Responsive support via prefixes",
+
+            "Prevents visual overflow and layout shifts",
+
+            "Works with scrollable containers",
+
+            "Supports fraction, px, and screen-based values",
+
+            "Interoperates with min/max height and flex layouts",
+          ],
+
+          layerAssignment: "Layout / Sizing",
+
+          browserBehavior: "Maps directly to the CSS `max-height` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "max-h-0", desc: "Set maximum height to 0" },
+
+            { cls: "max-h-4", desc: "Maximum height 1rem (16px)" },
+
+            { cls: "max-h-8", desc: "Maximum height 2rem (32px)" },
+
+            { cls: "max-h-16", desc: "Maximum height 4rem (64px)" },
+
+            { cls: "max-h-32", desc: "Maximum height 8rem (128px)" },
+
+            { cls: "max-h-64", desc: "Maximum height 16rem (256px)" },
+
+            { cls: "max-h-screen", desc: "Maximum height 100vh" },
+
+            { cls: "max-h-min", desc: "Maximum height min-content" },
+
+            { cls: "max-h-max", desc: "Maximum height max-content" },
+
+            { cls: "max-h-full", desc: "Maximum height 100% of parent" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Max Height Playground",
+
+          description:
+            "Experiment with different max-height values to see how content overflow is controlled. Observe how scrollbars appear when content exceeds the set ceiling.",
+
+          options: ["max-h-16", "max-h-32", "max-h-64", "max-h-screen"],
+
+          defaultValue: "max-h-32",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} overflow-auto p-2 border border-slate-300">Content goes here</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex flex-col items-start justify-start transition-all duration-300 ${value} overflow-auto border border-slate-200 dark:border-slate-800`}
+            >
+              {" "}
+              <div className="p-2 bg-white dark:bg-slate-800 rounded shadow text-center w-full">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                  Praesent vehicula.
+                </p>{" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium mt-2">
+                  More content to demonstrate overflow behavior.
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Overflowing Card",
+
+          description:
+            "A card has excessive content that breaks the layout. Apply a max-height utility to constrain it and enable scrolling.",
+
+          codeSnippet:
+            '<div class="border p-4 rounded-lg {input}">Lorem ipsum...</div>',
+
+          options: ["max-h-16", "max-h-32", "max-h-64", "max-h-full"],
+
+          correctOption: "max-h-32",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-start justify-start p-4 overflow-hidden">
+              <div
+                className={`transition-all duration-500 ${userClass} overflow-auto border p-2 bg-white dark:bg-slate-800 rounded shadow w-full`}
+              >
+                {" "}
+                <p className="text-slate-700 dark:text-slate-200">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                  Vivamus lacinia odio vitae vestibulum vestibulum.
+                </p>{" "}
+                <p className="text-slate-700 dark:text-slate-200 mt-2">
+                  Additional content to trigger scrolling if max-height is
+                  applied correctly.
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Scrollable Modal",
+
+              description:
+                "Set max-height to prevent modal content from exceeding viewport height and enable scrolling.",
+
+              code: `<div class="max-h-screen overflow-auto p-4">Modal Content</div>`,
+
+              preview: (
+                <div className="max-h-screen overflow-auto p-4 bg-white dark:bg-slate-800 rounded shadow">
+                  Scrollable Modal Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Constrained Card",
+
+              description:
+                "Limit card height to maintain uniform grid layouts.",
+
+              code: `<div class="max-h-64 p-4 border rounded-lg">Card Content</div>`,
+
+              preview: (
+                <div className="max-h-64 p-4 border rounded-lg bg-white dark:bg-slate-800 shadow">
+                  Card Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Profile Sidebar",
+
+              description:
+                "Ensure sidebars do not exceed available screen space.",
+
+              code: `<aside class="max-h-screen overflow-auto p-4">Sidebar</aside>`,
+
+              preview: (
+                <aside className="max-h-screen overflow-auto p-4 bg-slate-100 dark:bg-slate-900 rounded shadow">
+                  Sidebar
+                </aside>
+              ),
+            },
+
+            {
+              title: "Collapsible Panel",
+
+              description:
+                "Use max-height for animated expand/collapse behavior.",
+
+              code: `<div class="max-h-0 transition-all duration-500 overflow-hidden">Panel Content</div>`,
+
+              preview: (
+                <div className="max-h-0 transition-all duration-500 overflow-hidden bg-white dark:bg-slate-800 p-4 rounded shadow">
+                  Panel Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Chat Window",
+
+              description:
+                "Constrain chat messages container to viewport height.",
+
+              code: `<div class="max-h-screen overflow-auto">Chat Messages</div>`,
+
+              preview: (
+                <div className="max-h-screen overflow-auto p-2 bg-slate-50 dark:bg-slate-950 rounded shadow">
+                  Chat Messages
+                </div>
+              ),
+            },
+
+            {
+              title: "Image Gallery",
+
+              description:
+                "Prevent oversized images from stretching the gallery layout.",
+
+              code: `<img class="max-h-64 object-cover" src="image.jpg" />`,
+
+              preview: (
+                <img
+                  className="max-h-64 object-cover rounded shadow"
+                  src="https://via.placeholder.com/150"
+                  alt="Gallery"
+                />
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "No Overflow Handling",
+              reason:
+                "Applying max-height without overflow control may hide content unintentionally.",
+              example: `<div class="max-h-32">Hidden content</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Using Fixed Pixel Values Too Small",
+              reason: "May truncate important content on larger screens.",
+              example: `<div class="max-h-16">Content cut off</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Responsive Needs",
+              reason:
+                "Static max-heights may not suit mobile or desktop layouts.",
+              example: `<div class="max-h-64">Content</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overriding Parent Heights",
+              reason:
+                "Max-height may conflict with parent flex or grid constraints.",
+              example: `<div class="flex"><div class="max-h-64">Content</div></div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with Overflow:",
+              text: "Use `overflow-auto` or `overflow-y-scroll` to enable scrollbars for content exceeding max-height.",
+            },
+
+            {
+              bold: "Responsive Utilities:",
+              text: "Use responsive prefixes like `sm:max-h-32` to adjust height limits per breakpoint.",
+            },
+
+            {
+              bold: "Fractional Heights:",
+              text: "Leverage `max-h-1/2`, `max-h-1/3`, etc., for proportional sizing within parent containers.",
+            },
+
+            {
+              bold: "Transition Animations:",
+              text: "Animate height changes by combining max-height with `transition-all` for collapsible panels.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["sizing", "min-height"],
+
+    title: "Min Height",
+
+    description:
+      "Set the minimum height of an element to control its vertical sizing. Useful for creating consistent layouts, ensuring components don't shrink below a usable size. Supports responsive adjustments for adaptive designs.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Min Height",
+
+          description:
+            "Control the minimum height of elements to maintain layout integrity and prevent undesired shrinking. Useful in components, sections, or cards where a minimum display area is required.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Minimum Vertical Space",
+
+          description:
+            "Min-height utilities define the least vertical space an element can occupy. Think of it as a safety floor for content: the element can grow beyond this value but never shrink below it.",
+
+          features: [
+            "Prevents content collapse",
+
+            "Supports responsive sizing",
+
+            "Works with flex and grid layouts",
+
+            "Composable with max-height constraints",
+          ],
+
+          layerAssignment: "Layout",
+
+          browserBehavior:
+            "Maps directly to the CSS `min-height` property. Child content cannot force the element below this height.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "min-h-0", desc: "No minimum height" },
+
+            { cls: "min-h-full", desc: "Fill parent container height" },
+
+            { cls: "min-h-screen", desc: "Full viewport height" },
+
+            { cls: "min-h-1/2", desc: "Half of parent height" },
+
+            { cls: "min-h-1/3", desc: "One third of parent height" },
+
+            { cls: "min-h-24", desc: "Fixed 6rem minimum height" },
+
+            { cls: "min-h-64", desc: "Fixed 16rem minimum height" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Min Height Playground",
+
+          description:
+            "Experiment with different minimum heights to see how they affect content flow and container sizing.",
+
+          options: ["min-h-0", "min-h-24", "min-h-64", "min-h-screen"],
+
+          defaultValue: "min-h-64",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} bg-slate-200 p-4 rounded">Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-start justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center w-full">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Preview Content
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Prevent Collapsing Card",
+
+          description:
+            "A card's content is too small and collapses on short screens. Apply a minimum height to maintain visual balance.",
+
+          codeSnippet:
+            '<div class="bg-white p-4 rounded shadow {input}">Card Content</div>',
+
+          options: ["min-h-0", "min-h-24", "min-h-64", "min-h-screen"],
+
+          correctOption: "min-h-64",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`transition-all duration-500 bg-white dark:bg-slate-800 p-4 rounded shadow w-1/2 text-center ${userClass}`}
+              >
+                Card Content{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Hero Section",
+              description:
+                "Ensure a hero section fills at least 75% of viewport height.",
+              code: `<section class="min-h-screen bg-blue-500 p-8">...</section>`,
+              preview: (
+                <div className="min-h-screen bg-blue-500 p-8 rounded-lg w-full">
+                  Hero Section
+                </div>
+              ),
+            },
+
+            {
+              title: "Card Layout",
+              description:
+                "Keep cards a minimum height for consistent grid appearance.",
+              code: `<div class="min-h-64 bg-white shadow p-6">Card Content</div>`,
+              preview: (
+                <div className="min-h-64 bg-white shadow p-6 rounded">
+                  Card Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Footer Alignment",
+              description:
+                "Guarantee footer always sits at bottom with min-height.",
+              code: `<footer class="min-h-24 bg-slate-700 text-white p-4">Footer</footer>`,
+              preview: (
+                <footer className="min-h-24 bg-slate-700 text-white p-4 rounded">
+                  Footer
+                </footer>
+              ),
+            },
+
+            {
+              title: "Modal Container",
+              description:
+                "Modals maintain a readable minimum height even with little content.",
+              code: `<div class="min-h-32 bg-white p-6 rounded shadow">Modal Content</div>`,
+              preview: (
+                <div className="min-h-32 bg-white p-6 rounded shadow">
+                  Modal Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Sidebar Layout",
+              description:
+                "Ensure sidebars occupy minimum vertical space for consistent layout.",
+              code: `<aside class="min-h-full bg-gray-100 p-4">Sidebar</aside>`,
+              preview: (
+                <aside className="min-h-full bg-gray-100 p-4 rounded">
+                  Sidebar
+                </aside>
+              ),
+            },
+
+            {
+              title: "Form Container",
+              description:
+                "Forms have minimum height to align with other content sections.",
+              code: `<form class="min-h-40 bg-white p-8 rounded shadow">Form Fields</form>`,
+              preview: (
+                <form className="min-h-40 bg-white p-8 rounded shadow">
+                  Form Fields
+                </form>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "No Minimum Height",
+              reason:
+                "Elements collapse when content is small, breaking layout.",
+              example: `<div class="bg-white p-4">Small Content</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Excessive Min Height",
+              reason:
+                "Using very large min-heights can create unnecessary scroll.",
+              example: `<div class="min-h-screen bg-gray-100 p-4">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Responsive Needs",
+              reason:
+                "Setting a single min-height for all screens can look bad on mobile.",
+              example: `<div class="min-h-64 bg-white p-4">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Conflict with Max Height",
+              reason:
+                "A min-height larger than max-height prevents growth or truncates content.",
+              example: `<div class="min-h-64 max-h-32 bg-white p-4">...</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Responsive Variants:",
+              text: "Use responsive prefixes like `sm:min-h-32` to adjust height on different screens.",
+            },
+
+            {
+              bold: "Combine with Flex:",
+              text: "Flex containers with `min-h` ensure children expand correctly.",
+            },
+
+            {
+              bold: "Use Percentages Carefully:",
+              text: "Percentage-based min-height relies on parent height being defined.",
+            },
+
+            {
+              bold: "Visual Consistency:",
+              text: "Keep min-height consistent across cards or sections for balanced layouts.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["svg", "fill"],
+
+    title: "Fill",
+
+    description:
+      "Control the fill color of SVG elements. Use these utilities to apply solid or themed colors to icons and vector graphics, ensuring consistent visual hierarchy and brand alignment.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Fill",
+
+          description:
+            "Control the fill color of SVG elements. Use these utilities to apply solid or themed colors to icons and vector graphics, ensuring consistent visual hierarchy and brand alignment.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "SVG Paint Bucket",
+
+          description:
+            "Fill utilities set the CSS `fill` property on SVG elements. This affects the interior color of vector shapes and paths, independent of text or background, enabling precise graphic styling in UIs.",
+
+          features: [
+            "Applies color to SVG shapes and paths",
+
+            "Overrides default `currentColor` if set",
+
+            "Supports theme tokens and custom colors",
+
+            "Cascades only within SVG elements",
+
+            "Essential for iconography and illustrations",
+          ],
+
+          layerAssignment: "Content Layer - Vector Graphics",
+
+          browserBehavior:
+            "Sets the CSS `fill` property on SVG elements; does not affect text or HTML backgrounds.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "fill-current", desc: "Uses current text color for fill" },
+
+            { cls: "fill-transparent", desc: "No fill applied" },
+
+            { cls: "fill-black", desc: "Applies black fill" },
+
+            { cls: "fill-white", desc: "Applies white fill" },
+
+            { cls: "fill-red-500", desc: "Applies theme red fill" },
+
+            { cls: "fill-blue-500", desc: "Applies theme blue fill" },
+
+            { cls: "fill-green-500", desc: "Applies theme green fill" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Fill Playground",
+
+          description:
+            "Experiment with different fill colors on SVG icons. Notice how `fill-current` adapts to parent text color.",
+
+          options: [
+            "fill-current",
+            "fill-red-500",
+            "fill-blue-500",
+            "fill-green-500",
+          ],
+
+          defaultValue: "fill-current",
+
+          buildMarkup: (value: string) =>
+            `<svg class="${value} w-8 h-8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <svg className={`${value} w-16 h-16`} viewBox="0 0 24 24">
+                {" "}
+                <circle cx="12" cy="12" r="10" />{" "}
+              </svg>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Icon Color",
+
+          description:
+            "An SVG icon is not visible against the background because it lacks a fill. Apply the correct utility to make it visible.",
+
+          codeSnippet:
+            '<svg class="w-12 h-12 ... {input}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>',
+
+          options: [
+            "fill-transparent",
+            "fill-current",
+            "fill-red-500",
+            "fill-none",
+          ],
+
+          correctOption: "fill-current",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <svg
+                className={`w-16 h-16 transition-all duration-500 ${userClass}`}
+                viewBox="0 0 24 24"
+              >
+                {" "}
+                <circle cx="12" cy="12" r="10" />{" "}
+              </svg>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Themed Icon",
+              description:
+                "Apply brand color to an SVG icon using `fill-current`.",
+              code: `<svg class="fill-current text-blue-500 w-6 h-6" viewBox="0 0 24 24"><path d="..."/></svg>`,
+              preview: (
+                <div className="p-4">
+                  <svg
+                    className="fill-current text-blue-500 w-6 h-6"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 2 L12 22" />
+                  </svg>
+                </div>
+              ),
+            },
+
+            {
+              title: "Error Icon",
+              description: "Use red fill for error state icons.",
+              code: `<svg class="fill-red-500 w-6 h-6" viewBox="0 0 24 24"><path d="..."/></svg>`,
+              preview: (
+                <div className="p-4">
+                  <svg className="fill-red-500 w-6 h-6" viewBox="0 0 24 24">
+                    <path d="M12 2 L12 22" />
+                  </svg>
+                </div>
+              ),
+            },
+
+            {
+              title: "Success Icon",
+              description: "Use green fill for success icons.",
+              code: `<svg class="fill-green-500 w-6 h-6" viewBox="0 0 24 24"><path d="..."/></svg>`,
+              preview: (
+                <div className="p-4">
+                  <svg className="fill-green-500 w-6 h-6" viewBox="0 0 24 24">
+                    <path d="M12 2 L12 22" />
+                  </svg>
+                </div>
+              ),
+            },
+
+            {
+              title: "Transparent Placeholder",
+              description:
+                "Use `fill-transparent` for placeholder or invisible SVGs.",
+              code: `<svg class="fill-transparent w-6 h-6" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>`,
+              preview: (
+                <div className="p-4">
+                  <svg className="fill-transparent w-6 h-6" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                  </svg>
+                </div>
+              ),
+            },
+
+            {
+              title: "White Icon for Dark Background",
+              description: "Apply white fill for icons on dark backgrounds.",
+              code: `<svg class="fill-white w-6 h-6" viewBox="0 0 24 24"><path d="..."/></svg>`,
+              preview: (
+                <div className="p-4 bg-slate-900">
+                  <svg className="fill-white w-6 h-6" viewBox="0 0 24 24">
+                    <path d="M12 2 L12 22" />
+                  </svg>
+                </div>
+              ),
+            },
+
+            {
+              title: "Dynamic Fill with Current Color",
+              description:
+                "Combine `fill-current` with text color for dynamic theming.",
+              code: `<svg class="fill-current text-emerald-500 w-6 h-6" viewBox="0 0 24 24"><path d="..."/></svg>`,
+              preview: (
+                <div className="p-4">
+                  <svg
+                    className="fill-current text-emerald-500 w-6 h-6"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 2 L12 22" />
+                  </svg>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "No Fill Applied",
+              reason: "SVG appears invisible if no fill utility is set.",
+              example: `<svg class="w-6 h-6"><path d="..."/></svg>`,
+              level: "warning",
+            },
+
+            {
+              title: "Using Fill on Non-SVG Elements",
+              reason: "`fill` utilities have no effect outside SVGs.",
+              example: `<div class="fill-red-500">Not applied</div>`,
+              level: "info",
+            },
+
+            {
+              title: "Overriding CurrentColor Unintentionally",
+              reason:
+                "Using `fill-black` may override `text-color` intended fill.",
+              example: `<svg class="fill-black text-red-500 w-6 h-6"><path d="..."/></svg>`,
+              level: "warning",
+            },
+
+            {
+              title: "Transparent Overuse",
+              reason:
+                "Using `fill-transparent` hides the icon, possibly confusing users.",
+              example: `<svg class="fill-transparent w-6 h-6"><circle cx="12" cy="12" r="10"/></svg>`,
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Theme Integration:",
+              text: "Use `fill-current` to tie icon colors to your text or theme utilities.",
+            },
+
+            {
+              bold: "Contrast Awareness:",
+              text: "Ensure fill colors contrast appropriately with backgrounds for accessibility.",
+            },
+
+            {
+              bold: "Reusable Icons:",
+              text: "Use `fill-current` in reusable components to allow dynamic theming.",
+            },
+
+            {
+              bold: "Fallback Colors:",
+              text: "Provide explicit fill values when targeting older browsers lacking `currentColor` support.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["svg", "stroke-width"],
+
+    title: "Stroke Width",
+
+    description:
+      "Control the thickness of SVG strokes. Use stroke-width utilities to adjust the weight of vector lines for icons, illustrations, and chart elements. Values map directly to the underlying `stroke-width` CSS property.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Stroke Width",
+
+          description:
+            "Adjust the thickness of SVG strokes using Tailwind utilities. This affects how lines appear in icons, charts, and other vector graphics, providing precise control over visual weight.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Line Weight Controller",
+
+          description:
+            "Stroke width utilities set the CSS `stroke-width` property for SVG elements. Think of it as adjusting the pen size when drawing vector paths: higher values produce thicker lines, lower values create finer lines.",
+
+          features: [
+            "Controls SVG line thickness",
+
+            "Supports responsive modifiers",
+
+            "Composable with stroke color utilities",
+
+            "Directly affects vector rendering",
+
+            "Useful for icons and charts",
+          ],
+
+          layerAssignment: "SVG / Vector Layer",
+
+          browserBehavior:
+            "Maps directly to the CSS `stroke-width` property. Works on all SVG elements that support strokes.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "stroke-0", desc: "No stroke (invisible)" },
+
+            { cls: "stroke-1", desc: "Thin stroke, 1px" },
+
+            { cls: "stroke-2", desc: "Moderate stroke, 2px" },
+
+            { cls: "stroke-4", desc: "Thicker stroke, 4px" },
+
+            { cls: "stroke-8", desc: "Heavy stroke, 8px" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Stroke Width Playground",
+
+          description:
+            "Experiment with different stroke widths to see how vector elements scale visually.",
+
+          options: ["stroke-0", "stroke-1", "stroke-2", "stroke-4", "stroke-8"],
+
+          defaultValue: "stroke-2",
+
+          buildMarkup: (value: string) =>
+            `<svg class="${value}" width="48" height="48"><circle cx="24" cy="24" r="20" stroke="currentColor" fill="none"/></svg>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <svg className={`${value} text-blue-600`} width="48" height="48">
+                {" "}
+                <circle
+                  cx="24"
+                  cy="24"
+                  r="20"
+                  stroke="currentColor"
+                  fill="none"
+                />{" "}
+              </svg>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Thin Icon",
+
+          description:
+            "A chart icon appears too faint due to a thin stroke. Increase the stroke width to make it visually balanced.",
+
+          codeSnippet:
+            '<svg class="{input}" width="48" height="48"><circle cx="24" cy="24" r="20" stroke="currentColor" fill="none"/></svg>',
+
+          options: ["stroke-0", "stroke-1", "stroke-4", "stroke-8"],
+
+          correctOption: "stroke-4",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <svg
+                className={`${userClass} text-blue-600`}
+                width="48"
+                height="48"
+              >
+                {" "}
+                <circle
+                  cx="24"
+                  cy="24"
+                  r="20"
+                  stroke="currentColor"
+                  fill="none"
+                />{" "}
+              </svg>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Icon Variants",
+
+              description:
+                "Thin vs thick stroke icons for different UI contexts.",
+
+              code: `<svg class="stroke-1 w-6 h-6">...</svg><svg class="stroke-4 w-6 h-6">...</svg>`,
+
+              preview: (
+                <div className="p-4 flex gap-4">
+                  <svg className="stroke-1 w-6 h-6 text-blue-600">
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      fill="none"
+                    />
+                  </svg>
+                  <svg className="stroke-4 w-6 h-6 text-blue-600">
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      fill="none"
+                    />
+                  </svg>
+                </div>
+              ),
+            },
+
+            {
+              title: "Chart Lines",
+
+              description:
+                "Adjusting line thickness for readability in charts.",
+
+              code: `<line class="stroke-2" x1="0" y1="0" x2="50" y2="50"/>`,
+
+              preview: (
+                <svg className="w-24 h-24">
+                  <line
+                    className="stroke-2 text-green-600"
+                    x1="0"
+                    y1="0"
+                    x2="50"
+                    y2="50"
+                  />
+                </svg>
+              ),
+            },
+
+            {
+              title: "Illustrative Paths",
+
+              description: "Custom stroke widths for decorative SVG elements.",
+
+              code: `<path class="stroke-8" d="M0 0 L24 24"/>`,
+
+              preview: (
+                <svg className="w-24 h-24">
+                  <path className="stroke-8 text-red-600" d="M0 0 L24 24" />
+                </svg>
+              ),
+            },
+
+            {
+              title: "Responsive Icons",
+
+              description:
+                "Changing stroke width responsively for smaller vs larger icons.",
+
+              code: `<svg class="sm:stroke-1 md:stroke-4">...</svg>`,
+
+              preview: (
+                <svg className="sm:stroke-1 md:stroke-4 w-12 h-12 text-purple-600">
+                  <circle
+                    cx="6"
+                    cy="6"
+                    r="5"
+                    stroke="currentColor"
+                    fill="none"
+                  />
+                </svg>
+              ),
+            },
+
+            {
+              title: "Disabled State",
+
+              description:
+                "Thin strokes for disabled or secondary state icons.",
+
+              code: `<svg class="stroke-1 opacity-50">...</svg>`,
+
+              preview: (
+                <svg className="stroke-1 opacity-50 w-6 h-6 text-gray-400">
+                  <circle
+                    cx="3"
+                    cy="3"
+                    r="2"
+                    stroke="currentColor"
+                    fill="none"
+                  />
+                </svg>
+              ),
+            },
+
+            {
+              title: "Hover Emphasis",
+
+              description: "Thicker strokes on hover to draw attention.",
+
+              code: `<svg class="stroke-2 hover:stroke-4">...</svg>`,
+
+              preview: (
+                <svg className="stroke-2 hover:stroke-4 w-6 h-6 text-blue-500">
+                  <circle
+                    cx="3"
+                    cy="3"
+                    r="2"
+                    stroke="currentColor"
+                    fill="none"
+                  />
+                </svg>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Too Thin to See",
+              reason:
+                "Using stroke-0 or stroke-1 on small icons may make them invisible.",
+              example: `<svg class="stroke-0">...</svg>`,
+              level: "critical",
+            },
+
+            {
+              title: "Overly Thick Lines",
+              reason:
+                "Using stroke-8 on small elements can overpower the layout.",
+              example: `<svg class="stroke-8">...</svg>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Responsive Needs",
+              reason:
+                "Not adjusting stroke width for different screen sizes can affect legibility.",
+              example: `<svg class="stroke-1">...</svg>`,
+              level: "info",
+            },
+
+            {
+              title: "Stroke Without Color",
+              reason:
+                "A stroke set without a color class renders invisible by default.",
+              example: `<svg class="stroke-2">...</svg>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Consistent Weights:",
+              text: "Keep stroke widths consistent across similar icons for visual harmony.",
+            },
+
+            {
+              bold: "Combine with Stroke Color:",
+              text: "Pair stroke-width with `stroke-{color}` for full control over appearance.",
+            },
+
+            {
+              bold: "Responsive Adjustment:",
+              text: "Use responsive modifiers like `sm:stroke-1 md:stroke-4` to maintain legibility.",
+            },
+
+            {
+              bold: "Preview Small Sizes:",
+              text: "Test stroke widths at the smallest sizes to ensure lines remain visible.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["svg", "stroke"],
+
+    title: "Stroke",
+
+    description:
+      "Control the stroke color of SVG elements. Use stroke utilities to apply consistent vector outlines across icons, illustrations, and graphics, ensuring visual harmony and accessibility.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Stroke",
+
+          description:
+            "Control the stroke color of SVG elements. Stroke utilities are essential for maintaining consistent iconography and visual hierarchy in your designs, especially when combined with fills and currentColor usage.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Vector Outline Brush",
+
+          description:
+            "Stroke utilities apply color to the outline of SVG shapes by setting the CSS `stroke` property. This affects paths, lines, and shapes independently of fill, allowing for precise vector styling.",
+
+          features: [
+            "Controls SVG outlines independently of fill",
+
+            "Supports responsive and variant modifiers",
+
+            "Affects all elements with a stroke attribute",
+
+            "Cascades via currentColor if used",
+
+            "Useful for icon and illustration consistency",
+          ],
+
+          layerAssignment: "Visual Layer - Vector Outlines",
+
+          browserBehavior:
+            "Maps directly to the CSS `stroke` property; values inherit when using `stroke-current`.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Stroke Classes",
+
+          items: [
+            { cls: "stroke-current", desc: "Inherit stroke color from parent" },
+
+            { cls: "stroke-transparent", desc: "No stroke applied" },
+
+            { cls: "stroke-black", desc: "Black stroke" },
+
+            { cls: "stroke-white", desc: "White stroke" },
+
+            { cls: "stroke-red-500", desc: "Semantic error stroke" },
+
+            { cls: "stroke-blue-500", desc: "Primary brand stroke" },
+
+            { cls: "stroke-green-500", desc: "Success/positive stroke" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Stroke Playground",
+
+          description:
+            "Experiment with different stroke colors to see their impact on SVG graphics. Use `stroke-current` to dynamically inherit colors from surrounding elements.",
+
+          options: [
+            "stroke-current",
+
+            "stroke-red-500",
+
+            "stroke-blue-500",
+
+            "stroke-green-500",
+          ],
+
+          defaultValue: "stroke-blue-500",
+
+          buildMarkup: (value: string) =>
+            `<svg class="${value} w-12 h-12" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <svg
+                className={`${value} w-16 h-16`}
+                viewBox="0 0 24 24"
+                fill="none"
+                strokeWidth={2}
+              >
+                {" "}
+                <circle cx="12" cy="12" r="10" />{" "}
+              </svg>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken Icon",
+
+          description:
+            "An icon is invisible because the stroke is not set. Apply the correct stroke utility to make it visible.",
+
+          codeSnippet: `<svg class="{input} w-12 h-12" viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="4" y1="12" x2="20" y2="12"/></svg>`,
+
+          options: [
+            "stroke-transparent",
+
+            "stroke-red-500",
+
+            "stroke-current",
+
+            "stroke-none",
+          ],
+
+          correctOption: "stroke-current",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <svg
+                className={`${userClass} w-16 h-16`}
+                viewBox="0 0 24 24"
+                fill="none"
+                strokeWidth={2}
+              >
+                {" "}
+                <line x1={4} y1={12} x2={20} y2={12} />{" "}
+              </svg>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Icon Styling",
+
+              description:
+                "Apply consistent stroke colors across multiple SVG icons in a navigation bar.",
+
+              code: `<svg class="stroke-blue-500 w-6 h-6" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12h14"/></svg>`,
+
+              preview: (
+                <svg
+                  className="stroke-blue-500 w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  strokeWidth={2}
+                >
+                  <path d="M5 12h14" />
+                </svg>
+              ),
+            },
+
+            {
+              title: "Alert Icons",
+
+              description:
+                "Use red stroke for error indicators to improve semantic clarity.",
+
+              code: `<svg class="stroke-red-500 w-6 h-6" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>`,
+
+              preview: (
+                <svg
+                  className="stroke-red-500 w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  strokeWidth={2}
+                >
+                  <circle cx="12" cy="12" r="10" />
+                </svg>
+              ),
+            },
+
+            {
+              title: "Success Indicators",
+
+              description:
+                "Apply green strokes for checkmarks in success messages.",
+
+              code: `<svg class="stroke-green-500 w-6 h-6" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>`,
+
+              preview: (
+                <svg
+                  className="stroke-green-500 w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  strokeWidth={2}
+                >
+                  <path d="M5 13l4 4L19 7" />
+                </svg>
+              ),
+            },
+
+            {
+              title: "Outline Illustrations",
+
+              description:
+                "Use `stroke-current` to inherit color dynamically from the text context.",
+
+              code: `<svg class="stroke-current w-6 h-6 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="4" y="4" width="16" height="16"/></svg>`,
+
+              preview: (
+                <svg
+                  className="stroke-current w-6 h-6 text-indigo-600"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  strokeWidth={2}
+                >
+                  <rect x={4} y={4} width={16} height={16} />
+                </svg>
+              ),
+            },
+
+            {
+              title: "Decorative Lines",
+
+              description:
+                "Apply subtle strokes to SVG dividers to maintain visual consistency.",
+
+              code: `<svg class="stroke-slate-400 w-full h-1" viewBox="0 0 100 1" fill="none" stroke-width="1"><line x1="0" y1="0.5" x2="100" y2="0.5"/></svg>`,
+
+              preview: (
+                <svg
+                  className="stroke-slate-400 w-full h-1"
+                  viewBox="0 0 100 1"
+                  fill="none"
+                  strokeWidth={1}
+                >
+                  <line x1={0} y1={0.5} x2={100} y2={0.5} />
+                </svg>
+              ),
+            },
+
+            {
+              title: "Dynamic Themes",
+
+              description:
+                "Change stroke colors dynamically using utility classes and dark mode variants.",
+
+              code: `<svg class="stroke-blue-500 dark:stroke-amber-400 w-6 h-6" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>`,
+
+              preview: (
+                <svg
+                  className="stroke-blue-500 dark:stroke-amber-400 w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  strokeWidth={2}
+                >
+                  <circle cx={12} cy={12} r={10} />
+                </svg>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "No Stroke Applied",
+
+              reason:
+                "Forgetting to set a stroke makes SVGs invisible if fill is none.",
+
+              example: `<svg class="stroke-transparent w-6 h-6"></svg>`,
+
+              level: "critical",
+            },
+
+            {
+              title: "Using Fill Instead",
+
+              reason:
+                "Setting fill instead of stroke on outline paths will not produce the desired stroke effect.",
+
+              example: `<svg class="fill-red-500 w-6 h-6"></svg>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring CurrentColor",
+
+              reason:
+                "Not using `stroke-current` when dynamic color is desired breaks theme inheritance.",
+
+              example: `<svg class="stroke-blue-500 dark:text-red-500"></svg>`,
+
+              level: "info",
+            },
+
+            {
+              title: "Stroke Width Missing",
+
+              reason:
+                "Stroke may not appear properly without `stroke-width` specified.",
+
+              example: `<svg class="stroke-red-500 w-6 h-6" fill="none"></svg>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Stroke-Current:",
+              text: "Leverage `stroke-current` to sync with text or icon colors dynamically.",
+            },
+
+            {
+              bold: "Combine with Fill:",
+              text: "Use fill and stroke together for richer iconography.",
+            },
+
+            {
+              bold: "Dark Mode:",
+              text: "Apply `dark:stroke-*` classes to adapt SVGs for dark themes.",
+            },
+
+            {
+              bold: "Accessibility:",
+              text: "Ensure sufficient contrast for strokes to maintain visibility and accessibility.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["tables", "border-collapse"],
+
+    title: "Border Collapse",
+
+    description:
+      "Control whether table borders are separated or collapsed. Use these utilities to manage the visual connection between table cells and simplify border styling, especially for dense data tables.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Border Collapse",
+
+          description:
+            "Control whether table borders are separated or collapsed. Proper usage ensures consistent table layouts and predictable border behavior across browsers.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Collapsing Borders Concept",
+
+          description:
+            "Border collapse utilities determine if adjacent table cell borders share a single border line or remain separate. Collapsed borders reduce visual clutter, while separate borders provide spacing and individual styling options.",
+
+          features: [
+            "Controls table cell border behavior",
+
+            "Supports `collapse` and `separate` modes",
+
+            "Affects layout of table rows and columns",
+          ],
+
+          layerAssignment: "Layout Layer - Table presentation",
+
+          browserBehavior:
+            "Maps directly to the CSS `border-collapse` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "border-collapse",
+              desc: "Collapses table borders into a single line",
+            },
+
+            {
+              cls: "border-separate",
+              desc: "Keeps table borders separated with spacing",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Border Collapse Playground",
+
+          description:
+            "Experiment with collapsing or separating table borders to see how it affects table presentation.",
+
+          options: ["border-collapse", "border-separate"],
+
+          defaultValue: "border-collapse",
+
+          buildMarkup: (value: string) =>
+            `<table class="${value} border border-slate-300"><tr><td class="border border-slate-400 p-2">Cell 1</td><td class="border border-slate-400 p-2">Cell 2</td></tr></table>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg overflow-auto ${value}`}
+            >
+              <table className={`${value} border border-slate-300 w-full`}>
+                {" "}
+                <tbody>
+                  {" "}
+                  <tr>
+                    {" "}
+                    <td className="border border-slate-400 p-4">Cell 1</td>{" "}
+                    <td className="border border-slate-400 p-4">Cell 2</td>{" "}
+                  </tr>{" "}
+                  <tr>
+                    {" "}
+                    <td className="border border-slate-400 p-4">Cell 3</td>{" "}
+                    <td className="border border-slate-400 p-4">Cell 4</td>{" "}
+                  </tr>{" "}
+                </tbody>{" "}
+              </table>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken Table",
+
+          description:
+            "The table borders are doubling up, making the table look heavy. Use the correct utility to collapse the borders.",
+
+          codeSnippet:
+            '<table class="border border-slate-300 {input}"><tr><td class="border p-2">A</td><td class="border p-2">B</td></tr></table>',
+
+          options: [
+            "border-separate",
+            "border-collapse",
+            "wrong-class",
+            "none",
+          ],
+
+          correctOption: "border-collapse",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <table className={`border border-slate-300 ${userClass} w-64`}>
+                {" "}
+                <tbody>
+                  {" "}
+                  <tr>
+                    {" "}
+                    <td className="border p-4">A</td>{" "}
+                    <td className="border p-4">B</td>{" "}
+                  </tr>{" "}
+                  <tr>
+                    {" "}
+                    <td className="border p-4">C</td>{" "}
+                    <td className="border p-4">D</td>{" "}
+                  </tr>{" "}
+                </tbody>{" "}
+              </table>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Collapsed Borders for Reports",
+
+              description:
+                "Simplifies dense data tables by collapsing borders.",
+
+              code: `<table class="border-collapse border border-slate-300"><tr><td class="border p-2">1</td><td class="border p-2">2</td></tr></table>`,
+
+              preview: (
+                <div className="p-4">
+                  <table className="border-collapse border border-slate-300 w-full">
+                    <tr>
+                      <td className="border p-2">1</td>
+                      <td className="border p-2">2</td>
+                    </tr>
+                  </table>
+                </div>
+              ),
+            },
+
+            {
+              title: "Separate Borders for Forms",
+
+              description:
+                "Provides spacing between table cells for better readability.",
+
+              code: `<table class="border-separate border-spacing-2 border border-slate-300"><tr><td class="border p-2">A</td><td class="border p-2">B</td></tr></table>`,
+
+              preview: (
+                <div className="p-4">
+                  <table className="border-separate border-spacing-2 border border-slate-300 w-full">
+                    <tr>
+                      <td className="border p-2">A</td>
+                      <td className="border p-2">B</td>
+                    </tr>
+                  </table>
+                </div>
+              ),
+            },
+
+            {
+              title: "Nested Tables with Collapse",
+
+              description:
+                "Collapsing borders ensures inner tables do not double lines.",
+
+              code: `<table class="border-collapse border border-slate-400"><tr><td><table class="border-collapse border border-slate-300"><tr><td>Nested</td></tr></table></td></tr></table>`,
+
+              preview: (
+                <div className="p-4">
+                  <table className="border-collapse border border-slate-400 w-full">
+                    <tr>
+                      <td>
+                        <table className="border-collapse border border-slate-300 w-full">
+                          <tr>
+                            <td>Nested</td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+              ),
+            },
+
+            {
+              title: "Collapsible Data Grid",
+
+              description:
+                "Use `border-collapse` to unify border lines in data grids.",
+
+              code: `<table class="border-collapse border border-slate-300"><tr><td class="border p-2">X</td><td class="border p-2">Y</td></tr></table>`,
+
+              preview: (
+                <div className="p-4">
+                  <table className="border-collapse border border-slate-300 w-full">
+                    <tr>
+                      <td className="border p-2">X</td>
+                      <td className="border p-2">Y</td>
+                    </tr>
+                  </table>
+                </div>
+              ),
+            },
+
+            {
+              title: "Separated Border Pricing Table",
+
+              description:
+                "Spaced borders help distinguish pricing options visually.",
+
+              code: `<table class="border-separate border-spacing-4 border border-slate-300"><tr><td class="border p-2">Basic</td><td class="border p-2">Pro</td></tr></table>`,
+
+              preview: (
+                <div className="p-4">
+                  <table className="border-separate border-spacing-4 border border-slate-300 w-full">
+                    <tr>
+                      <td className="border p-2">Basic</td>
+                      <td className="border p-2">Pro</td>
+                    </tr>
+                  </table>
+                </div>
+              ),
+            },
+
+            {
+              title: "Separated Borders with Rounded Cells",
+
+              description:
+                "Allows visual separation with spacing and rounded corners.",
+
+              code: `<table class="border-separate border-spacing-2 border border-slate-300 rounded-lg"><tr><td class="border p-2 rounded">Item 1</td><td class="border p-2 rounded">Item 2</td></tr></table>`,
+
+              preview: (
+                <div className="p-4">
+                  <table className="border-separate border-spacing-2 border border-slate-300 rounded-lg w-full">
+                    <tr>
+                      <td className="border p-2 rounded">Item 1</td>
+                      <td className="border p-2 rounded">Item 2</td>
+                    </tr>
+                  </table>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using `border-separate` by default",
+              reason:
+                "May introduce unintended spacing and misaligned borders in dense tables.",
+              example: `<table class="border-separate">...</table>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring border spacing",
+              reason:
+                "Without `border-spacing`, separate borders may look collapsed unintentionally.",
+              example: `<table class="border-separate">...</table>`,
+              level: "info",
+            },
+
+            {
+              title: "Nested tables with mixed modes",
+              reason:
+                "Combining collapse and separate on nested tables can cause double borders.",
+              example: `<table class="border-collapse"><tr><td><table class="border-separate">...</table></td></tr></table>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overriding with custom CSS",
+              reason:
+                "Directly overriding `border-collapse` may conflict with Tailwind classes.",
+              example: `<table style="border-collapse: separate;">...</table>`,
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Default Collapse:",
+              text: "Use `border-collapse` for compact, professional-looking tables.",
+            },
+
+            {
+              bold: "Add Spacing:",
+              text: "Use `border-spacing-{n}` with `border-separate` to control gaps.",
+            },
+
+            {
+              bold: "Nested Tables:",
+              text: "Ensure all nested tables use consistent collapse/separate modes.",
+            },
+
+            {
+              bold: "Accessibility:",
+              text: "Collapsed borders reduce visual clutter for screen readers and improve readability.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["tables", "border-spacing"],
+
+    title: "Border Spacing",
+
+    description:
+      "Control the spacing between table cells. Use these utilities to adjust visual density and readability of tabular data while maintaining consistent layout across responsive designs.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Border Spacing",
+
+          description:
+            "Adjust the space between table cells using `border-spacing` utilities. This allows fine control over table layout, improving readability and alignment across different screen sizes.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Cell Padding Distance",
+
+          description:
+            "Border spacing utilities set the CSS `border-spacing` property on `<table>` elements. Think of it as the padding between the edges of each table cell, independent of cell content padding.",
+
+          features: [
+            "Adjust horizontal and vertical spacing independently",
+
+            "Responsive-friendly for different breakpoints",
+
+            "Overrides default browser table spacing",
+          ],
+
+          layerAssignment: "Layout Layer - Table structure",
+
+          browserBehavior:
+            "Maps directly to the CSS `border-spacing` property. Works only on tables with `border-collapse: separate`.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "border-spacing-0", desc: "No space between cells" },
+
+            { cls: "border-spacing-0.5", desc: "0.125rem spacing" },
+
+            { cls: "border-spacing-1", desc: "0.25rem spacing" },
+
+            { cls: "border-spacing-2", desc: "0.5rem spacing" },
+
+            { cls: "border-spacing-3", desc: "0.75rem spacing" },
+
+            { cls: "border-spacing-4", desc: "1rem spacing" },
+
+            { cls: "border-spacing-x-2", desc: "Horizontal spacing only" },
+
+            { cls: "border-spacing-y-2", desc: "Vertical spacing only" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Border Spacing Playground",
+
+          description:
+            "Experiment with different horizontal and vertical spacings to see how table cell gaps change.",
+
+          options: [
+            "border-spacing-0",
+            "border-spacing-1",
+            "border-spacing-2",
+            "border-spacing-x-4",
+            "border-spacing-y-4",
+          ],
+
+          defaultValue: "border-spacing-2",
+
+          buildMarkup: (value: string) =>
+            `<table class="table-auto ${value} border border-slate-300"><tr><td>Cell 1</td><td>Cell 2</td></tr><tr><td>Cell 3</td><td>Cell 4</td></tr></table>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <table
+                className={`${value} table-auto border border-slate-300 bg-white dark:bg-slate-800 rounded`}
+              >
+                {" "}
+                <tbody>
+                  {" "}
+                  <tr>
+                    <td className="border border-slate-200 p-2">Cell 1</td>
+                    <td className="border border-slate-200 p-2">Cell 2</td>
+                  </tr>{" "}
+                  <tr>
+                    <td className="border border-slate-200 p-2">Cell 3</td>
+                    <td className="border border-slate-200 p-2">Cell 4</td>
+                  </tr>{" "}
+                </tbody>{" "}
+              </table>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Tight Table",
+
+          description:
+            "A table looks cramped because cells are too close. Use the correct border-spacing utility to add spacing between cells.",
+
+          codeSnippet:
+            '<table class="table-auto border border-slate-300 {input}"><tr><td>Item A</td><td>Item B</td></tr></table>',
+
+          options: [
+            "border-spacing-0",
+            "border-spacing-1",
+            "border-spacing-2",
+            "border-spacing-3",
+          ],
+
+          correctOption: "border-spacing-2",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <table
+                className={`table-auto border border-slate-300 ${userClass} bg-white dark:bg-slate-800 rounded`}
+              >
+                {" "}
+                <tbody>
+                  {" "}
+                  <tr>
+                    <td className="border border-slate-200 p-2">Item A</td>
+                    <td className="border border-slate-200 p-2">Item B</td>
+                  </tr>{" "}
+                </tbody>{" "}
+              </table>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Compact Pricing Table",
+              description: "Use minimal spacing for tight layout.",
+              code: `<table class="border-spacing-1">...</table>`,
+              preview: <div className="p-4">Compact Pricing Table</div>,
+            },
+
+            {
+              title: "Standard Data Table",
+              description: "Default spacing for readability.",
+              code: `<table class="border-spacing-2">...</table>`,
+              preview: <div className="p-4">Standard Data Table</div>,
+            },
+
+            {
+              title: "Wide Spaced Table",
+              description: "Extra spacing for large touch targets.",
+              code: `<table class="border-spacing-4">...</table>`,
+              preview: <div className="p-4">Wide Spaced Table</div>,
+            },
+
+            {
+              title: "Horizontal Gap Only",
+              description: "Increase horizontal spacing only.",
+              code: `<table class="border-spacing-x-4">...</table>`,
+              preview: <div className="p-4">Horizontal Gap Only</div>,
+            },
+
+            {
+              title: "Vertical Gap Only",
+              description: "Increase vertical spacing only.",
+              code: `<table class="border-spacing-y-4">...</table>`,
+              preview: <div className="p-4">Vertical Gap Only</div>,
+            },
+
+            {
+              title: "Responsive Table",
+              description: "Adjust spacing per breakpoint.",
+              code: `<table class="sm:border-spacing-1 md:border-spacing-3">...</table>`,
+              preview: <div className="p-4">Responsive Table</div>,
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using on Collapsed Tables",
+              reason:
+                "Border spacing has no effect when `border-collapse: collapse` is applied.",
+              example: `<table class="border-collapse border-spacing-2">...</table>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overly Large Spacing",
+              reason:
+                "Too much spacing can break table alignment with headers or grid.",
+              example: `<table class="border-spacing-12">...</table>`,
+              level: "warning",
+            },
+
+            {
+              title: "Mixing With Cell Padding",
+              reason:
+                "Combining large cell padding with border spacing can create excessive gaps.",
+              example: `<td class="p-8">...</td>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Horizontal vs Vertical",
+              reason:
+                "Using only `border-spacing-x` or `border-spacing-y` incorrectly may produce uneven layouts.",
+              example: `<table class="border-spacing-x-4">...</table>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Consistency:",
+              text: "Use the same spacing values across tables for a cohesive layout.",
+            },
+
+            {
+              bold: "Combine Responsively:",
+              text: "Adjust `border-spacing` per breakpoint for better mobile readability.",
+            },
+
+            {
+              bold: "Separate Collapse:",
+              text: "Ensure `border-collapse: separate` is set; spacing won’t apply otherwise.",
+            },
+
+            {
+              bold: "Pair With Padding:",
+              text: "Combine with `p-` utilities inside cells for content breathing room.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["tables", "caption-side"],
+
+    title: "Caption Side",
+
+    description:
+      "Control the placement of table captions relative to the table. Useful for aligning captions above or below tables to match design requirements and improve readability.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Caption Side",
+
+          description:
+            "Control the placement of table captions relative to the table. Position captions at the top or bottom to maintain semantic clarity and visual consistency in tabular layouts.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Table Caption Alignment",
+
+          description:
+            "The `caption-side` utility sets where the table caption appears, either at the start or end of the table block. Think of it as moving a label above or below a container without altering the table content.",
+
+          features: [
+            "Positions caption above or below table",
+
+            "Supports responsive adjustments",
+
+            "Improves semantic clarity and accessibility",
+
+            "Lightweight, no impact on table cells",
+
+            "Useful for printed or PDF-friendly layouts",
+          ],
+
+          layerAssignment: "Layout Layer - Table Metadata",
+
+          browserBehavior: "Maps directly to the CSS `caption-side` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "caption-top", desc: "Positions caption above the table" },
+
+            {
+              cls: "caption-bottom",
+              desc: "Positions caption below the table",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Playground",
+
+          description:
+            "Experiment with different caption placements to see how they affect table layout and readability.",
+
+          options: ["caption-top", "caption-bottom"],
+
+          defaultValue: "caption-top",
+
+          buildMarkup: (value: string) =>
+            `<table class="border-collapse border border-slate-300"><caption class="${value}">Table Caption</caption><tr><td class='border p-2'>Cell 1</td><td class='border p-2'>Cell 2</td></tr></table>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              {" "}
+              <table className="border-collapse border border-slate-300 w-full max-w-xs">
+                <caption
+                  className={`${value} text-sm font-medium text-slate-700 dark:text-slate-300 mb-2`}
+                >
+                  Table Caption
+                </caption>{" "}
+                <tbody>
+                  {" "}
+                  <tr>
+                    {" "}
+                    <td className="border p-2 text-center">Cell 1</td>{" "}
+                    <td className="border p-2 text-center">Cell 2</td>{" "}
+                  </tr>{" "}
+                </tbody>{" "}
+              </table>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Table Caption",
+
+          description:
+            "The table caption is appearing at the bottom, but the design requires it at the top. Adjust the class to meet the spec.",
+
+          codeSnippet: `<table class="border ..."><caption class="{input}">Monthly Report</caption><tr><td>Data 1</td><td>Data 2</td></tr></table>`,
+
+          options: [
+            "caption-bottom",
+            "caption-top",
+            "wrong-class",
+            "caption-left",
+          ],
+
+          correctOption: "caption-top",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              {" "}
+              <table className="border border-slate-400 w-64 border-collapse">
+                <caption
+                  className={`${userClass} text-sm font-medium text-slate-700 dark:text-slate-300 mb-2`}
+                >
+                  Monthly Report
+                </caption>{" "}
+                <tbody>
+                  {" "}
+                  <tr>
+                    <td className="border p-2">Data 1</td>
+                    <td className="border p-2">Data 2</td>
+                  </tr>{" "}
+                </tbody>{" "}
+              </table>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Top-Aligned Caption",
+
+              description:
+                "Caption appears above the table for immediate context.",
+
+              code: `<table class="border-collapse border border-slate-300"><caption class="caption-top">Sales Q1</caption><tr><td>Jan</td><td>Feb</td></tr></table>`,
+
+              preview: (
+                <div className="p-4">
+                  <table className="border-collapse border border-slate-300 w-full">
+                    <caption className="caption-top mb-1 font-medium text-slate-700">
+                      Sales Q1
+                    </caption>
+                    <tbody>
+                      <tr>
+                        <td className="border p-2">Jan</td>
+                        <td className="border p-2">Feb</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              ),
+            },
+
+            {
+              title: "Bottom-Aligned Caption",
+
+              description:
+                "Caption placed below the table for design emphasis.",
+
+              code: `<table class="border-collapse border border-slate-300"><caption class="caption-bottom">Summary</caption><tr><td>Item 1</td><td>Item 2</td></tr></table>`,
+
+              preview: (
+                <div className="p-4">
+                  <table className="border-collapse border border-slate-300 w-full">
+                    <caption className="caption-bottom mt-1 font-medium text-slate-700">
+                      Summary
+                    </caption>
+                    <tbody>
+                      <tr>
+                        <td className="border p-2">Item 1</td>
+                        <td className="border p-2">Item 2</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              ),
+            },
+
+            {
+              title: "Responsive Caption",
+
+              description:
+                "Caption changes position based on screen size for adaptive layouts.",
+
+              code: `<table class="border"><caption class="caption-top md:caption-bottom">Overview</caption><tr><td>Data</td></tr></table>`,
+
+              preview: (
+                <div className="p-4">
+                  <table className="border border-slate-300 w-full">
+                    <caption className="caption-top md:caption-bottom mb-1 font-medium text-slate-700">
+                      Overview
+                    </caption>
+                    <tbody>
+                      <tr>
+                        <td className="border p-2">Data</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              ),
+            },
+
+            {
+              title: "Financial Report Table",
+
+              description:
+                "Top caption provides report context for stakeholders.",
+
+              code: `<table class="border"><caption class="caption-top">Finance 2026</caption><tr><td>Revenue</td><td>Expense</td></tr></table>`,
+
+              preview: (
+                <div className="p-4">
+                  <table className="border border-slate-300 w-full">
+                    <caption className="caption-top mb-1 font-medium text-slate-700">
+                      Finance 2026
+                    </caption>
+                    <tbody>
+                      <tr>
+                        <td className="border p-2">Revenue</td>
+                        <td className="border p-2">Expense</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              ),
+            },
+
+            {
+              title: "Inventory Table",
+
+              description: "Bottom caption used to summarize total items.",
+
+              code: `<table class="border"><caption class="caption-bottom">Total Items</caption><tr><td>Item A</td><td>Item B</td></tr></table>`,
+
+              preview: (
+                <div className="p-4">
+                  <table className="border border-slate-300 w-full">
+                    <caption className="caption-bottom mt-1 font-medium text-slate-700">
+                      Total Items
+                    </caption>
+                    <tbody>
+                      <tr>
+                        <td className="border p-2">Item A</td>
+                        <td className="border p-2">Item B</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              ),
+            },
+
+            {
+              title: "Accessibility-Focused Table",
+
+              description:
+                "Ensures screen readers recognize caption context correctly.",
+
+              code: `<table class="border"><caption class="caption-top">User Data</caption><tr><td>Name</td><td>Email</td></tr></table>`,
+
+              preview: (
+                <div className="p-4">
+                  <table className="border border-slate-300 w-full">
+                    <caption className="caption-top mb-1 font-medium text-slate-700">
+                      User Data
+                    </caption>
+                    <tbody>
+                      <tr>
+                        <td className="border p-2">Name</td>
+                        <td className="border p-2">Email</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using Incorrect Class",
+              reason:
+                "Applying a class other than `caption-top` or `caption-bottom` has no effect.",
+              example: `<caption class="top">Invalid</caption>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Semantic Context",
+              reason:
+                "Placing captions outside `<table>` breaks accessibility and semantics.",
+              example: `<div class="caption-top">Header</div>`,
+              level: "critical",
+            },
+
+            {
+              title: "Multiple Captions",
+              reason:
+                "HTML tables should have only one `<caption>` for accessibility.",
+              example: `<caption class="caption-top">One</caption><caption class="caption-bottom">Two</caption>`,
+              level: "warning",
+            },
+
+            {
+              title: "Relying on CSS Only",
+              reason:
+                "Using margins or positioning without `caption-side` may misalign captions in print layouts.",
+              example: `<caption style="margin-top:-1rem;">Misplaced</caption>`,
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Consistency:",
+              text: "Maintain the same caption placement across similar tables for uniformity.",
+            },
+
+            {
+              bold: "Responsive Design:",
+              text: "Combine with responsive utilities to adjust caption position on different screen sizes.",
+            },
+
+            {
+              bold: "Accessibility:",
+              text: "Always use a `<caption>` element to provide context for screen readers.",
+            },
+
+            {
+              bold: "Avoid Overlap:",
+              text: "Ensure table borders and padding don't obscure caption content.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["tables", "table-layout"],
+
+    title: "Table Layout",
+
+    description:
+      "Control the table's layout algorithm. Choose between automatic sizing for flexible content or fixed sizing for predictable column widths, improving readability and consistency.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Table Layout",
+
+          description:
+            "Control the table's layout algorithm, determining how column widths are calculated. Use `table-auto` for dynamic, content-driven widths and `table-fixed` for predictable, fixed column sizing, useful for large datasets or structured layouts.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Fixed vs Auto Layout",
+
+          description:
+            "Table layout utilities set the CSS `table-layout` property. `table-auto` allows the browser to size columns based on content, while `table-fixed` calculates column widths from the first row, improving predictability.",
+
+          features: [
+            "Controls column width calculation",
+
+            "Supports responsive tables",
+
+            "Improves layout consistency",
+
+            "Affects table rendering performance",
+
+            "Works with `border-collapse` and spacing",
+          ],
+
+          layerAssignment:
+            "Layout Layer - Structural sizing of tabular content",
+
+          browserBehavior:
+            "Maps directly to the CSS `table-layout` property; `auto` uses content to size columns, `fixed` uses first row widths.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "table-auto",
+              desc: "Automatic column widths based on content",
+            },
+
+            {
+              cls: "table-fixed",
+              desc: "Fixed column widths based on first row",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Table Layout Playground",
+
+          description:
+            "Experiment with `table-auto` and `table-fixed` to see how column sizing changes with different content lengths.",
+
+          options: ["table-auto", "table-fixed"],
+
+          defaultValue: "table-auto",
+
+          buildMarkup: (value: string) =>
+            `<table class="${value} border border-slate-300 w-full">  <tr><th>Header 1</th><th>Header 2</th></tr>  <tr><td>Short</td><td>Long content example to test sizing</td></tr></table>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`overflow-x-auto p-4 bg-slate-50 dark:bg-slate-950 rounded-lg ${value}`}
+            >
+              <table
+                className={`${value} w-full border border-slate-300 dark:border-slate-700`}
+              >
+                {" "}
+                <thead>
+                  {" "}
+                  <tr>
+                    {" "}
+                    <th className="border border-slate-300 dark:border-slate-700 p-2 text-left">
+                      Header 1
+                    </th>{" "}
+                    <th className="border border-slate-300 dark:border-slate-700 p-2 text-left">
+                      Header 2
+                    </th>{" "}
+                  </tr>{" "}
+                </thead>{" "}
+                <tbody>
+                  {" "}
+                  <tr>
+                    {" "}
+                    <td className="border border-slate-300 dark:border-slate-700 p-2">
+                      Short
+                    </td>{" "}
+                    <td className="border border-slate-300 dark:border-slate-700 p-2">
+                      Long content example to test sizing
+                    </td>{" "}
+                  </tr>{" "}
+                </tbody>{" "}
+              </table>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Column Widths",
+
+          description:
+            "A table with `table-auto` renders unpredictable column widths. Apply the correct utility to enforce consistent column sizing.",
+
+          codeSnippet:
+            '<table class="border border-slate-300 {input}">...</table>',
+
+          options: [
+            "table-auto",
+            "table-fixed",
+            "wrong-class-1",
+            "wrong-class-2",
+          ],
+
+          correctOption: "table-fixed",
+
+          renderPreview: (userClass: string) => (
+            <div className="overflow-x-auto w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center p-4">
+              <table className={`border border-slate-300 w-full ${userClass}`}>
+                {" "}
+                <thead>
+                  {" "}
+                  <tr>
+                    {" "}
+                    <th className="border border-slate-300 p-2">
+                      Column A
+                    </th>{" "}
+                    <th className="border border-slate-300 p-2">Column B</th>{" "}
+                  </tr>{" "}
+                </thead>{" "}
+                <tbody>
+                  {" "}
+                  <tr>
+                    {" "}
+                    <td className="border border-slate-300 p-2">Short</td>{" "}
+                    <td className="border border-slate-300 p-2">
+                      Much longer content to test layout
+                    </td>{" "}
+                  </tr>{" "}
+                </tbody>{" "}
+              </table>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Fixed Column Table",
+
+              description:
+                "Use `table-fixed` for predictable column widths in data-heavy tables.",
+
+              code: `<table class="table-fixed w-full border">...</table>`,
+
+              preview: <div className="p-4">Fixed Column Table Preview</div>,
+            },
+
+            {
+              title: "Auto Width Table",
+
+              description:
+                "Use `table-auto` for content-driven, flexible column widths.",
+
+              code: `<table class="table-auto w-full border">...</table>`,
+
+              preview: <div className="p-4">Auto Width Table Preview</div>,
+            },
+
+            {
+              title: "Responsive Table Layout",
+
+              description:
+                "Switch between `table-auto` and `table-fixed` depending on screen size for optimal UX.",
+
+              code: `<table class="md:table-fixed table-auto w-full border">...</table>`,
+
+              preview: <div className="p-4">Responsive Table Preview</div>,
+            },
+
+            {
+              title: "Form Data Table",
+
+              description:
+                "Fixed layout helps align input fields consistently across columns.",
+
+              code: `<table class="table-fixed w-full border">...</table>`,
+
+              preview: <div className="p-4">Form Data Table Preview</div>,
+            },
+
+            {
+              title: "Analytics Dashboard",
+
+              description:
+                "Predictable widths improve readability of numeric data columns.",
+
+              code: `<table class="table-fixed w-full border">...</table>`,
+
+              preview: (
+                <div className="p-4">Analytics Dashboard Table Preview</div>
+              ),
+            },
+
+            {
+              title: "Dynamic Content Table",
+
+              description:
+                "Auto layout adapts to variable-length content for flexible design.",
+
+              code: `<table class="table-auto w-full border">...</table>`,
+
+              preview: <div className="p-4">Dynamic Content Table Preview</div>,
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using table-auto for predictable layouts",
+
+              reason:
+                "Columns can vary in width, making the table harder to read for structured data.",
+
+              example: `<table class="table-auto">...</table>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Forgetting border-collapse with fixed layout",
+
+              reason:
+                "Borders may appear inconsistent when using table-fixed without collapse.",
+
+              example: `<table class="table-fixed border-separate">...</table>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Mixing auto and fixed on same table",
+
+              reason: "Can produce unpredictable column widths.",
+
+              example: `<table class="table-auto table-fixed">...</table>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring long content overflow",
+
+              reason:
+                "Using table-fixed without managing overflow may truncate text.",
+
+              example: `<table class="table-fixed"> <td>Very long content...</td> </table>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use table-fixed for large datasets:",
+              text: "Improves rendering performance and consistency.",
+            },
+
+            {
+              bold: "Combine with border-collapse:",
+              text: "Ensures consistent border appearance with fixed layout.",
+            },
+
+            {
+              bold: "Responsive switching:",
+              text: "Use `table-auto` on mobile and `table-fixed` on desktop for better UX.",
+            },
+
+            {
+              bold: "Manage overflow:",
+              text: "Wrap long text or truncate with `overflow-hidden` for fixed tables.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["transform", "backface-visibility"],
+
+    title: "Backface Visibility",
+
+    description:
+      "Control whether the back face of an element is visible when rotated in 3D space. Use this utility to prevent the reverse side of elements from showing during animations or interactive transformations, ensuring clean 3D effects.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Backface Visibility",
+
+          description:
+            "Control whether the back face of an element is visible when rotated in 3D space. This is critical for creating polished 3D transformations and avoiding unintended visual artifacts.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Two-Sided Card Analogy",
+
+          description:
+            "Think of elements as cards in 3D space. This utility determines whether the back side of the card is visible when it is rotated beyond 90 degrees. It helps maintain realistic 3D transformations and clean UI effects.",
+
+          features: [
+            "Supports 3D transforms and rotations",
+
+            "Prevents backface flicker in animations",
+
+            "Useful for interactive flipping cards",
+          ],
+
+          layerAssignment: "Layout / Transform Layer",
+
+          browserBehavior:
+            "Maps directly to the CSS `backface-visibility` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "backface-visible",
+              desc: "Back face is visible during rotation",
+            },
+
+            {
+              cls: "backface-hidden",
+              desc: "Back face is hidden during rotation",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Backface Visibility Playground",
+
+          description:
+            "Experiment with flipping elements in 3D space to see how the back face behaves.",
+
+          options: ["backface-visible", "backface-hidden"],
+
+          defaultValue: "backface-hidden",
+
+          buildMarkup: (value: string) =>
+            `<div class="transform rotate-y-180 ${value} ...">Flippable Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 perspective-1000 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center`}
+            >
+              <div
+                className={`w-40 h-40 bg-blue-500 text-white flex items-center justify-center rounded transform transition-transform duration-500 ${value} rotate-y-180`}
+              >
+                Flip Me{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Card Flip",
+
+          description:
+            "A card flip animation is showing the back face in an unintended way. Apply the correct utility to hide it.",
+
+          codeSnippet:
+            '<div class="transform rotate-y-180 ... {input}">Card Content</div>',
+
+          options: ["backface-visible", "backface-hidden", "visible", "hidden"],
+
+          correctOption: "backface-hidden",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-40 h-40 bg-blue-500 text-white rounded flex items-center justify-center transform transition-transform duration-500 rotate-y-180 ${userClass}`}
+              >
+                Card Content{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Flipping Card",
+              description: "Hide backface when flipping a card element.",
+              code: `<div class="backface-hidden transform rotate-y-180">Card</div>`,
+              preview: <div className="p-4">Flipping Card Preview</div>,
+            },
+
+            {
+              title: "3D Button Hover",
+              description:
+                "Prevent button backface from showing on hover rotation.",
+              code: `<button class="backface-hidden transform rotate-x-180">Hover Me</button>`,
+              preview: <div className="p-4">3D Button Preview</div>,
+            },
+
+            {
+              title: "Rotating Panel",
+              description:
+                "Use hidden backface to keep panels clean in 3D rotation.",
+              code: `<section class="backface-hidden transform rotate-y-90">Panel Content</section>`,
+              preview: <div className="p-4">Rotating Panel Preview</div>,
+            },
+
+            {
+              title: "Card Stack",
+              description:
+                "Multiple stacked cards use backface-hidden to prevent visual clutter.",
+              code: `<div class="backface-hidden transform rotate-y-180">Stacked Card</div>`,
+              preview: <div className="p-4">Card Stack Preview</div>,
+            },
+
+            {
+              title: "Interactive Flipboard",
+              description:
+                "Interactive elements like flipboards hide their reverse sides.",
+              code: `<div class="backface-hidden transform rotate-x-180">Flipboard</div>`,
+              preview: <div className="p-4">Interactive Flipboard Preview</div>,
+            },
+
+            {
+              title: "3D Menu Animation",
+              description:
+                "Menus rotated in 3D use backface-hidden to avoid glitches.",
+              code: `<nav class="backface-hidden transform rotate-y-180">Menu Item</nav>`,
+              preview: <div className="p-4">3D Menu Preview</div>,
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using backface-visible by default",
+              reason: "Shows the reverse side unexpectedly during flips.",
+              example: `<div class="backface-visible transform rotate-y-180">Content</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring 3D context",
+              reason:
+                "Backface utilities only work when 3D transforms are enabled via perspective.",
+              example: `<div class="backface-hidden rotate-y-180">No perspective</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Mixing with overflow-hidden",
+              reason: "May clip elements unexpectedly when rotated.",
+              example: `<div class="overflow-hidden backface-hidden transform rotate-x-180">Content</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Not animating transform",
+              reason: "Backface change is ineffective without rotation.",
+              example: `<div class="backface-hidden">Static Content</div>`,
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Always set perspective:",
+              text: "Ensure parent elements provide perspective to make backface utilities effective.",
+            },
+
+            {
+              bold: "Combine with transform:",
+              text: "Backface utilities only have visual effect when elements are rotated.",
+            },
+
+            {
+              bold: "Use sparingly:",
+              text: "Hiding backfaces improves visuals but adds complexity in nested 3D transforms.",
+            },
+
+            {
+              bold: "Check browser support:",
+              text: "Backface-visibility is well-supported but always test older browsers when using 3D animations.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["transform", "perspective-origin"],
+
+    title: "Perspective Origin",
+
+    description:
+      "Defines the vanishing point for 3D-transformed elements. Use perspective origin utilities to control how elements appear in depth, ensuring proper visual alignment and composition in 3D layouts.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Perspective Origin",
+
+          description:
+            "Perspective origin utilities control the point from which 3D transformations are perceived. Adjusting this point affects how elements rotate or skew in three-dimensional space, which is essential for creating realistic 3D effects and visual depth in interfaces.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Vanishing Point",
+
+          description:
+            "Think of perspective origin as the position of the viewer's eye relative to the element. Changing this point shifts the apparent rotation center, affecting how depth and foreshortening are perceived.",
+
+          features: [
+            "Controls 3D transformation pivot visually",
+
+            "Supports responsive adjustments",
+
+            "Can simulate depth and camera angles",
+
+            "Works with `perspective` for realism",
+
+            "Affects nested 3D elements' alignment",
+          ],
+
+          layerAssignment: "Layout / Visual Layer",
+
+          browserBehavior:
+            "Maps directly to the CSS `transform-origin` property when using 3D transforms.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "origin-center", desc: "Center of the element" },
+
+            { cls: "origin-top", desc: "Top edge of the element" },
+
+            { cls: "origin-bottom", desc: "Bottom edge of the element" },
+
+            { cls: "origin-left", desc: "Left edge of the element" },
+
+            { cls: "origin-right", desc: "Right edge of the element" },
+
+            { cls: "origin-top-left", desc: "Top-left corner" },
+
+            { cls: "origin-top-right", desc: "Top-right corner" },
+
+            { cls: "origin-bottom-left", desc: "Bottom-left corner" },
+
+            { cls: "origin-bottom-right", desc: "Bottom-right corner" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Playground",
+
+          description:
+            "Experiment with different perspective origins and see how elements rotate and tilt in 3D space.",
+
+          options: [
+            "origin-center",
+
+            "origin-top",
+
+            "origin-bottom",
+
+            "origin-left",
+
+            "origin-right",
+
+            "origin-top-left",
+
+            "origin-top-right",
+
+            "origin-bottom-left",
+
+            "origin-bottom-right",
+          ],
+
+          defaultValue: "origin-center",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} transform rotate-y-45 rotate-x-15 p-8 bg-gray-200">3D Box</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-12 flex items-center justify-center bg-slate-50 dark:bg-slate-950 rounded-lg perspective-500 ${value}`}
+            >
+              <div
+                className={`bg-white dark:bg-slate-800 w-32 h-32 transform rotate-y-45 rotate-x-15 shadow-lg flex items-center justify-center text-sm font-medium`}
+              >
+                Perspective Box{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Vanishing Point",
+
+          description:
+            "The 3D card rotates incorrectly around an unintended edge. Adjust the perspective origin to the center to fix its rotation.",
+
+          codeSnippet:
+            '<div class="transform rotate-y-45 rotate-x-20 {input} w-48 h-48 bg-gray-300">3D Card</div>',
+
+          options: [
+            "origin-top-left",
+
+            "origin-bottom-right",
+
+            "origin-center",
+
+            "origin-top",
+          ],
+
+          correctOption: "origin-center",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`transform rotate-y-45 rotate-x-20 transition-all duration-500 ${userClass} w-48 h-48 bg-gray-300 flex items-center justify-center`}
+              >
+                3D Card{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "3D Card Flip",
+
+              description:
+                "Adjust the pivot point to create a natural flipping card effect.",
+
+              code: `<div class="w-48 h-64 bg-blue-500 transform rotate-y-180 origin-top-left">Flip Card</div>`,
+
+              preview: (
+                <div className="w-48 h-64 bg-blue-500 transform rotate-y-180 origin-top-left flex items-center justify-center text-white">
+                  Flip Card
+                </div>
+              ),
+            },
+
+            {
+              title: "Rotated Menu Panel",
+
+              description:
+                "Perspective origin helps panels rotate from a specific edge.",
+
+              code: `<div class="w-64 h-32 bg-green-500 transform rotate-x-20 origin-bottom">Menu</div>`,
+
+              preview: (
+                <div className="w-64 h-32 bg-green-500 transform rotate-x-20 origin-bottom flex items-center justify-center text-white">
+                  Menu
+                </div>
+              ),
+            },
+
+            {
+              title: "3D Image Tilt",
+
+              description:
+                "Tilting images using perspective origin creates depth.",
+
+              code: `<img src="image.jpg" class="transform rotate-y-15 origin-top-right" />`,
+
+              preview: (
+                <img
+                  src="https://via.placeholder.com/150"
+                  className="transform rotate-y-15 origin-top-right"
+                />
+              ),
+            },
+
+            {
+              title: "Button Depth Effect",
+
+              description:
+                "Adjust perspective origin to make 3D buttons appear interactive.",
+
+              code: `<button class="bg-purple-500 transform rotate-x-10 origin-bottom-right">Click</button>`,
+
+              preview: (
+                <button className="bg-purple-500 transform rotate-x-10 origin-bottom-right text-white px-4 py-2 rounded">
+                  Click
+                </button>
+              ),
+            },
+
+            {
+              title: "Card Stack",
+
+              description:
+                "Stacked cards rotate around different origins for depth.",
+
+              code: `<div class="w-40 h-60 bg-red-400 transform rotate-y-10 origin-top-left">Card 1</div>`,
+
+              preview: (
+                <div className="w-40 h-60 bg-red-400 transform rotate-y-10 origin-top-left flex items-center justify-center text-white">
+                  Card 1
+                </div>
+              ),
+            },
+
+            {
+              title: "Panel Rotation Demo",
+
+              description:
+                "Demonstrates perspective origin changes for multiple panels.",
+
+              code: `<div class="w-48 h-48 bg-yellow-400 transform rotate-x-15 origin-bottom-left">Panel</div>`,
+
+              preview: (
+                <div className="w-48 h-48 bg-yellow-400 transform rotate-x-15 origin-bottom-left flex items-center justify-center text-white">
+                  Panel
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Wrong Pivot Point",
+
+              reason:
+                "Element rotates from an unexpected edge due to incorrect origin class.",
+
+              example: `<div class="transform rotate-y-45 origin-top-left">...</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Perspective",
+
+              reason:
+                "Perspective origin has no effect without a `perspective` context.",
+
+              example: `<div class="origin-center rotate-y-45">...</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Confusing 2D vs 3D",
+
+              reason:
+                "Perspective origin only affects 3D transforms, not 2D rotations.",
+
+              example: `<div class="origin-bottom rotate-45">...</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overlapping Transformations",
+
+              reason:
+                "Multiple transforms may conflict if origins are inconsistent.",
+
+              example: `<div class="origin-top-left rotate-x-30 rotate-y-30">...</div>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with Perspective:",
+              text: "Always pair with a parent `perspective` to see 3D effects.",
+            },
+
+            {
+              bold: "Use Corners for Drama:",
+              text: "Changing origin to corners creates dynamic rotations.",
+            },
+
+            {
+              bold: "Test Responsively:",
+              text: "Perspective effects may need adjustment on different screen sizes.",
+            },
+
+            {
+              bold: "Nested Elements:",
+              text: "Child elements inherit the visual pivot; adjust separately if needed.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["transform", "perspective"],
+
+    title: "Perspective",
+
+    description:
+      "Control the intensity of 3D space for child elements. Use this utility to create realistic 3D transforms, such as flips or rotations, by adjusting how depth is perceived. Proper perspective enhances visual hierarchy and prevents flattened or distorted animations.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Perspective",
+
+          description:
+            "Perspective defines the distance between the user and the z=0 plane, affecting how 3D transformed elements appear. It is essential for achieving realistic depth and spatial relationships in 3D UI effects.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Camera Lens Analogy",
+
+          description:
+            "Think of perspective as the lens through which the user views 3D content. Increasing perspective makes objects appear smaller as they recede into depth, while reducing it flattens the scene. This utility controls the CSS perspective for child elements.",
+
+          features: [
+            "Supports 3D transform depth perception",
+
+            "Adjustable via Tailwind utility classes",
+
+            "Enhances realism in card flips and rotations",
+          ],
+
+          layerAssignment: "Layout / Transform Layer",
+
+          browserBehavior: "Maps directly to the CSS `perspective` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "perspective-0", desc: "No perspective applied" },
+
+            { cls: "perspective-100", desc: "Minimal perspective effect" },
+
+            { cls: "perspective-200", desc: "Moderate perspective effect" },
+
+            { cls: "perspective-500", desc: "Stronger perspective effect" },
+
+            {
+              cls: "perspective-1000",
+              desc: "Default Tailwind 3D perspective",
+            },
+
+            {
+              cls: "perspective-1500",
+              desc: "Deep perspective for dramatic 3D",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Perspective Playground",
+
+          description:
+            "Experiment with different perspective values to see how child elements appear in 3D space.",
+
+          options: [
+            "perspective-0",
+            "perspective-100",
+            "perspective-500",
+            "perspective-1000",
+          ],
+
+          defaultValue: "perspective-500",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} transform rotate-y-45">3D Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="w-40 h-40 bg-blue-500 text-white flex items-center justify-center rounded transform rotate-y-45">
+                3D Content{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Flattened Card",
+
+          description:
+            "A card with 3D rotation appears flat because no perspective is applied. Choose the correct utility to fix it.",
+
+          codeSnippet:
+            '<div class="transform rotate-y-45 ... {input}">Card</div>',
+
+          options: [
+            "perspective-0",
+            "perspective-500",
+            "perspective-1000",
+            "perspective-1500",
+          ],
+
+          correctOption: "perspective-500",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-40 h-40 bg-blue-500 text-white rounded flex items-center justify-center transform rotate-y-45 ${userClass}`}
+              >
+                Card{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Flipping Card",
+              description:
+                "Use perspective on the parent container to make a card flip appear three-dimensional.",
+              code: `<div class="perspective-500"><div class="transform rotate-y-180">Card</div></div>`,
+              preview: <div className="p-4">Flipping Card Preview</div>,
+            },
+
+            {
+              title: "3D Button Hover",
+              description:
+                "Hovering buttons rotate in 3D with perspective applied to the container.",
+              code: `<div class="perspective-500"><button class="transform hover:rotate-x-180">Hover Me</button></div>`,
+              preview: <div className="p-4">3D Button Preview</div>,
+            },
+
+            {
+              title: "Rotating Panel",
+              description:
+                "Panels inside a perspective container maintain depth when rotated.",
+              code: `<div class="perspective-1000"><section class="transform rotate-y-90">Panel Content</section></div>`,
+              preview: <div className="p-4">Rotating Panel Preview</div>,
+            },
+
+            {
+              title: "Card Stack",
+              description:
+                "Multiple stacked cards use perspective to enhance visual separation.",
+              code: `<div class="perspective-500"><div class="transform rotate-y-45">Stacked Card</div></div>`,
+              preview: <div className="p-4">Card Stack Preview</div>,
+            },
+
+            {
+              title: "Interactive Flipboard",
+              description:
+                "Interactive flipboards use perspective to show realistic depth.",
+              code: `<div class="perspective-1000"><div class="transform rotate-x-180">Flipboard</div></div>`,
+              preview: <div className="p-4">Interactive Flipboard Preview</div>,
+            },
+
+            {
+              title: "3D Menu Animation",
+              description:
+                "Menus rotated in 3D appear correctly when perspective is applied.",
+              code: `<div class="perspective-500"><nav class="transform rotate-y-180">Menu Item</nav></div>`,
+              preview: <div className="p-4">3D Menu Preview</div>,
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "No Perspective Applied",
+              reason:
+                "Rotated 3D elements appear flat without a perspective container.",
+              example: `<div class="transform rotate-y-45">Content</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Too Strong Perspective",
+              reason:
+                "Extremely low perspective values distort child elements unnaturally.",
+              example: `<div class="perspective-0"><div class="transform rotate-y-180">Card</div></div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Forgetting Child Transforms",
+              reason:
+                "Perspective alone does not create depth; child elements must be transformed.",
+              example: `<div class="perspective-500"><div>Static Card</div></div>`,
+              level: "info",
+            },
+
+            {
+              title: "Ignoring Browser Support",
+              reason:
+                "Some older browsers may require `-webkit-` prefix for perspective to work.",
+              example: `<div class="perspective-500">3D Content</div>`,
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with 3D Transforms:",
+              text: "Perspective is only effective when child elements are rotated or transformed in 3D.",
+            },
+
+            {
+              bold: "Set Appropriate Values:",
+              text: "Use moderate perspective values like 500–1000px for natural-looking depth.",
+            },
+
+            {
+              bold: "Parent Container:",
+              text: "Apply perspective on the parent to affect all child elements consistently.",
+            },
+
+            {
+              bold: "Test Across Devices:",
+              text: "Perspective can appear differently on various screen sizes; always preview on multiple devices.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["transform", "transform-origin"],
+
+    title: "Transform Origin",
+
+    description:
+      "Control the point around which an element scales or rotates. Use these utilities to fine-tune animation pivots or adjust how transformations affect layout flow. Applies directly to any transformable element and may require consideration of visual alignment.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Transform Origin",
+
+          description:
+            "Control the point around which an element scales or rotates. Properly setting transform origin ensures animations and transformations pivot as intended without unexpected shifts in layout.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Pivot Point Analogy",
+
+          description:
+            "Transform origin defines the anchor point for CSS transforms. Think of it as the hinge of a door: rotations and scaling happen around this point rather than the element's center by default.",
+
+          features: [
+            "Adjusts rotation and scaling pivot",
+
+            "Supports responsive variants",
+
+            "Works with all CSS transform functions",
+
+            "Overrides default center anchor",
+
+            "Critical for motion design consistency",
+          ],
+
+          layerAssignment: "Layout / Transform Layer",
+
+          browserBehavior:
+            "Maps directly to the CSS `transform-origin` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "origin-center", desc: "Default pivot at element center" },
+
+            { cls: "origin-top", desc: "Pivot at the top edge" },
+
+            { cls: "origin-top-right", desc: "Pivot at top-right corner" },
+
+            { cls: "origin-right", desc: "Pivot at right edge" },
+
+            {
+              cls: "origin-bottom-right",
+              desc: "Pivot at bottom-right corner",
+            },
+
+            { cls: "origin-bottom", desc: "Pivot at bottom edge" },
+
+            { cls: "origin-bottom-left", desc: "Pivot at bottom-left corner" },
+
+            { cls: "origin-left", desc: "Pivot at left edge" },
+
+            { cls: "origin-top-left", desc: "Pivot at top-left corner" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Transform Origin Playground",
+
+          description:
+            "Experiment with different pivot points while scaling or rotating elements. Observe how changing the origin alters the motion path.",
+
+          options: [
+            "origin-center",
+
+            "origin-top",
+
+            "origin-top-right",
+
+            "origin-right",
+
+            "origin-bottom-right",
+
+            "origin-bottom",
+
+            "origin-bottom-left",
+
+            "origin-left",
+
+            "origin-top-left",
+          ],
+
+          defaultValue: "origin-center",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} transform rotate-45 scale-110 p-8 bg-blue-200 rounded-lg">Content</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-12 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 transform ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Rotated & Scaled
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Pivot",
+
+          description:
+            "An element rotates incorrectly because its pivot is set at the top-left. Adjust the transform origin so it rotates around the center.",
+
+          codeSnippet:
+            '<div class="rotate-45 {input} p-8 bg-blue-200">Pivot me</div>',
+
+          options: [
+            "origin-top-left",
+
+            "origin-top",
+
+            "origin-center",
+
+            "origin-bottom-right",
+          ],
+
+          correctOption: "origin-center",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`transform rotate-45 transition-all duration-500 ${userClass} p-8 bg-blue-200 rounded-lg flex items-center justify-center`}
+              >
+                Pivot Element{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Button Scale Origin",
+              description:
+                "Scale a button from its top edge on hover for dynamic entrance.",
+              code: `<button class="origin-top transform hover:scale-110">Click Me</button>`,
+              preview: (
+                <div className="p-4">
+                  <button className="origin-top transform hover:scale-110 bg-blue-600 text-white px-4 py-2 rounded">
+                    Click Me
+                  </button>
+                </div>
+              ),
+            },
+
+            {
+              title: "Rotating Icon",
+              description:
+                "Rotate an icon around its right edge for a pivoted animation.",
+              code: `<svg class="origin-right transform rotate-45">...</svg>`,
+              preview: (
+                <div className="p-4">
+                  <div className="origin-right transform rotate-45 w-8 h-8 bg-blue-500"></div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Card Flip Animation",
+              description:
+                "Use origin-bottom to flip cards around the bottom edge.",
+              code: `<div class="origin-bottom transform rotateX-180">Card</div>`,
+              preview: (
+                <div className="p-4">
+                  <div className="origin-bottom transform rotate-180 w-24 h-32 bg-white shadow rounded-lg flex items-center justify-center">
+                    Card
+                  </div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Scaling Modal",
+              description: "Scale modals from center for balanced expansion.",
+              code: `<div class="origin-center transform scale-125">Modal</div>`,
+              preview: (
+                <div className="p-4">
+                  <div className="origin-center transform scale-125 w-64 h-32 bg-gray-100 rounded shadow flex items-center justify-center">
+                    Modal
+                  </div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Rotating Loader",
+              description:
+                "Rotate loader around top-left to create off-center spin effects.",
+              code: `<div class="origin-top-left transform animate-spin">Loader</div>`,
+              preview: (
+                <div className="p-4">
+                  <div className="origin-top-left transform animate-spin w-12 h-12 bg-blue-400 rounded-full"></div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Pivoted Dropdown",
+              description:
+                "Open dropdowns from bottom-left using origin-bottom-left for natural animation.",
+              code: `<div class="origin-bottom-left transform scale-95">Dropdown</div>`,
+              preview: (
+                <div className="p-4">
+                  <div className="origin-bottom-left transform scale-95 w-48 h-32 bg-white shadow-lg rounded-lg p-2">
+                    Dropdown
+                  </div>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Wrong Pivot Point",
+              reason: "Rotations appear offset because origin is incorrect.",
+              example: `<div class="rotate-45 origin-top-left">Oops</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Transform Layer",
+              reason: "Changing origin without transform has no effect.",
+              example: `<div class="origin-center">No change</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overriding with Inline Styles",
+              reason: "Inline CSS may conflict with Tailwind classes.",
+              example: `<div class="origin-center" style="transform-origin: top;">Conflict</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Non-Transformable Elements",
+              reason:
+                "Setting origin on static elements without transform has no visible impact.",
+              example: `<p class="origin-bottom">Text</p>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with Animations:",
+              text: "Always pair transform-origin with rotate/scale for intended effect.",
+            },
+
+            {
+              bold: "Use Responsively:",
+              text: "Adjust origin with responsive prefixes to match layout changes.",
+            },
+
+            {
+              bold: "Center by Default:",
+              text: "Origin-center is usually safest for balanced motion.",
+            },
+
+            {
+              bold: "Debug Pivot:",
+              text: "Apply a background or border to visualize the pivot during development.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["transform", "transform-style"],
+
+    title: "Transform Style",
+
+    description:
+      "Control how nested elements are rendered in 3D space. Use transform-style utilities to manage whether child elements preserve their 3D positioning or flatten into the parent plane, enabling realistic 3D effects.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Transform Style",
+
+          description:
+            "Control how nested elements are rendered in 3D space. `transform-style` utilities determine whether child elements maintain their 3D transformations or are flattened into the parent element's plane, which is essential for layered or perspective-based layouts.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "3D Layering Concept",
+
+          description:
+            "Transform style sets the CSS `transform-style` property, influencing how children of an element participate in 3D transformations. With `preserve-3d`, nested elements maintain depth relationships, whereas `flat` flattens them to the parent's plane, ignoring individual z-axis positioning.",
+
+          features: [
+            "Preserves child 3D transformations",
+
+            "Supports `flat` flattening behavior",
+
+            "Works with perspective and rotations",
+
+            "Enables layered 3D effects",
+
+            "Responsive and composable with other transforms",
+          ],
+
+          layerAssignment: "Layout Layer - 3D visual transformations",
+
+          browserBehavior:
+            "Maps directly to the CSS `transform-style` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "transform-style-flat",
+              desc: "Flattens child elements onto parent plane",
+            },
+
+            {
+              cls: "transform-style-preserve-3d",
+              desc: "Maintains 3D transformations of children",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Transform Style Playground",
+
+          description:
+            "Experiment with `flat` and `preserve-3d` to observe how child elements are rendered in 3D space.",
+
+          options: ["transform-style-flat", "transform-style-preserve-3d"],
+
+          defaultValue: "transform-style-preserve-3d",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} perspective-200 ...">  <div class="rotate-y-45">Child</div></div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center perspective-200 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow transform rotate-y-45 text-center">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  3D Child Element
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Flattened Card",
+
+          description:
+            "A card with nested 3D rotated children appears flattened. Apply the correct transform-style to preserve 3D depth.",
+
+          codeSnippet:
+            '<div class="... {input}">  <div class="rotate-y-45">Child</div></div>',
+
+          options: [
+            "transform-style-flat",
+            "transform-style-preserve-3d",
+            "transform-style-none",
+            "transform-style-auto",
+          ],
+
+          correctOption: "transform-style-preserve-3d",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center perspective-200">
+              <div
+                className={`transition-all duration-500 ${userClass} transform`}
+              >
+                Nested 3D Child{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "3D Rotating Card",
+
+              description:
+                "Preserves child rotations for interactive 3D cards.",
+
+              code: `<div class="transform-style-preserve-3d perspective-500">  <div class="rotate-y-30">Card</div></div>`,
+
+              preview: (
+                <div className="p-4 perspective-500 transform-style-preserve-3d rotate-y-30 bg-white rounded shadow">
+                  Card Preview
+                </div>
+              ),
+            },
+
+            {
+              title: "Flattened Toolbar",
+
+              description: "Ensures nested elements appear in a single plane.",
+
+              code: `<div class="transform-style-flat">  <button class="rotate-y-15">Button</button></div>`,
+
+              preview: (
+                <div className="p-4 transform-style-flat rotate-y-15 bg-white rounded shadow">
+                  Button Preview
+                </div>
+              ),
+            },
+
+            {
+              title: "3D Menu Layers",
+
+              description:
+                "Nested menu items maintain depth for animated flyouts.",
+
+              code: `<nav class="transform-style-preserve-3d">  <ul class="rotate-x-10">Menu Item</ul></nav>`,
+
+              preview: (
+                <div className="p-4 transform-style-preserve-3d rotate-x-10 bg-white rounded shadow">
+                  Menu Preview
+                </div>
+              ),
+            },
+
+            {
+              title: "Interactive Cube",
+
+              description: "All cube faces retain 3D transformations.",
+
+              code: `<div class="transform-style-preserve-3d perspective-400">  <div class="rotate-y-90">Face</div></div>`,
+
+              preview: (
+                <div className="p-4 transform-style-preserve-3d perspective-400 rotate-y-90 bg-white rounded shadow">
+                  Cube Face
+                </div>
+              ),
+            },
+
+            {
+              title: "Flattened Icon Group",
+
+              description:
+                "Icons rendered on same plane for uniform alignment.",
+
+              code: `<div class="transform-style-flat">  <svg class="rotate-y-45">...</svg></div>`,
+
+              preview: (
+                <div className="p-4 transform-style-flat rotate-y-45 bg-white rounded shadow">
+                  Icon Preview
+                </div>
+              ),
+            },
+
+            {
+              title: "3D Panel Stack",
+
+              description:
+                "Preserves depth across stacked panels for visual layering.",
+
+              code: `<div class="transform-style-preserve-3d perspective-600">  <div class="rotate-x-15">Panel</div></div>`,
+
+              preview: (
+                <div className="p-4 transform-style-preserve-3d perspective-600 rotate-x-15 bg-white rounded shadow">
+                  Panel Preview
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Forgetting 3D Perspective",
+              reason:
+                "Without a perspective, `preserve-3d` has no visual effect.",
+              example: `<div class="transform-style-preserve-3d">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Using `flat` When 3D Needed",
+              reason: "Flattening removes depth, breaking 3D designs.",
+              example: `<div class="transform-style-flat">...</div>`,
+              level: "critical",
+            },
+
+            {
+              title: "Incorrect Nesting",
+              reason:
+                "Child elements not rotated appear flat even with `preserve-3d`.",
+              example: `<div class="transform-style-preserve-3d"><div>Flat</div></div>`,
+              level: "info",
+            },
+
+            {
+              title: "Ignoring Browser Support",
+              reason:
+                "Some older browsers may not fully respect 3D transforms.",
+              example: `<div class="transform-style-preserve-3d">...</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with Perspective:",
+              text: "Always add a perspective to parent elements to see 3D effects.",
+            },
+
+            {
+              bold: "Use Sparingly:",
+              text: "Overusing 3D transforms can impact performance.",
+            },
+
+            {
+              bold: "Nested Rotations:",
+              text: "Ensure child elements have explicit rotations for visible depth.",
+            },
+
+            {
+              bold: "Test Across Browsers:",
+              text: "Check rendering in multiple browsers for consistent 3D effects.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["transform", "transform"],
+
+    title: "Transform",
+
+    description:
+      "Control how an element is transformed in 2D or 3D space. Use transform utilities to scale, rotate, translate, or skew elements for dynamic layouts and interactive effects. Remember to combine with `transform-gpu` for hardware acceleration when needed.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Transform",
+
+          description:
+            "Transform utilities allow manipulation of elements in 2D and 3D space. They control scaling, rotation, translation, and skew, enabling creative layouts, animations, and interactive UI effects.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Transform Layer",
+
+          description:
+            "Transforms modify the element’s rendering on the visual layer without affecting document flow. Think of it as moving, stretching, or spinning a layer while the underlying layout stays intact.",
+
+          features: [
+            "Supports scale, rotate, translate, skew",
+
+            "Composes with other transforms",
+
+            "Responsive and state-aware",
+
+            "Affects visual presentation only",
+
+            "GPU-accelerated when using `transform-gpu`",
+          ],
+
+          layerAssignment: "Layout / Visual Effects",
+
+          browserBehavior: "Maps directly to the CSS `transform` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "transform", desc: "Enables transforms" },
+
+            {
+              cls: "transform-gpu",
+              desc: "Enables GPU-accelerated transforms",
+            },
+
+            { cls: "scale-50", desc: "Scale down to 50%" },
+
+            { cls: "scale-100", desc: "Normal scale (100%)" },
+
+            { cls: "rotate-0", desc: "No rotation" },
+
+            { cls: "rotate-45", desc: "Rotate 45 degrees" },
+
+            { cls: "translate-x-4", desc: "Translate along X axis by 1rem" },
+
+            { cls: "translate-y-2", desc: "Translate along Y axis by 0.5rem" },
+
+            { cls: "skew-x-12", desc: "Skew along X axis 12 degrees" },
+
+            { cls: "skew-y-6", desc: "Skew along Y axis 6 degrees" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Transform Playground",
+
+          description:
+            "Experiment with scaling, rotating, translating, and skewing elements. Combine multiple transform classes to observe compound effects.",
+
+          options: ["transform", "transform-gpu", "scale-110", "rotate-12"],
+
+          defaultValue: "transform",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} p-8 bg-blue-100 rounded">Transform Me</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Preview Content
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken Transform",
+
+          description:
+            "An element should rotate 45 degrees on hover, but it isn't moving. Apply the correct transform utility.",
+
+          codeSnippet: '<div class="p-8 bg-blue-200 {input}">Rotate me</div>',
+
+          options: ["rotate-0", "rotate-45", "scale-100", "transform-gpu"],
+
+          correctOption: "rotate-45",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div className={`transition-transform duration-500 ${userClass}`}>
+                Target Element{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Card Lift",
+              description:
+                "Add a subtle lift on hover using scale and transform.",
+              code: `<div class="transform hover:scale-105">Card</div>`,
+              preview: (
+                <div className="p-4 transform hover:scale-105 bg-white rounded shadow">
+                  Card
+                </div>
+              ),
+            },
+
+            {
+              title: "Rotating Icon",
+              description: "Rotate icons for emphasis or animation triggers.",
+              code: `<svg class="rotate-45">...</svg>`,
+              preview: (
+                <div className="rotate-45 w-8 h-8 bg-blue-500 rounded"></div>
+              ),
+            },
+
+            {
+              title: "Button Press",
+              description: "Simulate press effect using translate and scale.",
+              code: `<button class="transform active:scale-95 active:translate-y-1">Click</button>`,
+              preview: (
+                <button className="transform active:scale-95 active:translate-y-1 p-2 bg-blue-600 text-white rounded">
+                  Click
+                </button>
+              ),
+            },
+
+            {
+              title: "Skewed Banner",
+              description: "Skew elements to create dynamic section dividers.",
+              code: `<div class="skew-y-6 bg-gradient-to-r from-blue-500 to-purple-600">Banner</div>`,
+              preview: (
+                <div className="skew-y-6 p-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded">
+                  Banner
+                </div>
+              ),
+            },
+
+            {
+              title: "Translate Animation",
+              description:
+                "Move elements on hover or interaction for animation effects.",
+              code: `<div class="transform hover:translate-x-4">Slide Me</div>`,
+              preview: (
+                <div className="transform hover:translate-x-4 p-4 bg-green-200 rounded">
+                  Slide Me
+                </div>
+              ),
+            },
+
+            {
+              title: "Interactive Card Stack",
+              description:
+                "Combine scale, rotate, and translate for stacked card interactions.",
+              code: `<div class="transform rotate-6 translate-y-2">Stack</div>`,
+              preview: (
+                <div className="transform rotate-6 translate-y-2 p-4 bg-white rounded shadow">
+                  Stack
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Forgetting to Enable Transform",
+              reason:
+                "Without the `transform` class, rotation or scaling utilities have no effect.",
+              example: `<div class="rotate-45">Broken</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring GPU Acceleration",
+              reason:
+                "Using complex transforms without `transform-gpu` can cause janky animations.",
+              example: `<div class="transform rotate-45 scale-105">Choppy</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overlapping Transforms",
+              reason:
+                "Applying multiple conflicting transforms without composing carefully can yield unexpected results.",
+              example: `<div class="scale-110 rotate-90 scale-95">Messy</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Transforms Affect Visual Only",
+              reason:
+                "Transforms do not affect layout; using them for spacing without offsets can break layout expectations.",
+              example: `<div class="translate-x-4">Misaligned</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use transform-gpu:",
+              text: "Enable GPU acceleration for smoother animations and better performance.",
+            },
+
+            {
+              bold: "Combine Responsively:",
+              text: "Use responsive prefixes to apply different transforms on different breakpoints.",
+            },
+
+            {
+              bold: "Combine Carefully:",
+              text: "Stack transforms in a predictable order to avoid unexpected visual effects.",
+            },
+
+            {
+              bold: "Transition Transforms:",
+              text: "Pair with `transition-transform` for smooth animations when changing transform values.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["transitions-and-animation", "animation"],
+
+    title: "Animation",
+
+    description:
+      "Control the application of predefined keyframe animations on elements. Animation utilities allow developers to add motion effects like spinning, bouncing, or fading, enhancing the visual experience and user feedback. Use with caution to maintain performance and avoid overuse that may hinder accessibility.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Animation",
+
+          description:
+            "Animation utilities in Tailwind CSS apply CSS keyframe animations to elements, allowing developers to add dynamic motion effects like spin, pulse, bounce, and fade. They are critical for feedback, microinteractions, and emphasizing visual changes without writing custom CSS.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Motion Layer",
+
+          description:
+            "Animation utilities work by assigning pre-defined keyframes to elements along with timing functions, duration, and iteration counts. They can be thought of as adding a choreography layer to your layout, influencing perception without affecting layout flow.",
+
+          features: [
+            "Supports multiple pre-defined keyframes",
+
+            "Duration and iteration control",
+
+            "Responsive and variant-friendly",
+
+            "Non-blocking visual effects",
+
+            "Improves microinteraction feedback",
+          ],
+
+          layerAssignment: "Visual / Interaction Layer",
+
+          browserBehavior:
+            "Maps directly to the CSS `animation` property, including `animation-name`, `animation-duration`, `animation-timing-function`, and `animation-iteration-count`.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "animate-none", desc: "Removes any animation" },
+
+            { cls: "animate-spin", desc: "Continuous rotation effect" },
+
+            { cls: "animate-ping", desc: "Expanding opacity pulse" },
+
+            { cls: "animate-pulse", desc: "Subtle fading pulse" },
+
+            { cls: "animate-bounce", desc: "Bouncing vertical motion" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Animation Playground",
+
+          description:
+            "Experiment with different animation utilities to understand their motion effect and timing. Combine with duration and delay classes for refined motion.",
+
+          options: [
+            "animate-none",
+            "animate-spin",
+            "animate-ping",
+            "animate-pulse",
+            "animate-bounce",
+          ],
+
+          defaultValue: "animate-spin",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-16 h-16 bg-blue-500 rounded-full"></div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center`}
+            >
+              <div
+                className={`w-16 h-16 bg-blue-500 rounded-full ${value}`}
+              ></div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Static Icon",
+
+          description:
+            "A loading spinner is not rotating. Apply the correct animation utility to make it spin continuously.",
+
+          codeSnippet:
+            '<div class="w-12 h-12 bg-green-500 rounded-full {input}"></div>',
+
+          options: [
+            "animate-none",
+            "animate-spin",
+            "animate-ping",
+            "animate-pulse",
+          ],
+
+          correctOption: "animate-spin",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-12 h-12 bg-green-500 rounded-full ${userClass}`}
+              ></div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Loading Spinner",
+
+              description:
+                "A simple spinner using `animate-spin` to indicate loading state.",
+
+              code: `<div class="w-8 h-8 bg-blue-500 rounded-full animate-spin"></div>`,
+
+              preview: (
+                <div className="w-8 h-8 bg-blue-500 rounded-full animate-spin"></div>
+              ),
+            },
+
+            {
+              title: "Notification Pulse",
+
+              description:
+                "Highlighting a notification using `animate-pulse` for subtle attention.",
+
+              code: `<div class="w-16 h-16 bg-red-500 rounded-full animate-pulse"></div>`,
+
+              preview: (
+                <div className="w-16 h-16 bg-red-500 rounded-full animate-pulse"></div>
+              ),
+            },
+
+            {
+              title: "Attention Ping",
+
+              description:
+                "Draw attention to a button with `animate-ping` effect.",
+
+              code: `<span class="inline-block w-3 h-3 bg-yellow-500 rounded-full animate-ping"></span>`,
+
+              preview: (
+                <span className="inline-block w-3 h-3 bg-yellow-500 rounded-full animate-ping"></span>
+              ),
+            },
+
+            {
+              title: "Bouncing Icon",
+
+              description:
+                "Bouncing effect for interactive call-to-action icons using `animate-bounce`.",
+
+              code: `<div class="w-12 h-12 bg-purple-500 rounded-full animate-bounce"></div>`,
+
+              preview: (
+                <div className="w-12 h-12 bg-purple-500 rounded-full animate-bounce"></div>
+              ),
+            },
+
+            {
+              title: "Paused Animation",
+
+              description:
+                "Temporarily removing animation with `animate-none`.",
+
+              code: `<div class="w-16 h-16 bg-green-500 rounded-full animate-none"></div>`,
+
+              preview: (
+                <div className="w-16 h-16 bg-green-500 rounded-full animate-none"></div>
+              ),
+            },
+
+            {
+              title: "Interactive Hover Spin",
+
+              description:
+                "Spin an element only on hover using `hover:animate-spin`.",
+
+              code: `<div class="w-10 h-10 bg-blue-600 rounded-full hover:animate-spin"></div>`,
+
+              preview: (
+                <div className="w-10 h-10 bg-blue-600 rounded-full hover:animate-spin"></div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Overusing Animations",
+              reason:
+                "Too many moving elements can overwhelm users and reduce performance.",
+              example: `<div class="animate-spin animate-bounce">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Reduced Motion",
+              reason:
+                "Animations may cause discomfort for some users. Respect `prefers-reduced-motion`.",
+              example: `<div class="animate-ping">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Applying on Hidden Elements",
+              reason:
+                "Animation on `display:none` elements will not run until they are visible.",
+              example: `<div class="hidden animate-spin">...</div>`,
+              level: "info",
+            },
+
+            {
+              title: "Infinite Loops on Heavy Elements",
+              reason:
+                "Animating large DOM elements infinitely can cause jank and high CPU usage.",
+              example: `<div class="w-64 h-64 bg-red-500 animate-spin">...</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with Duration:",
+              text: "Use `duration-500` or `duration-1000` to control speed of animations.",
+            },
+
+            {
+              bold: "Use Variant Modifiers:",
+              text: "Add `hover:` or `focus:` to trigger animations on interaction.",
+            },
+
+            {
+              bold: "Respect Accessibility:",
+              text: "Check `prefers-reduced-motion` and provide non-animated fallback.",
+            },
+
+            {
+              bold: "Layer Animations:",
+              text: "Stack different animations carefully for smooth motion and performance.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["transitions-and-animation", "transition-behavior"],
+
+    title: "Transition Behavior",
+
+    description:
+      "Control the easing curve applied to transitions. Use these utilities to define how property changes accelerate or decelerate, providing a more natural and polished animation experience.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Transition Behavior",
+
+          description:
+            "Control the easing curve applied to transitions. These utilities determine the acceleration pattern of property changes, making animations feel smooth or responsive depending on the design intent.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Motion Curve",
+
+          description:
+            "Transition behavior utilities adjust the CSS `transition-timing-function` property. They define the pace of a transition over its duration, helping animations appear natural and guiding user attention.",
+
+          features: [
+            "Customizes transition acceleration and deceleration",
+
+            "Supports multiple predefined easing curves",
+
+            "Enhances perceived responsiveness",
+
+            "Can be combined with duration and delay utilities",
+
+            "Works consistently across modern browsers",
+          ],
+
+          layerAssignment: "Animation Layer - Controls motion timing",
+
+          browserBehavior:
+            "Maps directly to the CSS `transition-timing-function` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "ease-linear",
+              desc: "Constant speed throughout transition",
+            },
+
+            { cls: "ease-in", desc: "Starts slow and accelerates" },
+
+            { cls: "ease-out", desc: "Starts fast and decelerates" },
+
+            { cls: "ease-in-out", desc: "Slow start, fast middle, slow end" },
+
+            {
+              cls: "ease-[cubic-bezier(0.4,0,0.2,1)]",
+              desc: "Custom cubic-bezier curve",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Transition Behavior Playground",
+
+          description:
+            "Experiment with different easing curves to see how animations accelerate or decelerate over time.",
+
+          options: [
+            "ease-linear",
+
+            "ease-in",
+
+            "ease-out",
+
+            "ease-in-out",
+
+            "ease-[cubic-bezier(0.4,0,0.2,1)]",
+          ],
+
+          defaultValue: "ease-in-out",
+
+          buildMarkup: (value: string) =>
+            `<div class="transition-all duration-500 ${value} p-6 bg-slate-100 rounded-lg text-center">Animate Me</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center`}
+            >
+              <div
+                className={`transition-all duration-700 ${value} bg-white dark:bg-slate-800 p-4 rounded shadow text-center`}
+              >
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Preview Animation
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Smooth Hover Button",
+
+          description:
+            "A button currently jumps abruptly on hover. Apply a transition behavior utility to smooth the hover effect.",
+
+          codeSnippet:
+            '<button class="bg-blue-600 text-white px-4 py-2 rounded {input} hover:bg-blue-700">Hover Me</button>',
+
+          options: ["ease-linear", "ease-in", "ease-out", "ease-in-out"],
+
+          correctOption: "ease-in-out",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-32 flex items-center justify-center">
+              <button
+                className={`bg-blue-600 text-white px-4 py-2 rounded transition-all duration-500 ${userClass} hover:bg-blue-700`}
+              >
+                Hover Me
+              </button>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Card Hover",
+
+              description:
+                "Apply smooth easing on hover to elevate cards naturally.",
+
+              code: `<div class="transition-transform duration-500 ease-out hover:scale-105 p-6 bg-white rounded shadow">Card</div>`,
+
+              preview: (
+                <div className="p-4 bg-slate-50 rounded shadow-sm">Card</div>
+              ),
+            },
+
+            {
+              title: "Button Press",
+
+              description:
+                "Use `ease-in` for press interactions that start slowly and accelerate.",
+
+              code: `<button class="transition-all duration-300 ease-in bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Click</button>`,
+
+              preview: (
+                <div className="p-4">
+                  <button className="transition-all duration-300 ease-in bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                    Click
+                  </button>
+                </div>
+              ),
+            },
+
+            {
+              title: "Modal Fade",
+
+              description:
+                "Combine opacity transition with `ease-in-out` for smooth modal entrance.",
+
+              code: `<div class="transition-opacity duration-400 ease-in-out opacity-0 hover:opacity-100 p-6 bg-white rounded shadow">Modal</div>`,
+
+              preview: (
+                <div className="p-4">
+                  <div className="transition-opacity duration-400 ease-in-out opacity-0 hover:opacity-100 p-6 bg-white rounded shadow">
+                    Modal
+                  </div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Dropdown Menu",
+
+              description:
+                "Use linear easing for consistent movement across the dropdown.",
+
+              code: `<ul class="transition-all duration-300 ease-linear p-4 bg-white rounded shadow">Menu Items</ul>`,
+
+              preview: (
+                <div className="p-4">
+                  <ul className="transition-all duration-300 ease-linear p-4 bg-white rounded shadow">
+                    Menu Items
+                  </ul>
+                </div>
+              ),
+            },
+
+            {
+              title: "Tooltip Appearance",
+
+              description:
+                "Ease-out for tooltips that pop in quickly but settle smoothly.",
+
+              code: `<div class="transition-opacity duration-200 ease-out opacity-0 hover:opacity-100 bg-slate-800 text-white p-2 rounded">Tooltip</div>`,
+
+              preview: (
+                <div className="p-4">
+                  <div className="transition-opacity duration-200 ease-out opacity-0 hover:opacity-100 bg-slate-800 text-white p-2 rounded">
+                    Tooltip
+                  </div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Notification Slide",
+
+              description:
+                "Smoothly slide in notifications using `ease-in-out` for motion consistency.",
+
+              code: `<div class="transition-transform duration-500 ease-in-out translate-y-4 hover:translate-y-0 p-4 bg-green-500 text-white rounded">Notification</div>`,
+
+              preview: (
+                <div className="p-4">
+                  <div className="transition-transform duration-500 ease-in-out translate-y-4 hover:translate-y-0 p-4 bg-green-500 text-white rounded">
+                    Notification
+                  </div>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "No Easing Applied",
+
+              reason:
+                "Transitions jump abruptly without easing, feeling unnatural.",
+
+              example: `<div class="transition-all duration-500">Jump</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overly Complex Curves",
+
+              reason:
+                "Custom cubic-bezier values may confuse users if not consistent.",
+
+              example: `<div class="ease-[cubic-bezier(0.99,0,0.01,1)] transition-all">Weird Motion</div>`,
+
+              level: "info",
+            },
+
+            {
+              title: "Ignoring Duration",
+
+              reason:
+                "Applying easing without duration makes the effect imperceptible.",
+
+              example: `<div class="ease-in">No duration</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Combining Conflicting Classes",
+
+              reason:
+                "Multiple timing-function utilities can override each other unpredictably.",
+
+              example: `<div class="ease-in ease-out">Conflict</div>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Consistent Motion:",
+              text: "Use the same easing curve across similar elements for design cohesion.",
+            },
+
+            {
+              bold: "Combine with Duration:",
+              text: "Pair `ease-in-out` with appropriate duration to enhance perception of smoothness.",
+            },
+
+            {
+              bold: "Minimal Curves:",
+              text: "Stick to predefined easings unless a custom curve is essential.",
+            },
+
+            {
+              bold: "Preview in Context:",
+              text: "Always test transitions in the real layout to observe motion impact.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["transitions-animation", "transition-delay"],
+
+    title: "Transition Delay",
+
+    description:
+      "Control the delay before a transition begins. Use this utility to stagger animations, coordinate sequences, or delay hover/focus effects for better user experience. Implementation is mapped directly to the CSS `transition-delay` property.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Transition Delay",
+
+          description:
+            "Control the delay before a CSS transition starts. Useful for sequencing animations or deferring hover/focus effects to improve interaction timing.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Delaying the Start",
+
+          description:
+            "Transition delay utilities define how long the browser waits before starting a transition. Conceptually, imagine setting a timer on an animation that only begins once the delay has elapsed.",
+
+          features: [
+            "Supports responsive modifiers",
+
+            "Enables staggered animations",
+
+            "Works with all transition properties",
+
+            "Improves UX timing for interactive elements",
+
+            "Composable with other transition utilities",
+          ],
+
+          layerAssignment: "Animation / Visual Effects",
+
+          browserBehavior:
+            "Maps directly to the CSS `transition-delay` property. Delays are additive with transition duration.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "delay-75", desc: "0.075s transition delay" },
+
+            { cls: "delay-100", desc: "0.1s transition delay" },
+
+            { cls: "delay-150", desc: "0.15s transition delay" },
+
+            { cls: "delay-200", desc: "0.2s transition delay" },
+
+            { cls: "delay-300", desc: "0.3s transition delay" },
+
+            { cls: "delay-500", desc: "0.5s transition delay" },
+
+            { cls: "delay-700", desc: "0.7s transition delay" },
+
+            { cls: "delay-1000", desc: "1s transition delay" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Transition Delay Playground",
+
+          description:
+            "Experiment with different delay classes to see how the start timing of transitions changes on hover or focus.",
+
+          options: ["delay-75", "delay-150", "delay-300", "delay-500"],
+
+          defaultValue: "delay-150",
+
+          buildMarkup: (value: string) =>
+            `<div class="transition-all duration-500 ${value} hover:scale-110 p-4 bg-blue-100 rounded text-center">Hover me</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center`}
+            >
+              <div
+                className={`transition-all duration-500 ${value} hover:scale-110 p-4 bg-blue-100 rounded text-center`}
+              >
+                Hover me{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken UI",
+
+          description:
+            "The button hover animation feels abrupt. Add an appropriate transition delay to make it smoother.",
+
+          codeSnippet:
+            '<button class="transition-all duration-500 {input} p-2 bg-blue-500 text-white rounded">Click</button>',
+
+          options: ["delay-75", "delay-300", "delay-0", "delay-1000"],
+
+          correctOption: "delay-300",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <button
+                className={`transition-all duration-500 ${userClass} p-4 bg-blue-500 text-white rounded`}
+              >
+                Click
+              </button>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Hover Delay on Cards",
+              description: "Cards scale up after a slight delay when hovered.",
+              code: `<div class="transition-all duration-500 delay-150 hover:scale-105 p-4 bg-white rounded shadow">Card</div>`,
+              preview: (
+                <div className="p-4 bg-white rounded shadow transition-all duration-500 delay-150 hover:scale-105">
+                  Card
+                </div>
+              ),
+            },
+
+            {
+              title: "Button Feedback",
+              description:
+                "Buttons animate color change with a smooth delayed start.",
+              code: `<button class="transition-colors duration-300 delay-100 hover:bg-blue-700 p-2 rounded text-white">Submit</button>`,
+              preview: (
+                <button className="transition-colors duration-300 delay-100 hover:bg-blue-700 p-2 rounded text-white">
+                  Submit
+                </button>
+              ),
+            },
+
+            {
+              title: "Tooltip Appearance",
+              description:
+                "Tooltip opacity transition starts after a short delay for better timing.",
+              code: `<div class="relative group"><span class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 delay-150 absolute bg-gray-800 text-white p-1 rounded">Tooltip</span>Hover me</div>`,
+              preview: (
+                <div className="relative group">
+                  <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 delay-150 absolute bg-gray-800 text-white p-1 rounded">
+                    Tooltip
+                  </span>
+                  Hover me
+                </div>
+              ),
+            },
+
+            {
+              title: "Staggered List Items",
+              description:
+                "List items fade in sequentially with increasing delays.",
+              code: `<ul><li class="transition-opacity duration-300 delay-100 opacity-0 hover:opacity-100">Item 1</li><li class="transition-opacity duration-300 delay-200 opacity-0 hover:opacity-100">Item 2</li></ul>`,
+              preview: (
+                <ul>
+                  <li className="transition-opacity duration-300 delay-100 opacity-0 hover:opacity-100">
+                    Item 1
+                  </li>
+                  <li className="transition-opacity duration-300 delay-200 opacity-0 hover:opacity-100">
+                    Item 2
+                  </li>
+                </ul>
+              ),
+            },
+
+            {
+              title: "Modal Fade-In",
+              description:
+                "Modal overlay fades in after a small delay for smoother UX.",
+              code: `<div class="transition-opacity duration-200 delay-150 opacity-0 hover:opacity-100 bg-black/50 fixed inset-0"></div>`,
+              preview: (
+                <div className="transition-opacity duration-200 delay-150 opacity-0 hover:opacity-100 bg-black/50 fixed inset-0"></div>
+              ),
+            },
+
+            {
+              title: "Image Hover Zoom",
+              description:
+                "Images zoom slightly with a delayed start on hover.",
+              code: `<img src="image.jpg" class="transition-transform duration-500 delay-200 hover:scale-105" />`,
+              preview: (
+                <img
+                  src="image.jpg"
+                  className="transition-transform duration-500 delay-200 hover:scale-105"
+                />
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "No Delay Specified",
+              reason:
+                "Transitions start abruptly without any delay, causing jarring effects.",
+              example: `<div class="transition-all duration-500 hover:scale-110">Box</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Excessive Delay",
+              reason:
+                "Too long delays can make interactions feel unresponsive.",
+              example: `<button class="transition-all duration-500 delay-1000 hover:bg-blue-700">Click</button>`,
+              level: "warning",
+            },
+
+            {
+              title: "Conflicting Delays",
+              reason:
+                "Combining multiple delay utilities may cause unexpected timing.",
+              example: `<div class="delay-150 delay-300 transition-all">Box</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Duration",
+              reason:
+                "Setting delay without duration can produce instant jumps after the delay.",
+              example: `<div class="delay-200 transition-none hover:scale-105">Box</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine With Duration:",
+              text: "Always pair delay with duration for predictable animations.",
+            },
+
+            {
+              bold: "Stagger Effects:",
+              text: "Use incremental delays on sequential elements for natural transitions.",
+            },
+
+            {
+              bold: "Responsive Delays:",
+              text: "Apply different delay values using responsive modifiers for adaptive animations.",
+            },
+
+            {
+              bold: "Interaction Timing:",
+              text: "Delay hover/focus transitions to prevent accidental triggers and improve UX.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["transitions-and-animation", "transition-duration"],
+
+    title: "Transition Duration",
+
+    description:
+      "Control the length of time a CSS transition takes to complete. Use transition duration utilities to fine-tune animations and interactive state changes for smoother UI feedback. Duration values map directly to the CSS `transition-duration` property.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Transition Duration",
+
+          description:
+            "Control how long transitions take to complete on interactive elements. Adjusting duration ensures animations feel natural and maintain user focus, from hover effects to modal entrances.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Timing the Motion",
+
+          description:
+            "Transition duration utilities set the CSS `transition-duration` property, controlling how long a property change takes to animate. Think of it as the speed dial for your UI’s motion, where shorter times feel snappier and longer times feel more deliberate.",
+
+          features: [
+            "Adjusts speed of visual transitions",
+
+            "Works on hover, focus, and state changes",
+
+            "Supports responsive customization",
+
+            "Critical for perceived performance",
+
+            "Enhances smoothness of animations",
+          ],
+
+          layerAssignment: "Visual/Interaction Layer",
+
+          browserBehavior:
+            "Sets the `transition-duration` CSS property; must be combined with a `transition-property` to take effect.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "duration-75", desc: "Very fast transitions" },
+
+            { cls: "duration-100", desc: "Fast transitions" },
+
+            { cls: "duration-150", desc: "Moderately fast transitions" },
+
+            { cls: "duration-200", desc: "Standard speed transitions" },
+
+            {
+              cls: "duration-300",
+              desc: "Slightly slower, smooth transitions",
+            },
+
+            { cls: "duration-500", desc: "Medium paced animations" },
+
+            { cls: "duration-700", desc: "Slower, deliberate transitions" },
+
+            {
+              cls: "duration-1000",
+              desc: "Longest transitions, highly noticeable",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Transition Duration Playground",
+
+          description:
+            "Experiment with different duration values to see how transitions feel. Combine with `transition` and `hover:` utilities for live feedback.",
+
+          options: [
+            "duration-75",
+            "duration-150",
+            "duration-300",
+            "duration-500",
+          ],
+
+          defaultValue: "duration-300",
+
+          buildMarkup: (value: string) =>
+            `<button class="transition-all ${value} bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Hover Me</button>`,
+
+          renderPreview: (value: string) => (
+            <div className="p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center">
+              <button
+                className={`transition-all ${value} bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded font-medium`}
+              >
+                Hover Me
+              </button>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Slow Fade",
+
+          description:
+            "A modal fades too slowly on open. Apply a suitable transition duration class to improve perceived responsiveness.",
+
+          codeSnippet:
+            '<div class="transition-opacity {input} bg-white p-6 rounded shadow">Modal Content</div>',
+
+          options: [
+            "duration-75",
+            "duration-300",
+            "duration-1000",
+            "duration-150",
+          ],
+
+          correctOption: "duration-300",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`transition-opacity ${userClass} bg-white p-6 rounded shadow text-center`}
+              >
+                Modal Content
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Button Hover",
+
+              description:
+                "Smooth color change on hover using duration utilities.",
+
+              code: `<button class="transition-colors duration-150 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Click Me</button>`,
+
+              preview: (
+                <button className="transition-colors duration-150 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                  Click Me
+                </button>
+              ),
+            },
+
+            {
+              title: "Fade In Modal",
+
+              description: "Modal appears with controlled fade duration.",
+
+              code: `<div class="transition-opacity duration-300 opacity-0 hover:opacity-100 bg-white p-6 rounded shadow">Modal Content</div>`,
+
+              preview: (
+                <div className="transition-opacity duration-300 opacity-0 hover:opacity-100 bg-white p-6 rounded shadow">
+                  Modal Content
+                </div>
+              ),
+            },
+
+            {
+              title: "Accordion Expansion",
+
+              description:
+                "Height changes animate smoothly with duration utilities.",
+
+              code: `<div class="transition-all duration-500 max-h-0 hover:max-h-40 overflow-hidden bg-gray-100 p-4 rounded">Accordion Item</div>`,
+
+              preview: (
+                <div className="transition-all duration-500 max-h-0 hover:max-h-40 overflow-hidden bg-gray-100 p-4 rounded">
+                  Accordion Item
+                </div>
+              ),
+            },
+
+            {
+              title: "Card Hover Elevation",
+
+              description:
+                "Shadow and transform transition controlled by duration.",
+
+              code: `<div class="transition-shadow duration-200 hover:shadow-lg bg-white p-6 rounded">Card</div>`,
+
+              preview: (
+                <div className="transition-shadow duration-200 hover:shadow-lg bg-white p-6 rounded">
+                  Card
+                </div>
+              ),
+            },
+
+            {
+              title: "Tooltip Appearance",
+
+              description: "Tooltip opacity transition for subtle appearance.",
+
+              code: `<div class="transition-opacity duration-150 opacity-0 hover:opacity-100 bg-gray-800 text-white p-2 rounded">Tooltip</div>`,
+
+              preview: (
+                <div className="transition-opacity duration-150 opacity-0 hover:opacity-100 bg-gray-800 text-white p-2 rounded">
+                  Tooltip
+                </div>
+              ),
+            },
+
+            {
+              title: "Menu Slide Down",
+
+              description:
+                "Dropdown menu appears with smooth duration-controlled slide.",
+
+              code: `<div class="transition-all duration-300 max-h-0 hover:max-h-64 overflow-hidden bg-white p-4 rounded shadow">Menu Item</div>`,
+
+              preview: (
+                <div className="transition-all duration-300 max-h-0 hover:max-h-64 overflow-hidden bg-white p-4 rounded shadow">
+                  Menu Item
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "No Transition Property Set",
+
+              reason:
+                "Duration has no effect without `transition` or `transition-*` applied.",
+
+              example: `<div class="duration-300 bg-blue-500 hover:bg-blue-600">Button</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Excessive Duration",
+
+              reason: "Too long durations make UI feel sluggish.",
+
+              example: `<div class="transition-all duration-2000 hover:bg-blue-600">Button</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Inconsistent Timing",
+
+              reason:
+                "Different durations on related elements can feel jarring.",
+
+              example: `<div class="transition-all duration-75">Item 1</div><div class="transition-all duration-1000">Item 2</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Interaction Feedback",
+
+              reason:
+                "Not setting duration on hover/focus transitions reduces perceived responsiveness.",
+
+              example: `<button class="transition-none hover:bg-blue-600">Click</button>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with `transition`:",
+              text: "Always pair `duration-*` with a `transition` property for effect.",
+            },
+
+            {
+              bold: "Consistent Timing:",
+              text: "Keep similar UI elements at the same duration for cohesive motion.",
+            },
+
+            {
+              bold: "Short for Micro-Interactions:",
+              text: "Use 75–150ms for hover/focus feedback to feel responsive.",
+            },
+
+            {
+              bold: "Longer for Emphasis:",
+              text: "Use 300–500ms for modal or alert entrances for smoother perception.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["transitions-animation", "transition-property"],
+
+    title: "Transition Property",
+
+    description:
+      "Control which CSS properties will transition when their values change. Use this to create smooth, targeted animations that enhance user experience without affecting unrelated properties.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Transition Property",
+
+          description:
+            "Control which CSS properties will transition when their values change. Use this to create smooth, targeted animations that enhance user experience without affecting unrelated properties.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Selective Animator",
+
+          description:
+            "This utility defines the specific properties that will animate during state changes. Think of it as telling the browser exactly which attributes should respond to transitions while leaving others static.",
+
+          features: [
+            "Selective property transitions",
+
+            "Supports responsive variants",
+
+            "Works with hover, focus, and active states",
+
+            "Combines with duration and easing utilities",
+
+            "Prevents unnecessary reflows",
+          ],
+
+          layerAssignment: "Visual Layer - Controls animation behavior",
+
+          browserBehavior:
+            "Sets the `transition-property` CSS property, affecting only the specified properties.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "transition-none", desc: "No properties will transition" },
+
+            {
+              cls: "transition-all",
+              desc: "All animatable properties will transition",
+            },
+
+            {
+              cls: "transition",
+              desc: "Shorthand for common properties (background, border, color, opacity, transform)",
+            },
+
+            {
+              cls: "transition-colors",
+              desc: "Only color-related properties transition",
+            },
+
+            { cls: "transition-opacity", desc: "Only opacity transitions" },
+
+            { cls: "transition-shadow", desc: "Only box-shadow transitions" },
+
+            { cls: "transition-transform", desc: "Only transform transitions" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Transition Property Playground",
+
+          description:
+            "Experiment with different transition properties to observe which attributes animate. Combine with duration and easing for smooth effects.",
+
+          options: [
+            "transition-none",
+            "transition-all",
+            "transition-colors",
+            "transition-opacity",
+          ],
+
+          defaultValue: "transition-all",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} bg-blue-500 hover:bg-blue-700 text-white p-4 rounded">Hover Me</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <div
+                className={`bg-blue-500 ${value} hover:bg-blue-700 text-white p-4 rounded text-center`}
+              >
+                Hover Me
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Missing Animation",
+
+          description:
+            "The button changes background on hover but no smooth animation occurs. Apply the correct transition utility to animate the color change.",
+
+          codeSnippet:
+            '<button class="bg-green-500 text-white p-4 rounded {input}">Click Me</button>',
+
+          options: [
+            "transition-none",
+            "transition-all",
+            "transition-opacity",
+            "transition-transform",
+          ],
+
+          correctOption: "transition-colors",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <button
+                className={`bg-green-500 text-white p-4 rounded ${userClass} hover:bg-green-700 transition duration-500`}
+              >
+                Click Me
+              </button>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Button Hover",
+
+              description:
+                "Animate background and text color smoothly on hover.",
+
+              code: `<button class="transition-colors duration-300 bg-blue-500 hover:bg-blue-700 text-white p-2 rounded">Hover</button>`,
+
+              preview: (
+                <button className="transition-colors duration-300 bg-blue-500 hover:bg-blue-700 text-white p-2 rounded">
+                  Hover
+                </button>
+              ),
+            },
+
+            {
+              title: "Card Shadow",
+
+              description: "Animate box-shadow when hovering over a card.",
+
+              code: `<div class="transition-shadow duration-300 hover:shadow-lg p-4 rounded bg-white">Card</div>`,
+
+              preview: (
+                <div className="transition-shadow duration-300 hover:shadow-lg p-4 rounded bg-white">
+                  Card
+                </div>
+              ),
+            },
+
+            {
+              title: "Image Transform",
+
+              description: "Scale and rotate images smoothly on hover.",
+
+              code: `<img class="transition-transform duration-500 hover:scale-105 hover:rotate-2" src="image.jpg" alt="Sample"/>`,
+
+              preview: (
+                <img
+                  className="transition-transform duration-500 hover:scale-105 hover:rotate-2"
+                  src="https://via.placeholder.com/150"
+                  alt="Sample"
+                />
+              ),
+            },
+
+            {
+              title: "Fade In Text",
+
+              description: "Animate opacity changes for fade-in effects.",
+
+              code: `<p class="transition-opacity duration-500 opacity-0 hover:opacity-100">Hello</p>`,
+
+              preview: (
+                <p className="transition-opacity duration-500 opacity-0 hover:opacity-100">
+                  Hello
+                </p>
+              ),
+            },
+
+            {
+              title: "Background Gradient Shift",
+
+              description: "Animate background gradient changes.",
+
+              code: `<div class="transition-all duration-700 bg-gradient-to-r from-red-400 to-yellow-400 hover:from-green-400 hover:to-blue-400 p-4 rounded text-white">Gradient</div>`,
+
+              preview: (
+                <div className="transition-all duration-700 bg-gradient-to-r from-red-400 to-yellow-400 hover:from-green-400 hover:to-blue-400 p-4 rounded text-white">
+                  Gradient
+                </div>
+              ),
+            },
+
+            {
+              title: "Menu Expand",
+
+              description:
+                "Animate height and padding when opening a collapsible menu.",
+
+              code: `<div class="transition-all duration-300 max-h-0 overflow-hidden hover:max-h-64 p-0 hover:p-4 bg-gray-100 rounded">Menu Content</div>`,
+
+              preview: (
+                <div className="transition-all duration-300 max-h-0 overflow-hidden hover:max-h-64 p-0 hover:p-4 bg-gray-100 rounded">
+                  Menu Content
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using transition-none by mistake",
+
+              reason:
+                "Prevents intended animations; no properties will transition.",
+
+              example: `<div class="transition-none hover:bg-blue-500">Hover</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overusing transition-all",
+
+              reason:
+                "Can cause performance issues by animating unnecessary properties.",
+
+              example: `<div class="transition-all hover:opacity-50">Hover</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Forgetting duration",
+
+              reason: "Without a duration, transitions may be imperceptible.",
+
+              example: `<div class="transition-colors hover:bg-red-500">Hover</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring property specificity",
+
+              reason:
+                "Applying transition to properties that don't change has no effect.",
+
+              example: `<div class="transition-opacity hover:bg-blue-500">Hover</div>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with Duration:",
+              text: "Always set duration (`duration-200`) for visible transitions.",
+            },
+
+            {
+              bold: "Use Property-Specific Classes:",
+              text: "Avoid `transition-all` for performance-critical elements.",
+            },
+
+            {
+              bold: "Layer Effects:",
+              text: "Combine with transform and shadow utilities for smooth motion.",
+            },
+
+            {
+              bold: "Responsive Transitions:",
+              text: "Apply different transition properties per breakpoint if needed.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["transitions-animation", "transition-timing-function"],
+
+    title: "Transition Timing Function",
+
+    description:
+      "Control the acceleration curve of CSS transitions. Use timing function utilities to adjust the speed and rhythm of animations for a more natural or dynamic feel. Ideal for hover effects, modals, and interactive components.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Transition Timing Function",
+
+          description:
+            "Control the acceleration curve of CSS transitions. These utilities allow developers to define how an animation progresses over time, enabling smooth, linear, or custom easing effects for a polished user experience.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Motion Curve",
+
+          description:
+            "Transition timing functions adjust the pace of a CSS transition between its start and end values. Think of it as controlling how fast or slow an element accelerates or decelerates during a state change.",
+
+          features: [
+            "Customizable easing curves",
+
+            "Supports hover and focus interactions",
+
+            "Works seamlessly with all transition properties",
+
+            "Enhances perceived performance and fluidity",
+          ],
+
+          layerAssignment: "Animation / Interaction Layer",
+
+          browserBehavior:
+            "Maps directly to the CSS `transition-timing-function` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "ease-linear", desc: "Constant speed from start to finish" },
+
+            { cls: "ease-in", desc: "Starts slow, accelerates at the end" },
+
+            { cls: "ease-out", desc: "Starts fast, decelerates at the end" },
+
+            { cls: "ease-in-out", desc: "Slow start and end, faster middle" },
+
+            {
+              cls: "ease-[cubic-bezier(0.4,0,0.2,1)]",
+              desc: "Custom cubic-bezier easing",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Timing Function Playground",
+
+          description:
+            "Experiment with different timing functions to see how elements accelerate and decelerate during transitions.",
+
+          options: ["ease-linear", "ease-in", "ease-out", "ease-in-out"],
+
+          defaultValue: "ease-in-out",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} transition-all duration-500 p-4 bg-blue-500 rounded text-white">Hover Me</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center`}
+            >
+              <div
+                className={`transition-all duration-500 ${value} p-6 bg-blue-500 rounded text-white cursor-pointer`}
+              >
+                Preview Box
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Smooth Hover Transition",
+
+          description:
+            "A button jumps abruptly on hover due to the wrong timing function. Apply a suitable class to create a smooth acceleration and deceleration.",
+
+          codeSnippet:
+            '<button class="bg-blue-500 text-white p-4 rounded {input}">Hover Me</button>',
+
+          options: ["ease-linear", "ease-in", "ease-out", "ease-in-out"],
+
+          correctOption: "ease-in-out",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <button
+                className={`transition-all duration-500 ${userClass} bg-blue-500 text-white p-4 rounded`}
+              >
+                Hover Me
+              </button>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Button Hover",
+
+              description:
+                "Smooth hover effect on primary buttons using `ease-in-out`.",
+
+              code: `<button class="transition-all duration-300 ease-in-out bg-indigo-600 text-white px-4 py-2 rounded">Click Me</button>`,
+
+              preview: (
+                <button className="transition-all duration-300 ease-in-out bg-indigo-600 text-white px-4 py-2 rounded">
+                  Click Me
+                </button>
+              ),
+            },
+
+            {
+              title: "Modal Fade",
+
+              description:
+                "Ease-in timing function to smoothly fade in modal overlays.",
+
+              code: `<div class="transition-opacity duration-500 ease-in bg-black/50 fixed inset-0"></div>`,
+
+              preview: (
+                <div className="transition-opacity duration-500 ease-in bg-black/50 fixed inset-0"></div>
+              ),
+            },
+
+            {
+              title: "Dropdown Slide",
+
+              description:
+                "Use `ease-out` for natural deceleration when sliding dropdowns.",
+
+              code: `<div class="transition-transform duration-300 ease-out transform translate-y-0">Menu</div>`,
+
+              preview: (
+                <div className="transition-transform duration-300 ease-out transform translate-y-0">
+                  Menu
+                </div>
+              ),
+            },
+
+            {
+              title: "Tooltip Appear",
+
+              description:
+                "Apply `ease-linear` for a uniform transition on tooltip opacity.",
+
+              code: `<div class="transition-opacity duration-200 ease-linear opacity-0 hover:opacity-100">Tooltip</div>`,
+
+              preview: (
+                <div className="transition-opacity duration-200 ease-linear opacity-0 hover:opacity-100">
+                  Tooltip
+                </div>
+              ),
+            },
+
+            {
+              title: "Card Lift",
+
+              description:
+                "Card elevation uses `ease-in-out` for smooth hover scale animations.",
+
+              code: `<div class="transition-transform duration-300 ease-in-out hover:scale-105 p-6 bg-white rounded shadow">Card</div>`,
+
+              preview: (
+                <div className="transition-transform duration-300 ease-in-out hover:scale-105 p-6 bg-white rounded shadow">
+                  Card
+                </div>
+              ),
+            },
+
+            {
+              title: "Progress Bar",
+
+              description:
+                "Smooth width change on progress bar using `ease-in`.",
+
+              code: `<div class="w-full bg-gray-200 rounded"><div class="transition-all duration-500 ease-in bg-blue-500 h-2 w-1/2"></div></div>`,
+
+              preview: (
+                <div className="w-full bg-gray-200 rounded">
+                  <div className="transition-all duration-500 ease-in bg-blue-500 h-2 w-1/2"></div>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Abrupt Animations",
+              reason:
+                "Using `ease-linear` for complex transitions can feel mechanical.",
+              example: `<div class="transition-all duration-300 ease-linear">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Inconsistent Timing",
+              reason:
+                "Mixing multiple timing functions in the same animation can create jarring effects.",
+              example: `<div class="transition-all duration-300 ease-in hover:ease-out">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Accessibility",
+              reason:
+                "Fast transitions can trigger motion sensitivity issues; consider `prefers-reduced-motion`.",
+              example: `<div class="transition-all duration-1000 ease-in-out">...</div>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overusing Custom Curves",
+              reason:
+                "Complex cubic-bezier curves can confuse users if used excessively.",
+              example: `<div class="transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]">...</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine With Duration:",
+              text: "Always pair timing functions with appropriate `duration-*` classes for consistent pacing.",
+            },
+
+            {
+              bold: "Hover & Focus States:",
+              text: "Apply `ease-in-out` for interactive elements to feel natural on hover/focus.",
+            },
+
+            {
+              bold: "Prefers Reduced Motion:",
+              text: "Respect user motion preferences by overriding transitions if necessary.",
+            },
+
+            {
+              bold: "Consistent Design System:",
+              text: "Standardize easing curves across components for cohesive animations.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "color"],
+    title: "Text Color",
+    description:
+      "Control the text color of an element. Use text color utilities to apply solid colors, opacity modifiers, and dark mode variants to headings, paragraphs, links, and icons.",
+    sections: [
+      {
+        type: "hero",
+        props: {
+          title: "Text Color",
+          description:
+            "Control the foreground color of an element. These utilities set the `color` CSS property, affecting text, icons (via currentColor), and borders (if not overridden).",
+        },
+      },
+      {
+        type: "mental-model",
+        props: {
+          title: "Foreground Painting",
+          description:
+            "Text color utilities apply the CSS `color` property. This doesn't just change the text; it cascades to any child element relying on `currentColor`, such as SVG icons or borders without a specific color defined.",
+          features: [
+            "Sets the text color",
+            "Affects SVG icons using `currentColor`",
+            "Supports opacity modifiers (e.g., `text-blue-500/50`)",
+            "Dark mode support via `dark:` prefix",
+            "Cascades to children unless overridden",
+          ],
+          layerAssignment: "Typography Layer - Paints the foreground content",
+          browserBehavior: "Maps directly to the CSS `color` property.",
+        },
+      },
+      {
+        type: "utility-grid",
+        props: {
+          title: "Common Classes",
+          items: [
+            { cls: "text-slate-500", desc: "Slate gray text" },
+            { cls: "text-red-600", desc: "Red text (errors)" },
+            { cls: "text-blue-500", desc: "Blue text (links/actions)" },
+            { cls: "text-green-600", desc: "Green text (success)" },
+            { cls: "text-white", desc: "White text" },
+            {
+              cls: "text-transparent",
+              desc: "Transparent text (for gradients)",
+            },
+            { cls: "text-current", desc: "Inherit parent color" },
+          ],
+        },
+      },
+      {
+        type: "playground",
+        props: {
+          title: "Text Color Playground",
+          description:
+            "Experiment with different text colors to see how they affect readability and contrast against the background.",
+          options: [
+            "text-slate-900",
+            "text-blue-600",
+            "text-red-500",
+            "text-green-500",
+            "text-purple-600",
+            "text-slate-400",
+          ],
+          defaultValue: "text-slate-900",
+          buildMarkup: (value: string) =>
+            `<p class="${value} font-medium text-lg">The quick brown fox jumps over the lazy dog.</p>`,
+          renderPreview: (value: string) => (
+            <div className="p-8 bg-white dark:bg-slate-950 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-800">
+              <p
+                className={`font-medium text-xl transition-colors duration-300 ${value}`}
+              >
+                The quick brown fox jumps over the lazy dog.
+              </p>
+            </div>
+          ),
+        },
+      },
+      {
+        type: "interactive-challenge",
+        props: {
+          title: "Make the Error Visible",
+          description:
+            "The error message below is using the default text color, making it look like normal text. Apply a red text utility to make it stand out as a warning.",
+          codeSnippet:
+            '<div class="p-4 bg-red-50 rounded border border-red-100">\n  <p class="font-bold {input}">Error: Connection Failed</p>\n</div>',
+          options: [
+            "text-slate-500",
+            "text-red-600",
+            "text-blue-500",
+            "text-white",
+          ],
+          correctOption: "text-red-600",
+          renderPreview: (userClass: string) => (
+            <div className="w-full bg-white dark:bg-slate-900 p-6 rounded-lg flex items-center justify-center">
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded border border-red-100 dark:border-red-900/50 w-full max-w-sm">
+                <p
+                  className={`font-bold transition-colors duration-300 ${userClass}`}
+                >
+                  Error: Connection Failed
+                </p>
+              </div>
+            </div>
+          ),
+        },
+      },
+      {
+        type: "examples",
+        props: {
+          title: "Real-World Patterns",
+          examples: [
+            {
+              title: "Standard Body Text",
+              description:
+                "Use a slate or gray color for body text to reduce eye strain compared to pure black.",
+              code: `<p class="text-slate-600 dark:text-slate-300">Detailed explanation goes here...</p>`,
+              preview: (
+                <div className="p-4 bg-white dark:bg-slate-900 border rounded">
+                  <p className="text-slate-600 dark:text-slate-300">
+                    Detailed explanation goes here. Using off-black improves
+                    readability.
+                  </p>
+                </div>
+              ),
+            },
+            {
+              title: "Link Styles",
+              description:
+                "Use blue for links to indicate interactivity, often changing shade on hover.",
+              code: `<a href="#" class="text-blue-600 hover:text-blue-800 underline">Read more</a>`,
+              preview: (
+                <div className="p-4 bg-white dark:bg-slate-900 border rounded">
+                  <a
+                    href="#"
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    Read more
+                  </a>
+                </div>
+              ),
+            },
+            {
+              title: "Success Message",
+              description:
+                "Use green text for confirmation messages or positive states.",
+              code: `<span class="text-green-600 font-medium">✓ Payment Successful</span>`,
+              preview: (
+                <div className="p-4 bg-white dark:bg-slate-900 border rounded">
+                  <span className="text-green-600 font-medium">
+                    ✓ Payment Successful
+                  </span>
+                </div>
+              ),
+            },
+            {
+              title: "Opacity Modifier",
+              description:
+                "Tailwind allows opacity modifiers directly in the color class for subtle text.",
+              code: `<span class="text-slate-900/50">Watermark Text</span>`,
+              preview: (
+                <div className="p-4 bg-white dark:bg-slate-900 border rounded">
+                  <span className="text-slate-900/50 dark:text-white/50 text-2xl font-bold">
+                    Watermark
+                  </span>
+                </div>
+              ),
+            },
+            {
+              title: "Gradient Text",
+              description:
+                "Combine `text-transparent` with `bg-clip-text` and a background gradient for flashy headings.",
+              code: `<h1 class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">Gradient</h1>`,
+              preview: (
+                <div className="p-4 bg-white dark:bg-slate-900 border rounded">
+                  <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+                    Amazing Gradient
+                  </h1>
+                </div>
+              ),
+            },
+            {
+              title: "Dark Mode Variant",
+              description:
+                "Switch text color based on the user's theme preference.",
+              code: `<p class="text-slate-900 dark:text-white">Adaptive Text</p>`,
+              preview: (
+                <div className="p-4 bg-white dark:bg-slate-950 border rounded">
+                  <p className="text-slate-900 dark:text-white font-bold">
+                    Adaptive Text
+                  </p>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+      {
+        type: "common-mistakes",
+        props: {
+          mistakes: [
+            {
+              title: "Low Contrast",
+              reason:
+                "Using light gray text on a white background often fails accessibility standards.",
+              example: `<p class="text-gray-200 bg-white">Can't read this</p>`,
+              level: "critical",
+            },
+            {
+              title: "Overusing Pure Black",
+              reason:
+                "Pure black (#000) on pure white (#fff) can cause eye strain. Prefer dark grays like slate-900.",
+              example: `<p class="text-black">Too harsh</p>`,
+              level: "info",
+            },
+            {
+              title: "Conflict with Background",
+              reason:
+                "Setting text color without checking the background color can lead to invisible text in dynamic components.",
+              example: `<div class="bg-blue-500 text-blue-500">Invisible</div>`,
+              level: "warning",
+            },
+            {
+              title: "Forgetting Dark Mode",
+              reason:
+                "Dark text looks broken on a dark background if `dark:text-white` isn't applied.",
+              example: `<p class="text-slate-900">Hidden in dark mode</p>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+      {
+        type: "tips",
+        props: {
+          tips: [
+            {
+              bold: "Current Color:",
+              text: "Use `text-current` to make an SVG icon inherit the color of its parent text automatically.",
+            },
+            {
+              bold: "Opacity Shortcut:",
+              text: "You can add alpha channels instantly like `text-blue-500/25` without writing custom CSS.",
+            },
+            {
+              bold: "Hierarchy:",
+              text: "Use darker shades (slate-900) for headings and lighter shades (slate-500) for body text to create visual hierarchy.",
+            },
+            {
+              bold: "Interaction:",
+              text: "Combine with state variants like `hover:text-blue-700` for interactive elements.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "content"],
+    title: "Content",
+    description:
+      "Control the content of before and after pseudo-elements. Use the content utility to inject text, symbols, or empty strings into the page layout purely via CSS.",
+    sections: [
+      {
+        type: "hero",
+        props: {
+          title: "Content",
+          description:
+            "Control the `content` property for pseudo-elements. This utility is essential for inserting decorative elements, breadcrumb separators, or labels using `::before` and `::after` without modifying the HTML.",
+        },
+      },
+      {
+        type: "mental-model",
+        props: {
+          title: "CSS Injection",
+          description:
+            "The content utility sets the CSS `content` property. Unlike HTML content, this text is unselectable and purely decorative. It is almost always paired with `before:` or `after:` modifiers to target pseudo-elements.",
+          features: [
+            "Injects text or characters via CSS",
+            "Used with ::before and ::after",
+            "Supports arbitrary values (e.g., content-['*'])",
+            "Essential for custom list markers",
+            "Can function as an empty layout block",
+          ],
+          layerAssignment: "Typography Layer - Injects generated content",
+          browserBehavior: "Maps directly to the CSS `content` property.",
+        },
+      },
+      {
+        type: "utility-grid",
+        props: {
+          title: "Common Classes",
+          items: [
+            { cls: "content-none", desc: "Sets content to none (removes it)" },
+            {
+              cls: "content-['']",
+              desc: "Sets an empty string (common for layout)",
+            },
+            {
+              cls: "content-['*']",
+              desc: "Injects a custom string (Arbitrary Value)",
+            },
+            {
+              cls: "before:content-['hello']",
+              desc: "Example of targeting a pseudo-element",
+            },
+          ],
+        },
+      },
+      {
+        type: "playground",
+        props: {
+          title: "Content Playground",
+          description:
+            "Experiment with injecting different content into the `::before` pseudo-element of the box. Note how the text appears purely visual.",
+          options: [
+            "before:content-['★']",
+            "before:content-['→']",
+            "before:content-['New!']",
+            "before:content-['1.']",
+            "content-none",
+          ],
+          defaultValue: "before:content-['★']",
+          buildMarkup: (value: string) =>
+            `<div class="${value} before:mr-2 before:text-blue-500 font-bold p-4 border">Item</div>`,
+          renderPreview: (value: string) => (
+            <div className="p-12 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center">
+              <div
+                className={`text-xl font-bold text-slate-800 dark:text-slate-200 p-4 bg-white dark:bg-slate-900 shadow-sm rounded border border-slate-200 dark:border-slate-800 before:text-blue-500 before:mr-2 transition-all duration-300 ${value}`}
+              >
+                Feature Item
+              </div>
+            </div>
+          ),
+        },
+      },
+      {
+        type: "interactive-challenge",
+        props: {
+          title: "Add the Required Asterisk",
+          description:
+            "You have a form label that needs to indicate it is required. Use the content utility to inject a red asterisk (`*`) after the text.",
+          codeSnippet: `<label class="font-medium text-slate-700 after:text-red-500 after:ml-0.5 {input}">
+  Email Address
+</label>`,
+          options: [
+            "content-['*']",
+            "after:content-['*']",
+            "before:content-['*']",
+            "text-red-500",
+          ],
+          correctOption: "after:content-['*']",
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-32 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <label
+                className={`font-medium text-lg text-slate-700 dark:text-slate-300 after:text-red-500 after:ml-0.5 transition-all duration-300 ${userClass}`}
+              >
+                Email Address
+              </label>
+            </div>
+          ),
+        },
+      },
+      {
+        type: "examples",
+        props: {
+          title: "Real-World Patterns",
+          examples: [
+            {
+              title: "Required Field Marker",
+              description:
+                "Automatically append a red asterisk to required form labels.",
+              code: `<label class="after:content-['*'] after:ml-0.5 after:text-red-500 block text-sm font-medium">
+  Username
+</label>`,
+              preview: (
+                <div className="p-4 bg-white dark:bg-slate-900 border rounded">
+                  <label className="after:content-['*'] after:ml-0.5 after:text-red-500 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  />
+                </div>
+              ),
+            },
+            {
+              title: "Breadcrumb Separators",
+              description:
+                "Inject forward slashes between breadcrumb items using `after:content-['/']`.",
+              code: `<nav class="flex items-center space-x-2">
+  <a href="#" class="after:content-['/'] after:ml-2 text-slate-500">Home</a>
+  <span class="font-bold">Library</span>
+</nav>`,
+              preview: (
+                <div className="p-4 bg-white dark:bg-slate-900 border rounded flex items-center space-x-2 text-sm">
+                  <span className="text-slate-500 after:content-['/'] after:ml-2 dark:text-slate-400">
+                    Home
+                  </span>
+                  <span className="text-slate-500 after:content-['/'] after:ml-2 dark:text-slate-400">
+                    Projects
+                  </span>
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    Current
+                  </span>
+                </div>
+              ),
+            },
+            {
+              title: "Quote Decoration",
+              description:
+                "Add a large decorative quote mark before a testimonial.",
+              code: `<blockquote class="relative p-4 text-xl italic border-l-4 bg-neutral-100
+  before:content-['“'] before:absolute before:-top-2 before:left-2 before:text-6xl before:text-gray-200 before:-z-10">
+  Design is intelligence made visible.
+</blockquote>`,
+              preview: (
+                <div className="p-6 bg-white dark:bg-slate-950 border rounded overflow-hidden">
+                  <blockquote className="relative z-10 p-4 text-lg italic text-slate-700 dark:text-slate-300 border-l-4 border-blue-500 bg-slate-50 dark:bg-slate-900 before:content-['“'] before:absolute before:-top-4 before:left-2 before:text-6xl before:text-slate-200 dark:before:text-slate-700 before:-z-10">
+                    Design is intelligence made visible.
+                  </blockquote>
+                </div>
+              ),
+            },
+            {
+              title: "Empty Layout Block",
+              description:
+                "Use `content-['']` to make a pseudo-element exist so it can be styled as a shape or circle.",
+              code: `<div class="relative w-12 h-12 bg-gray-200 rounded-full 
+  after:content-[''] after:absolute after:bottom-0 after:right-0 after:w-3 after:h-3 after:bg-green-500 after:rounded-full after:border-2 after:border-white">
+</div>`,
+              preview: (
+                <div className="p-4 flex justify-center">
+                  <div className="relative w-12 h-12 bg-slate-300 dark:bg-slate-700 rounded-full after:content-[''] after:absolute after:bottom-0 after:right-0 after:w-3.5 after:h-3.5 after:bg-green-500 after:rounded-full after:border-2 after:border-white dark:after:border-slate-900"></div>
+                </div>
+              ),
+            },
+            {
+              title: "New Badge",
+              description:
+                "Append a 'New' label to links using pseudo-elements.",
+              code: `<a href="#" class="font-medium text-blue-600 
+  after:content-['New'] after:ml-2 after:bg-blue-100 after:text-blue-800 after:text-xs after:px-2 after:rounded-full">
+  Features
+</a>`,
+              preview: (
+                <div className="p-4 bg-white dark:bg-slate-900 border rounded flex items-center">
+                  <span className="font-medium text-blue-600 dark:text-blue-400 after:content-['New'] after:ml-2 after:bg-blue-100 dark:after:bg-blue-900 after:text-blue-800 dark:after:text-blue-200 after:text-[10px] after:uppercase after:font-bold after:px-2 after:py-0.5 after:rounded-full">
+                    Features
+                  </span>
+                </div>
+              ),
+            },
+            {
+              title: "List Bullet Customization",
+              description: "Create custom list markers using `before:content`.",
+              code: `<ul class="list-none space-y-2">
+  <li class="relative pl-6 before:content-['→'] before:absolute before:left-0 before:text-blue-500">Item 1</li>
+  <li class="relative pl-6 before:content-['→'] before:absolute before:left-0 before:text-blue-500">Item 2</li>
+</ul>`,
+              preview: (
+                <div className="p-4 bg-white dark:bg-slate-900 border rounded">
+                  <ul className="list-none space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                    <li className="relative pl-6 before:content-['→'] before:absolute before:left-0 before:text-blue-500 font-bold">
+                      Profile
+                    </li>
+                    <li className="relative pl-6 before:content-['→'] before:absolute before:left-0 before:text-blue-500 font-bold">
+                      Settings
+                    </li>
+                  </ul>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+      {
+        type: "common-mistakes",
+        props: {
+          mistakes: [
+            {
+              title: "Forgetting the Pseudo-element",
+              reason:
+                "The `content` property only works on `::before` and `::after`. Applying it directly to a `div` usually does nothing.",
+              example: `<div class="content-['hello']">Hidden</div>`,
+              level: "critical",
+            },
+            {
+              title: "Missing Empty Content",
+              reason:
+                "If you want a pseudo-element for styling (like a circle or line) but no text, you MUST set `content-['']`. Without content, it won't render.",
+              example: `<div class="after:w-4 after:h-4 after:bg-red-500">Missing content</div>`,
+              level: "warning",
+            },
+            {
+              title: "Self-Closing Tags",
+              reason:
+                "Pseudo-elements don't work reliably on self-closing tags like `<img>` or `<input>` because they can't contain children.",
+              example: `<img class="after:content-['overlay']" />`,
+              level: "info",
+            },
+            {
+              title: "Arbitrary Syntax Errors",
+              reason:
+                "Arbitrary values need quotes inside the brackets. `content-[hello]` is invalid; use `content-['hello']`.",
+              example: `<div class="after:content-[hello]">...</div>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+      {
+        type: "tips",
+        props: {
+          tips: [
+            {
+              bold: "Layout Shapes:",
+              text: "Use `after:content-['']` combined with `block`, `w-`, and `h-` to create decorative shapes, underlines, or overlays.",
+            },
+            {
+              bold: "Accessibility:",
+              text: "Content injected via CSS is often ignored by screen readers. Don't use it for critical information.",
+            },
+            {
+              bold: "Attribute Injection:",
+              text: "You can use `attr()` in CSS, though Tailwind arbitrary syntax for this is complex. Stick to standard classes for dynamic data.",
+            },
+            {
+              bold: "Data Attributes:",
+              text: "For complex dynamic content, consider using `before:content-[attr(data-count)]` if your environment supports it.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "font-smoothing"],
+
+    title: "Font Smoothing",
+
+    description:
+      "Control the anti-aliasing technique used for text rendering. Font smoothing utilities adjust the visual weight and clarity of text, improving readability across devices and screens.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Font Smoothing",
+
+          description:
+            "Control the anti-aliasing technique used for text rendering. Adjusting font smoothing can improve readability and visual consistency across different operating systems and browsers.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Text Rendering Optimizer",
+
+          description:
+            "Font smoothing affects how the browser renders glyph edges. It can make text appear crisper or softer depending on the chosen smoothing method, similar to adjusting the focus on a camera lens.",
+
+          features: [
+            "Controls anti-aliasing method",
+
+            "Enhances legibility on low-resolution screens",
+
+            "Supports cross-platform consistency",
+
+            "Works with all font weights",
+
+            "No impact on DOM structure",
+          ],
+
+          layerAssignment: "Typography Layer - Affects text rendering",
+
+          browserBehavior:
+            "Maps to CSS `-webkit-font-smoothing` and `-moz-osx-font-smoothing` properties.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "antialiased",
+              desc: "Applies standard antialiasing for smoother text",
+            },
+
+            {
+              cls: "subpixel-antialiased",
+              desc: "Uses subpixel rendering for sharper text edges",
+            },
+
+            {
+              cls: "none",
+              desc: "Disables font smoothing for a blockier look",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Font Smoothing Playground",
+
+          description:
+            "Experiment with different font smoothing options to see their effect on text clarity and sharpness.",
+
+          options: ["antialiased", "subpixel-antialiased", "none"],
+
+          defaultValue: "antialiased",
+
+          buildMarkup: (value: string) =>
+            `<p class="${value} text-xl font-medium">The quick brown fox jumps over the lazy dog.</p>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center">
+                {" "}
+                <p className="text-slate-700 dark:text-slate-300 font-medium text-xl">
+                  Preview Text
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix Blurry Text",
+
+          description:
+            "Some text appears blurry on MacOS. Apply the correct font smoothing utility to improve readability without changing font weight.",
+
+          codeSnippet: '<p class="text-lg {input}">Sample text</p>',
+
+          options: ["antialiased", "subpixel-antialiased", "none", "font-bold"],
+
+          correctOption: "antialiased",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <p className={`transition-all duration-500 text-lg ${userClass}`}>
+                Target Text
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Readable Paragraphs",
+
+              description:
+                "Apply `antialiased` to body text for smoother reading experience on web content.",
+
+              code: `<p class="antialiased text-base">Lorem ipsum dolor sit amet...</p>`,
+
+              preview: (
+                <div className="p-4">
+                  Sample paragraph with antialiased text
+                </div>
+              ),
+            },
+
+            {
+              title: "Headings Clarity",
+
+              description:
+                "Use `subpixel-antialiased` for large headings to enhance edge sharpness.",
+
+              code: `<h1 class="subpixel-antialiased text-4xl font-bold">Heading Example</h1>`,
+
+              preview: (
+                <div className="p-4">Large heading with sharper edges</div>
+              ),
+            },
+
+            {
+              title: "Disabled Smoothing",
+
+              description:
+                "Sometimes disabling smoothing is preferred for stylistic pixel-perfect text.",
+
+              code: `<p class="none text-lg font-medium">Pixelated style text</p>`,
+
+              preview: (
+                <div className="p-4">Pixelated text without smoothing</div>
+              ),
+            },
+
+            {
+              title: "Dark Mode Readability",
+
+              description:
+                "Combine smoothing utilities with dark mode for consistent text rendering.",
+
+              code: `<p class="antialiased dark:subpixel-antialiased text-base">Dark mode content</p>`,
+
+              preview: (
+                <div className="p-4 bg-slate-900 text-white">
+                  Text with adaptive smoothing
+                </div>
+              ),
+            },
+
+            {
+              title: "Interface Elements",
+
+              description:
+                "Use font smoothing on buttons and labels for a polished UI look.",
+
+              code: `<button class="antialiased px-4 py-2 bg-blue-600 text-white rounded">Click Me</button>`,
+
+              preview: (
+                <div className="p-4">
+                  <button className="antialiased px-4 py-2 bg-blue-600 text-white rounded">
+                    Click Me
+                  </button>
+                </div>
+              ),
+            },
+
+            {
+              title: "Navigation Menu",
+
+              description:
+                "Ensure menus and links have consistent smoothing for better UX.",
+
+              code: `<nav class="subpixel-antialiased space-x-4"><a href="#">Home</a><a href="#">About</a></nav>`,
+
+              preview: (
+                <div className="p-4">
+                  <nav className="subpixel-antialiased space-x-4">
+                    <a href="#">Home</a>
+                    <a href="#">About</a>
+                  </nav>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Not Applying on Body",
+
+              reason:
+                "Failing to apply smoothing to body text can cause inconsistent readability across elements.",
+
+              example: `<p class="text-base">Some text</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Mixing Utilities Incorrectly",
+
+              reason: "Combining `antialiased` with `none` cancels the effect.",
+
+              example: `<p class="antialiased none">Conflicting smoothing</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring OS Differences",
+
+              reason:
+                "Subpixel smoothing may render differently on MacOS vs Windows, so test cross-platform.",
+
+              example: `<p class="subpixel-antialiased">Cross-platform text</p>`,
+
+              level: "info",
+            },
+
+            {
+              title: "Overusing on Small Text",
+
+              reason:
+                "Smoothing has minimal effect on very small text and may be unnecessary.",
+
+              example: `<p class="antialiased text-xs">Tiny text</p>`,
+
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Consistency:",
+              text: "Apply the same smoothing utility to all similar text elements for uniform appearance.",
+            },
+
+            {
+              bold: "Testing:",
+              text: "Check across operating systems to ensure legibility.",
+            },
+
+            {
+              bold: "Performance:",
+              text: "Font smoothing does not impact layout or performance significantly.",
+            },
+
+            {
+              bold: "Layering:",
+              text: "Combine with font-weight and letter-spacing for optimal clarity.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "font-stretch"],
+
+    title: "Font Stretch",
+
+    description:
+      "Adjust the width of text characters to create more condensed or expanded typography. Useful for fine-tuning text layout, fitting content within constrained spaces, or achieving a specific visual style. Ensure the chosen font supports variable widths for best results.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Font Stretch",
+
+          description:
+            "Control the horizontal width of text characters using font-stretch utilities. This allows designers to condense or expand text for tighter layouts, typographic hierarchy, or stylistic emphasis while maintaining readability.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Character Width Adjustment",
+
+          description:
+            "Font stretch utilities modify the CSS `font-stretch` property, affecting how wide or narrow glyphs appear. Think of it like squeezing or stretching letters horizontally without changing their height, which can help with layout optimization and visual balance.",
+
+          features: [
+            "Adjusts text width without changing font-size",
+
+            "Supports multiple predefined stretch values",
+
+            "Maintains legibility when used moderately",
+
+            "Useful for responsive typography control",
+
+            "Works best with variable-width fonts",
+          ],
+
+          layerAssignment: "Typography Layer - Affects text rendering",
+
+          browserBehavior:
+            "Maps directly to the CSS `font-stretch` property. Unsupported fonts will fallback to normal width.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "font-stretch-normal", desc: "Default font width" },
+
+            { cls: "font-stretch-condensed", desc: "Slightly narrower text" },
+
+            {
+              cls: "font-stretch-semi-condensed",
+              desc: "Moderately narrow text",
+            },
+
+            { cls: "font-stretch-expanded", desc: "Slightly wider text" },
+
+            { cls: "font-stretch-semi-expanded", desc: "Moderately wide text" },
+
+            { cls: "font-stretch-extra-condensed", desc: "Extra narrow text" },
+
+            { cls: "font-stretch-extra-expanded", desc: "Extra wide text" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Font Stretch Playground",
+
+          description:
+            "Experiment with different font widths to see how condensed or expanded text affects readability and layout. Be mindful of extreme values which may distort text.",
+
+          options: [
+            "font-stretch-normal",
+
+            "font-stretch-condensed",
+
+            "font-stretch-semi-condensed",
+
+            "font-stretch-expanded",
+          ],
+
+          defaultValue: "font-stretch-normal",
+
+          buildMarkup: (value: string) =>
+            `<p class="${value} text-xl font-medium">Adjustable text width preview</p>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <p
+                className={`${value} text-xl font-medium text-center bg-white dark:bg-slate-800 p-4 rounded shadow`}
+              >
+                Preview Text
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Text Overflow",
+
+          description:
+            "A heading is too wide for its container and wraps awkwardly. Apply a suitable font-stretch utility to fit it gracefully.",
+
+          codeSnippet: `<h1 class="text-3xl font-bold {input}">Responsive Heading</h1>`,
+
+          options: [
+            "font-stretch-extra-expanded",
+
+            "font-stretch-normal",
+
+            "font-stretch-condensed",
+
+            "font-stretch-semi-expanded",
+          ],
+
+          correctOption: "font-stretch-condensed",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full max-w-md p-4 bg-slate-100 dark:bg-slate-900 rounded-lg">
+              <h1
+                className={`text-3xl font-bold transition-all duration-500 ${userClass}`}
+              >
+                Responsive Heading
+              </h1>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Tight Navigation Labels",
+
+              description:
+                "Condense navigation links to save horizontal space in a header bar.",
+
+              code: `<nav class="flex space-x-4 font-stretch-condensed">  <a href="#">Home</a>  <a href="#">About</a>  <a href="#">Contact</a></nav>`,
+
+              preview: (
+                <div className="flex space-x-4 font-stretch-condensed">
+                  Home | About | Contact
+                </div>
+              ),
+            },
+
+            {
+              title: "Headline Emphasis",
+
+              description:
+                "Expand main headlines to create visual emphasis without increasing font-size.",
+
+              code: `<h1 class="text-4xl font-bold font-stretch-expanded">Welcome to Dashboard</h1>`,
+
+              preview: (
+                <h1 className="text-4xl font-bold font-stretch-expanded">
+                  Welcome to Dashboard
+                </h1>
+              ),
+            },
+
+            {
+              title: "Responsive Card Titles",
+
+              description:
+                "Use semi-condensed text for card titles to fit smaller cards.",
+
+              code: `<h2 class="text-xl font-medium font-stretch-semi-condensed">Card Title</h2>`,
+
+              preview: (
+                <h2 className="text-xl font-medium font-stretch-semi-condensed">
+                  Card Title
+                </h2>
+              ),
+            },
+
+            {
+              title: "Extra Wide Banner Text",
+
+              description:
+                "Apply extra-expanded stretch to a banner heading for a dramatic effect.",
+
+              code: `<h1 class="text-5xl font-bold font-stretch-extra-expanded">Summer Sale!</h1>`,
+
+              preview: (
+                <h1 className="text-5xl font-bold font-stretch-extra-expanded">
+                  Summer Sale!
+                </h1>
+              ),
+            },
+
+            {
+              title: "Condensed Labels in Forms",
+
+              description:
+                "Condense input labels to reduce clutter in dense forms.",
+
+              code: `<label class="font-stretch-condensed text-sm">Email Address</label>`,
+
+              preview: (
+                <label className="font-stretch-condensed text-sm">
+                  Email Address
+                </label>
+              ),
+            },
+
+            {
+              title: "Variable Text for Analytics",
+
+              description:
+                "Use semi-expanded text to balance readability and layout in dashboards.",
+
+              code: `<p class="font-stretch-semi-expanded text-base">Analytics Overview</p>`,
+
+              preview: (
+                <p className="font-stretch-semi-expanded text-base">
+                  Analytics Overview
+                </p>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Over-Condensing Text",
+
+              reason:
+                "Excessively narrow text becomes difficult to read, breaking legibility.",
+
+              example: `<p class="font-stretch-extra-condensed">Unreadable text</p>`,
+
+              level: "critical",
+            },
+
+            {
+              title: "Unsupported Fonts",
+
+              reason:
+                "Applying font-stretch on fonts that lack width variants has no effect.",
+
+              example: `<p class="font-stretch-expanded">No effect on this font</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Mixing Extreme Stretches",
+
+              reason:
+                "Combining condensed and expanded text in close proximity can feel inconsistent.",
+
+              example: `<h1 class="font-stretch-condensed">Title</h1><p class="font-stretch-extra-expanded">Body</p>`,
+
+              level: "info",
+            },
+
+            {
+              title: "Accessibility Overlooked",
+
+              reason:
+                "Narrow text may reduce readability for users with visual impairments.",
+
+              example: `<p class="font-stretch-extra-condensed text-sm">Small narrow text</p>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Moderation Matters:",
+              text: "Use small adjustments; extreme widths harm readability.",
+            },
+
+            {
+              bold: "Font Support:",
+              text: "Check if the font supports the desired stretch variant.",
+            },
+
+            {
+              bold: "Combine with Letter Spacing:",
+              text: "Pair with tracking utilities for better visual balance.",
+            },
+
+            {
+              bold: "Responsive Use:",
+              text: "Adjust font-stretch values per breakpoint for optimal layout.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "font-style"],
+
+    title: "Font Style",
+
+    description:
+      "Control the style of text to indicate emphasis or design intent. Use font style utilities to toggle between normal and italicized text, which can enhance readability, hierarchy, and typographic expression.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Font Style",
+
+          description:
+            "Control the style of text to indicate emphasis or design intent. Font style utilities allow you to switch between normal and italic text, supporting semantic meaning and visual hierarchy in your designs.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Emphasis Toggle",
+
+          description:
+            "Font style utilities adjust the CSS `font-style` property, determining whether text appears normal or italicized. Think of it as turning a dial for emphasis, where italic can highlight, quote, or differentiate content visually.",
+
+          features: [
+            "Controls normal vs italic appearance",
+
+            "Supports semantic emphasis",
+
+            "Affects typographic rhythm and hierarchy",
+
+            "Cascades to child inline elements",
+
+            "Responsive across text sizes",
+          ],
+
+          layerAssignment:
+            "Typography Layer - Directly modifies text rendering",
+
+          browserBehavior:
+            "Maps directly to the CSS `font-style` property; inherited by children unless overridden.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "not-italic", desc: "Applies normal (non-italic) text" },
+
+            { cls: "italic", desc: "Applies italic text style" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Playground",
+
+          description:
+            "Experiment with font style classes to see how italicization affects readability and emphasis in text blocks.",
+
+          options: ["not-italic", "italic"],
+
+          defaultValue: "not-italic",
+
+          buildMarkup: (value: string) =>
+            `<p class="${value} text-lg">The quick brown fox jumps over the lazy dog.</p>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center">
+                <p
+                  className={`${value} text-lg text-slate-700 dark:text-slate-200`}
+                >
+                  Preview Content
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Emphasis",
+
+          description:
+            "You want a quote to stand out visually with italic styling, but it currently appears normal. Apply the correct font style utility.",
+
+          codeSnippet: `<blockquote class="{input}">“Design is intelligence made visible.”</blockquote>`,
+
+          options: ["not-italic", "bold", "italic", "underline"],
+
+          correctOption: "italic",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center p-4">
+              <blockquote
+                className={`text-xl transition-all duration-500 ${userClass} text-slate-800 dark:text-slate-200`}
+              >
+                “Design is intelligence made visible.”{" "}
+              </blockquote>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Inline Emphasis",
+
+              description:
+                "Use `italic` on specific words for emphasis within a paragraph.",
+
+              code: `<p>Our mission is to <span class="italic">innovate</span> continuously.</p>`,
+
+              preview: (
+                <p>
+                  Our mission is to <span className="italic">innovate</span>{" "}
+                  continuously.
+                </p>
+              ),
+            },
+
+            {
+              title: "Blockquote Styling",
+
+              description:
+                "Apply italic to blockquotes for visual differentiation from main text.",
+
+              code: `<blockquote class="italic">Design is intelligence made visible.</blockquote>`,
+
+              preview: (
+                <blockquote className="italic">
+                  Design is intelligence made visible.
+                </blockquote>
+              ),
+            },
+
+            {
+              title: "List Emphasis",
+
+              description: "Highlight key items in a list with italic text.",
+
+              code: `<ul><li class="italic">High Priority</li><li>Normal Task</li></ul>`,
+
+              preview: (
+                <ul>
+                  <li className="italic">High Priority</li>
+                  <li>Normal Task</li>
+                </ul>
+              ),
+            },
+
+            {
+              title: "Navigation Labels",
+
+              description:
+                "Differentiate secondary navigation links with italic styling.",
+
+              code: `<nav><a href="#" class="italic">Docs</a></nav>`,
+
+              preview: (
+                <nav>
+                  <a href="#" className="italic">
+                    Docs
+                  </a>
+                </nav>
+              ),
+            },
+
+            {
+              title: "Emphasized Button Text",
+
+              description:
+                "Apply italic to button text to indicate alternative actions.",
+
+              code: `<button class="italic px-4 py-2 bg-slate-200 rounded">Learn More</button>`,
+
+              preview: (
+                <button className="italic px-4 py-2 bg-slate-200 rounded">
+                  Learn More
+                </button>
+              ),
+            },
+
+            {
+              title: "Card Titles",
+
+              description:
+                "Use italic for card titles to convey stylistic nuance.",
+
+              code: `<h3 class="italic text-lg font-medium">Featured Article</h3>`,
+
+              preview: (
+                <h3 className="italic text-lg font-medium">Featured Article</h3>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Incorrect Emphasis",
+
+              reason:
+                "Using `not-italic` when you intend emphasis results in flat text.",
+
+              example: `<em class="not-italic">Important</em>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overusing Italics",
+
+              reason:
+                "Applying `italic` excessively can reduce readability and dilute emphasis.",
+
+              example: `<p class="italic">All text is italicized unnecessarily.</p>`,
+
+              level: "info",
+            },
+
+            {
+              title: "Mixing with Bold Improperly",
+
+              reason:
+                "Combining `italic` and `font-bold` without hierarchy can confuse emphasis.",
+
+              example: `<p class="italic font-bold">Confusing emphasis</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Neglecting Inheritance",
+
+              reason:
+                "Child elements may inherit italic unintentionally if not scoped properly.",
+
+              example: `<div class="italic"><span class="not-italic">Should be italic?</span></div>`,
+
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Semantic Emphasis:",
+              text: "Use `italic` for quotes, citations, or emphasis rather than decorative styling alone.",
+            },
+
+            {
+              bold: "Combination with Font Weight:",
+              text: "Pair italic with weight classes thoughtfully to maintain hierarchy.",
+            },
+
+            {
+              bold: "Scope Your Usage:",
+              text: "Apply `italic` only where emphasis is needed to avoid visual clutter.",
+            },
+
+            {
+              bold: "Responsive Typography:",
+              text: "Use responsive prefixes if italics should differ across screen sizes.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+  slug: ["typography", "font-variant-numeric"],
+  title: "Font Variant Numeric",
+  description:
+    "Control numeric display features such as tabular, proportional, ordinal, and slashed zero styles. Useful when you want consistent alignment of numbers, especially in tables, financial reports, or code-like content.",
+  sections: [
+    {
+      type: "hero",
+      props: {
+        title: "Font Variant Numeric",
+        description:
+          "Control numeric display features such as tabular, proportional, ordinal, and slashed zero styles. Useful when you want consistent alignment of numbers, especially in tables, financial reports, or code-like content. Tailwind provides utilities to quickly apply these typographic refinements without custom CSS.",
+      },
+    },
+    {
+      type: "mental-model",
+      props: {
+        title: "Numeric Typography Control",
+        description:
+          "Font variant numeric utilities adjust the CSS `font-variant-numeric` property. They affect how digits and certain symbols are rendered, ensuring consistent spacing, alignment, and style across numbers. Think of it as fine-tuning your typography for precise numeric display.",
+        features: [
+          "Supports tabular and proportional numbers",
+          "Ordinal and slashed-zero formatting",
+          "Improves numeric alignment in tables",
+          "Responsive with standard font stacks",
+          "Easy integration without custom CSS",
+        ],
+        layerAssignment: "Typography Layer - Controls glyph rendering",
+        browserBehavior:
+          "Maps directly to the CSS `font-variant-numeric` property. Not all fonts support every variant; results depend on the typeface.",
+      },
+    },
+    {
+      type: "utility-grid",
+      props: {
+        title: "Common Classes",
+        items: [
+          { cls: "normal-nums", desc: "Default numeric rendering" },
+          { cls: "ordinal", desc: "Renders ordinal indicators (1st, 2nd)" },
+          { cls: "slashed-zero", desc: "Displays zeros with a slash" },
+          {
+            cls: "lining-nums",
+            desc: "Numbers align with uppercase letters",
+          },
+          {
+            cls: "oldstyle-nums",
+            desc: "Numbers have varied heights for style",
+          },
+          {
+            cls: "proportional-nums",
+            desc: "Numbers use variable width spacing",
+          },
+          {
+            cls: "tabular-nums",
+            desc: "Numbers have uniform width for alignment",
+          },
+        ],
+      },
+    },
+    {
+      type: "playground",
+      props: {
+        title: "Font Variant Numeric Playground",
+        description:
+          "Experiment with numeric styles to see how alignment and glyph presentation changes. Useful for tables, invoices, or code listings.",
+        options: [
+          "normal-nums",
+          "ordinal",
+          "slashed-zero",
+          "lining-nums",
+          "oldstyle-nums",
+          "proportional-nums",
+          "tabular-nums",
+        ],
+        defaultValue: "tabular-nums",
+        buildMarkup: (value: string) =>
+          `<p class="${value} text-lg font-mono">1234567890</p>`,
+        renderPreview: (value: string) => (
+          <div
+            className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+          >
+            <div
+              className={`bg-white dark:bg-slate-800 p-4 rounded shadow text-center font-mono text-lg ${value}`}
+            >
+              1234567890
+            </div>
+          </div>
+        ),
+      },
+    },
+    {
+      type: "interactive-challenge",
+      props: {
+        title: "Align Table Numbers",
+        description:
+          "A table displays financial values, but the numbers are misaligned. Fix it using the appropriate font variant numeric utility.",
+        codeSnippet: `<td class="{input}">1234.56</td>`,
+        options: [
+          "proportional-nums",
+          "oldstyle-nums",
+          "tabular-nums",
+          "slashed-zero",
+        ],
+        correctOption: "tabular-nums",
+        renderPreview: (userClass: string) => (
+          <div className="w-full h-32 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+            <table className="border-collapse border border-slate-300 dark:border-slate-700 w-64 text-right bg-white dark:bg-slate-800">
+              <tbody>
+                <tr>
+                  <td
+                    className={`border border-slate-200 dark:border-slate-700 p-2 ${userClass}`}
+                  >
+                    1234.56
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    className={`border border-slate-200 dark:border-slate-700 p-2 ${userClass}`}
+                  >
+                    78.90
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        ),
+      },
+    },
+    {
+      type: "examples",
+      props: {
+        title: "Real-World Patterns",
+        examples: [
+          {
+            title: "Financial Table",
+            description: "Tabular numbers for column alignment.",
+            code: `<td class="tabular-nums">1234.56</td>`,
+            preview: (
+              <div className="p-4 bg-white dark:bg-slate-900 rounded border">
+                <div className="font-mono tabular-nums text-slate-800 dark:text-slate-200">
+                  1234.56
+                </div>
+              </div>
+            ),
+          },
+          {
+            title: "Slashed Zeros",
+            description: "Zero digits with slashes for clarity.",
+            code: `<span class="slashed-zero">2026</span>`,
+            preview: (
+              <div className="p-4 bg-white dark:bg-slate-900 rounded border">
+                <span className="slashed-zero font-mono p-2 text-slate-800 dark:text-slate-200">
+                  2026
+                </span>
+              </div>
+            ),
+          },
+          {
+            title: "Ordinal Indicators",
+            description: "Proper display of ordinals like 1st, 2nd.",
+            code: `<span class="ordinal">1st</span>`,
+            preview: (
+              <div className="p-4 bg-white dark:bg-slate-900 rounded border">
+                <span className="ordinal p-2 text-slate-800 dark:text-slate-200">
+                  1st
+                </span>
+              </div>
+            ),
+          },
+          {
+            title: "Oldstyle Numbers",
+            description: "Numbers with varying heights for traditional style.",
+            code: `<p class="oldstyle-nums">1234567890</p>`,
+            preview: (
+              <div className="p-4 bg-white dark:bg-slate-900 rounded border">
+                <p className="oldstyle-nums p-2 font-serif text-slate-800 dark:text-slate-200">
+                  1234567890
+                </p>
+              </div>
+            ),
+          },
+          {
+            title: "Lining Numbers",
+            description: "Numbers aligned with uppercase letters.",
+            code: `<p class="lining-nums">2026</p>`,
+            preview: (
+              <div className="p-4 bg-white dark:bg-slate-900 rounded border">
+                <p className="lining-nums p-2 font-sans text-slate-800 dark:text-slate-200">
+                  2026
+                </p>
+              </div>
+            ),
+          },
+          {
+            title: "Proportional Numbers",
+            description: "Numbers use natural width spacing.",
+            code: `<p class="proportional-nums">1234567890</p>`,
+            preview: (
+              <div className="p-4 bg-white dark:bg-slate-900 rounded border">
+                <p className="proportional-nums p-2 font-sans text-slate-800 dark:text-slate-200">
+                  1234567890
+                </p>
+              </div>
+            ),
+          },
+        ],
+      },
+    },
+    {
+      type: "common-mistakes",
+      props: {
+        mistakes: [
+          {
+            title: "Ignoring Font Support",
+            reason: "Not all fonts support numeric variants; results may vary.",
+            example: `<span class="tabular-nums">1234</span>`,
+            level: "warning",
+          },
+          {
+            title: "Using Proportional for Tables",
+            reason: "Proportional numbers break column alignment in tables.",
+            example: `<td class="proportional-nums">1234</td>`,
+            level: "critical",
+          },
+          {
+            title: "Forgetting Ordinals",
+            reason: "Ordinal suffixes render incorrectly without `ordinal` utility.",
+            example: `<span class="normal-nums">1st</span>`,
+            level: "info",
+          },
+          {
+            title: "Mixing Lining and Oldstyle",
+            reason:
+              "Combining lining and oldstyle can produce inconsistent visuals.",
+            example: `<p class="lining-nums oldstyle-nums">123</p>`,
+            level: "warning",
+          },
+        ],
+      },
+    },
+    {
+      type: "tips",
+      props: {
+        tips: [
+          {
+            bold: "Consistency:",
+            text: "Use tabular numbers in tables and financial data for proper alignment.",
+          },
+          {
+            bold: "Legibility:",
+            text: "Slashed zeros reduce confusion in numeric-heavy content.",
+          },
+          {
+            bold: "Font Selection:",
+            text: "Ensure your chosen font supports the desired numeric variants.",
+          },
+          {
+            bold: "Combining Utilities:",
+            text: "Avoid mixing conflicting numeric variants on the same element.",
+          },
+        ],
+      },
+    },
+  ],
+},
+  {
+    slug: ["typography", "hyphens"],
+
+    title: "Hyphens",
+
+    description:
+      "Control automatic word breaking and hyphenation in text content. Use hyphen utilities to improve readability for narrow containers or justified text, preventing overflow or awkward spacing. Implementation may vary across browsers, especially for non-standard languages.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Hyphens",
+
+          description:
+            "Control automatic word breaking and hyphenation in text content. Use hyphen utilities to improve readability for narrow containers or justified text, preventing overflow or awkward spacing.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Breaking Words Gracefully",
+
+          description:
+            "Hyphen utilities determine if words should break with hyphens when they exceed container boundaries. This helps maintain a clean and readable layout without horizontal scroll or overflow issues.",
+
+          features: [
+            "Controls automatic word breaking",
+
+            "Improves readability in narrow containers",
+
+            "Supports responsive layouts",
+
+            "Works with justified text alignment",
+
+            "Depends on browser language support",
+          ],
+
+          layerAssignment: "Typography Layer - Text rendering behavior",
+
+          browserBehavior:
+            "Maps directly to the CSS `hyphens` property (`none`, `manual`, `auto`).",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "hyphens-none", desc: "Prevent hyphenation" },
+
+            {
+              cls: "hyphens-manual",
+              desc: "Allow hyphens only where manually inserted",
+            },
+
+            {
+              cls: "hyphens-auto",
+              desc: "Enable automatic hyphenation where supported",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Hyphens Playground",
+
+          description:
+            "Experiment with different hyphenation settings to see how text wraps in constrained layouts.",
+
+          options: [
+            "hyphens-none",
+            "hyphens-manual",
+            "hyphens-auto",
+          ],
+
+          defaultValue: "hyphens-auto",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-64 border p-2">Supercalifragilisticexpialidocious should break properly.</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <div
+                className={`bg-white dark:bg-slate-800 p-4 rounded shadow text-center w-64 ${value}`}
+              >
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Supercalifragilisticexpialidocious should break properly.
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Overflown Text",
+
+          description:
+            "A long word in a narrow box overflows. Apply the correct hyphen utility to break it without horizontal scrolling.",
+
+          codeSnippet:
+            '<div class="w-40 border p-2 {input}">Pneumonoultramicroscopicsilicovolcanoconiosis</div>',
+
+          options: [
+            "hyphens-none",
+            "hyphens-manual",
+            "hyphens-auto",
+          ],
+
+          correctOption: "hyphens-auto",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-40 border p-2 transition-all duration-500 ${userClass}`}
+              >
+                Pneumonoultramicroscopicsilicovolcanoconiosis{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Article Body",
+
+              description:
+                "Enable automatic hyphenation to improve text flow in narrow article columns.",
+
+              code: `<p class="hyphens-auto w-48">Loremipsumdolorsitametconsecteturadipiscingelit.</p>`,
+
+              preview: (
+                <div className="p-4 w-48 border">
+                  <p className="hyphens-auto">
+                    Loremipsumdolorsitametconsecteturadipiscingelit.
+                  </p>
+                </div>
+              ),
+            },
+
+            {
+              title: "Prevent Hyphenation",
+
+              description:
+                "Ensure headings or brand names remain intact without breaks.",
+
+              code: `<h1 class="hyphens-none">Supercalifragilisticexpialidocious</h1>`,
+
+              preview: (
+                <h1 className="hyphens-none">
+                  Supercalifragilisticexpialidocious
+                </h1>
+              ),
+            },
+
+            {
+              title: "Manual Hyphenation",
+
+              description:
+                "Allow hyphens only where manually inserted using `&shy;`.",
+
+              code: `<p class="hyphens-manual">Hy&shy;phen&shy;ation Example</p>`,
+
+              preview: <p className="hyphens-manual">Hy­phen­ation Example</p>,
+            },
+
+            {
+              title: "Responsive Text Wrapping",
+
+              description:
+                "Combine `hyphens-auto` with responsive widths to improve readability on small screens.",
+
+              code: `<p class="hyphens-auto md:w-80 w-40">Antidisestablishmentarianism is a long word.</p>`,
+
+              preview: (
+                <p className="hyphens-auto md:w-80 w-40">
+                  Antidisestablishmentarianism is a long word.
+                </p>
+              ),
+            },
+
+            {
+              title: "Justified Text",
+
+              description:
+                "Use hyphens to avoid large gaps in fully justified text.",
+
+              code: `<p class="hyphens-auto text-justify w-64">Pseudopseudohypoparathyroidism causes spacing issues without hyphens.</p>`,
+
+              preview: (
+                <p className="hyphens-auto text-justify w-64">
+                  Pseudopseudohypoparathyroidism causes spacing issues without
+                  hyphens.
+                </p>
+              ),
+            },
+
+            {
+              title: "Legacy Browser Fallback",
+
+              description:
+                "Provide `hyphens-manual` for browsers with limited support for automatic hyphenation.",
+
+              code: `<p class="hyphens-manual">Internationalization hyphenation fallback.</p>`,
+
+              preview: (
+                <p className="hyphens-manual">
+                  Internationalization hyphenation fallback.
+                </p>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Forgetting Fallbacks",
+              reason:
+                "Some browsers may not support `hyphens-auto`; always test.",
+              example: `<p class="hyphens-auto">Text</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Breaking Proper Names",
+              reason: "Hyphenation can split brand or person names awkwardly.",
+              example: `<h1 class="hyphens-auto">OpenAI</h1>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Language Settings",
+              reason:
+                "Automatic hyphenation depends on `lang` attribute for correct rules.",
+              example: `<p class="hyphens-auto">Text</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Using on Short Words",
+              reason:
+                "Hyphen utilities are unnecessary for short words and add visual clutter.",
+              example: `<p class="hyphens-auto">Cat</p>`,
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use with Justified Text:",
+              text: "Combine `hyphens-auto` with `text-justify` to avoid large gaps.",
+            },
+
+            {
+              bold: "Respect Language:",
+              text: "Set the `lang` attribute to ensure correct hyphenation rules.",
+            },
+
+            {
+              bold: "Headings & Brands:",
+              text: "Apply `hyphens-none` to prevent splitting important names or titles.",
+            },
+
+            {
+              bold: "Test Across Browsers:",
+              text: "Automatic hyphenation behavior may vary between browsers.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "letter-spacing"],
+
+    title: "Letter Spacing",
+
+    description:
+      "Control the spacing between characters in text. Use letter spacing utilities to improve readability, establish hierarchy, or create stylistic typographic effects, especially for headings and display text.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Letter Spacing",
+
+          description:
+            "Letter spacing utilities allow you to adjust the horizontal space between characters. This is crucial for readability, typographic rhythm, and visual style across different screen sizes.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Character Spacer",
+
+          description:
+            "Letter spacing utilities modify the CSS `letter-spacing` property. Increasing spacing can improve readability in all-caps text, while decreasing spacing tightens text for stylistic purposes.",
+
+          features: [
+            "Adjusts spacing between text characters",
+
+            "Responsive control with modifiers",
+
+            "Supports both positive and negative values",
+
+            "Enhances typographic hierarchy",
+
+            "Improves legibility in headings or display text",
+          ],
+
+          layerAssignment: "Typography Layer - Directly affects text rendering",
+
+          browserBehavior:
+            "Maps directly to the CSS `letter-spacing` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "tracking-tighter", desc: "Tightly spaced characters" },
+
+            { cls: "tracking-tight", desc: "Slightly tight letter spacing" },
+
+            { cls: "tracking-normal", desc: "Default spacing" },
+
+            { cls: "tracking-wide", desc: "Slightly wider spacing" },
+
+            { cls: "tracking-wider", desc: "Moderately wide spacing" },
+
+            { cls: "tracking-widest", desc: "Maximum wide spacing" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Letter Spacing Playground",
+
+          description:
+            "Experiment with different letter spacing values to observe their impact on readability and typographic style.",
+
+          options: [
+            "tracking-tighter",
+            "tracking-tight",
+            "tracking-normal",
+            "tracking-wide",
+            "tracking-wider",
+            "tracking-widest",
+          ],
+
+          defaultValue: "tracking-normal",
+
+          buildMarkup: (value: string) =>
+            `<p class="${value} text-xl font-medium">The quick brown fox jumps over the lazy dog.</p>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center">
+                <p
+                  className={`${value} text-lg font-medium text-slate-700 dark:text-slate-200`}
+                >
+                  Preview Text
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Overlapping Text",
+
+          description:
+            "A heading appears visually cramped due to overly tight letter spacing. Apply the appropriate letter spacing utility to improve readability.",
+
+          codeSnippet:
+            '<h1 class="text-3xl font-bold {input}">HELLO WORLD</h1>',
+
+          options: [
+            "tracking-tighter",
+            "tracking-tight",
+            "tracking-normal",
+            "tracking-wider",
+          ],
+
+          correctOption: "tracking-normal",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <h1
+                className={`text-3xl font-bold transition-all duration-500 ${userClass}`}
+              >
+                HELLO WORLD
+              </h1>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Heading Tightening",
+
+              description:
+                "Reduce spacing in all-caps headings to create a compact visual impact.",
+
+              code: `<h1 class="tracking-tight text-4xl font-bold">WELCOME</h1>`,
+
+              preview: (
+                <h1 className="tracking-tight text-4xl font-bold">WELCOME</h1>
+              ),
+            },
+
+            {
+              title: "Paragraph Normal",
+
+              description:
+                "Use normal spacing for body text to ensure optimal readability.",
+
+              code: `<p class="tracking-normal text-base">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>`,
+
+              preview: (
+                <p className="tracking-normal text-base">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </p>
+              ),
+            },
+
+            {
+              title: "Wide Display Text",
+
+              description:
+                "Increase letter spacing for display text or logos to enhance visual presence.",
+
+              code: `<h2 class="tracking-wider text-3xl font-semibold">Our Product</h2>`,
+
+              preview: (
+                <h2 className="tracking-wider text-3xl font-semibold">
+                  Our Product
+                </h2>
+              ),
+            },
+
+            {
+              title: "Extra Wide Styling",
+
+              description:
+                "Maximum spacing for stylistic emphasis on banners or hero sections.",
+
+              code: `<h1 class="tracking-widest text-5xl font-extrabold">SALE</h1>`,
+
+              preview: (
+                <h1 className="tracking-widest text-5xl font-extrabold">
+                  SALE
+                </h1>
+              ),
+            },
+
+            {
+              title: "Slightly Tighter Body Text",
+
+              description:
+                "Slightly reduce spacing for compact UI elements without sacrificing readability.",
+
+              code: `<p class="tracking-tight text-sm">Compact description text here.</p>`,
+
+              preview: (
+                <p className="tracking-tight text-sm">
+                  Compact description text here.
+                </p>
+              ),
+            },
+
+            {
+              title: "Logo Letter Spacing",
+
+              description:
+                "Fine-tune spacing for brand logos to maintain visual consistency.",
+
+              code: `<span class="tracking-wide text-2xl font-bold">BrandName</span>`,
+
+              preview: (
+                <span className="tracking-wide text-2xl font-bold">
+                  BrandName
+                </span>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Excessive Tightening",
+              reason:
+                "Using `tracking-tighter` for body text reduces readability.",
+              example: `<p class="tracking-tighter text-base">Sample text</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Over-Widening Headings",
+              reason:
+                "Using `tracking-widest` on small headings can feel disjointed.",
+              example: `<h2 class="tracking-widest text-lg">Title</h2>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Responsiveness",
+              reason:
+                "Letter spacing may need adjustments for different screen sizes.",
+              example: `<h1 class="tracking-tight md:tracking-normal">Responsive Text</h1>`,
+              level: "info",
+            },
+
+            {
+              title: "Combining Contradictory Classes",
+              reason:
+                "Applying both `tracking-tight` and `tracking-wider` can cause confusion and override issues.",
+              example: `<p class="tracking-tight tracking-wider">Conflict</p>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Headings:",
+              text: "Use tighter spacing for bold, all-caps headings.",
+            },
+
+            {
+              bold: "Body Text:",
+              text: "Stick with `tracking-normal` for long paragraphs.",
+            },
+
+            {
+              bold: "Display Text:",
+              text: "Use wider spacing for stylistic emphasis.",
+            },
+
+            {
+              bold: "Consistency:",
+              text: "Maintain consistent spacing across typographic scales.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+  slug: ["typography", "line-clamp"],
+  title: "Line Clamp",
+  description:
+    "Control the truncation of multi-line text. Line clamp utilities allow you to limit text to a specific number of lines, adding an ellipsis (...) at the end if the content overflows.",
+  sections: [
+    {
+      type: "hero",
+      props: {
+        title: "Line Clamp",
+        description:
+          "Truncate multi-line text after a specific number of lines. This is essential for blog cards, preview snippets, and responsive layouts where vertical space is limited.",
+      },
+    },
+    {
+      type: "mental-model",
+      props: {
+        title: "The Vertical Scissor",
+        description:
+          "Line clamp works like a pair of smart scissors. It counts the visible lines of text and cuts off anything beyond your limit, automatically appending an ellipsis (`...`). It combines several CSS properties (`overflow: hidden`, `display: -webkit-box`, etc.) into a single, easy-to-use utility.",
+        features: [
+          "Limits text to N visible lines",
+          "Automatically adds ellipsis (...)",
+          "Responsive support (different limits per breakpoint)",
+          "Prevents layout breakage from long content",
+          "Works on block and inline-block elements",
+        ],
+        layerAssignment: "Typography Layer - Controls vertical text overflow",
+        browserBehavior:
+          "Uses the standard `line-clamp` (or `-webkit-line-clamp`) CSS property along with `box-orient: vertical`.",
+      },
+    },
+    {
+      type: "utility-grid",
+      props: {
+        title: "Common Classes",
+        items: [
+          {
+            cls: "line-clamp-1",
+            desc: "Truncate text at 1 line (single line overflow)",
+          },
+          { cls: "line-clamp-2", desc: "Truncate text after 2 lines" },
+          { cls: "line-clamp-3", desc: "Truncate text after 3 lines" },
+          { cls: "line-clamp-4", desc: "Truncate text after 4 lines" },
+          { cls: "line-clamp-5", desc: "Truncate text after 5 lines" },
+          { cls: "line-clamp-6", desc: "Truncate text after 6 lines" },
+          {
+            cls: "line-clamp-none",
+            desc: "Remove line clamping (show full text)",
+          },
+        ],
+      },
+    },
+    {
+      type: "playground",
+      props: {
+        title: "Line Clamp Playground",
+        description:
+          "See how the text gets cut off as you change the clamp value. This allows you to fit long content into fixed-height designs gracefully.",
+        options: [
+          "line-clamp-1",
+          "line-clamp-2",
+          "line-clamp-3",
+          "line-clamp-4",
+          "line-clamp-none",
+        ],
+        defaultValue: "line-clamp-2",
+        buildMarkup: (value: string) =>
+          `<p class="${value} w-64 text-sm">
+  Tailwind CSS works by scanning all of your HTML files, JavaScript components, and any other templates for class names, generating the corresponding styles and then writing them to a static CSS file. It's fast, flexible, and reliable.
+</p>`,
+        renderPreview: (value: string) => (
+          <div className="p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center">
+            <div className="w-64 bg-white dark:bg-slate-900 p-4 rounded border border-slate-200 dark:border-slate-800 shadow-sm">
+              <h3 className="font-bold text-slate-900 dark:text-white mb-2">
+                Card Title
+              </h3>
+              <p
+                className={`text-sm text-slate-600 dark:text-slate-300 ${value}`}
+              >
+                Tailwind CSS works by scanning all of your HTML files,
+                JavaScript components, and any other templates for class names,
+                generating the corresponding styles and then writing them to a
+                static CSS file. It's fast, flexible, and reliable.
+              </p>
+            </div>
+          </div>
+        ),
+      },
+    },
+    {
+      type: "interactive-challenge",
+      props: {
+        title: "Fix the Overflowing Card",
+        description:
+          "The description text is too long and pushing the 'Read More' button out of the card. Clamp the text to exactly 3 lines to fix the layout.",
+        codeSnippet: `<div class="h-48 w-64 p-4 border rounded flex flex-col">
+  <h2 class="font-bold mb-2">Blog Post</h2>
+  <p class="{input} text-sm flex-1 text-gray-600">
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.
+  </p>
+  <button class="mt-4 text-blue-500 text-sm">Read More</button>
+</div>`,
+        options: [
+          "line-clamp-1",
+          "line-clamp-3",
+          "truncate",
+          "whitespace-nowrap",
+        ],
+        correctOption: "line-clamp-3",
+        renderPreview: (userClass: string) => (
+          <div className="w-full bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center p-8">
+            <div className="h-48 w-64 bg-white dark:bg-slate-800 p-4 rounded shadow-md flex flex-col border border-slate-200 dark:border-slate-700">
+              <h2 className="font-bold mb-2 dark:text-white">Blog Post</h2>
+              <p
+                className={`text-sm flex-1 text-slate-600 dark:text-slate-400 ${userClass}`}
+              >
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat.
+              </p>
+              <button className="mt-4 text-blue-600 dark:text-blue-400 text-sm font-medium self-start">
+                Read More →
+              </button>
+            </div>
+          </div>
+        ),
+      },
+    },
+    {
+      type: "examples",
+      props: {
+        title: "Real-World Patterns",
+        examples: [
+          {
+            title: "News Card Excerpt",
+            description:
+              "Keep card heights consistent by clamping article previews to 3 lines.",
+            code: `<p class="line-clamp-3 text-gray-600">Article preview text...</p>`,
+            preview: (
+              <div className="w-64 p-4 bg-white dark:bg-slate-900 border rounded">
+                <div className="h-32 bg-slate-200 dark:bg-slate-800 mb-2 rounded"></div>
+                <h4 className="font-bold">Breaking News</h4>
+                <p className="line-clamp-3 text-sm text-slate-500 mt-1">
+                  Scientists have discovered a new species of orchid in the
+                  rainforests of Brazil. The flower features vivid purple petals
+                  and blooms only at night, making it incredibly rare to spot in
+                  the wild.
+                </p>
+              </div>
+            ),
+          },
+          {
+            title: "Single Line Truncation",
+            description:
+              "Common for list items or email subjects. `line-clamp-1` behaves similarly to `truncate` but allows wrapping if needed before clamping.",
+            code: `<h3 class="line-clamp-1 font-semibold">Very long title that might not fit...</h3>`,
+            preview: (
+              <div className="w-48 p-2 bg-white dark:bg-slate-900 border rounded">
+                <h3 className="line-clamp-1 font-semibold text-slate-900 dark:text-white">
+                  Introduction to Advanced Quantum Mechanics and String Theory
+                </h3>
+              </div>
+            ),
+          },
+          {
+            title: "Expandable Text",
+            description:
+              "Start with clamped text and remove the class on click to expand (using interactive logic).",
+            code: `<p class="line-clamp-2 hover:line-clamp-none transition-all">Hover to read full text...</p>`,
+            preview: (
+              <div className="w-64 p-4 bg-white dark:bg-slate-900 border rounded">
+                <p className="line-clamp-2 hover:line-clamp-none cursor-pointer text-sm text-slate-600 dark:text-slate-300 transition-all duration-300">
+                  This is a long description that is usually hidden. However, if
+                  you hover over this text block, the line-clamp class is removed
+                  (or effectively set to none), revealing the full content for
+                  the user to read.
+                </p>
+              </div>
+            ),
+          },
+          {
+            title: "Responsive Clamping",
+            description:
+              "Show 1 line on mobile, but 3 lines on desktop layouts.",
+            code: `<p class="line-clamp-1 md:line-clamp-3">Responsive preview text...</p>`,
+            preview: (
+              <div className="w-full max-w-xs p-4 bg-white dark:bg-slate-900 border rounded">
+                <p className="line-clamp-1 md:line-clamp-3 text-sm text-slate-600 dark:text-slate-300">
+                  This text will be cut off after one line on small screens, but
+                  it will expand to show up to three lines when you view it on a
+                  larger device like a tablet or desktop monitor.
+                </p>
+              </div>
+            ),
+          },
+          {
+            title: "User Bio",
+            description:
+              "Limit user bios in a profile list to maintain grid uniformity.",
+            code: `<p class="line-clamp-2 text-xs">User bio goes here...</p>`,
+            preview: (
+              <div className="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 border rounded w-64">
+                <div className="w-10 h-10 rounded-full bg-blue-500"></div>
+                <div>
+                  <div className="font-bold text-sm">Jane Doe</div>
+                  <p className="line-clamp-2 text-xs text-slate-500">
+                    Software Engineer based in San Francisco. Loves coffee,
+                    hiking, and open source contributing.
+                  </p>
+                </div>
+              </div>
+            ),
+          },
+          {
+            title: "Resetting Line Clamp",
+            description:
+              "Use `line-clamp-none` to undo a clamp applied by a parent or a previous breakpoint.",
+            code: `<p class="line-clamp-2 lg:line-clamp-none">Clamped on mobile only.</p>`,
+            preview: (
+              <div className="w-full p-4 bg-white dark:bg-slate-900 border rounded">
+                <p className="line-clamp-2 lg:line-clamp-none text-sm text-slate-600 dark:text-slate-300">
+                  This content is restricted on smaller devices to save vertical
+                  space, but on large screens where space is abundant, we allow
+                  the text to flow naturally without any truncation.
+                </p>
+              </div>
+            ),
+          },
+        ],
+      },
+    },
+    {
+      type: "common-mistakes",
+      props: {
+        mistakes: [
+          {
+            title: "Truncate vs Line Clamp",
+            reason:
+              "`truncate` forces text to a single line and prevents wrapping completely. `line-clamp-1` allows wrapping logic to exist but cuts off after the first line break opportunity. They behave slightly differently.",
+            example: `<div class="truncate">vs</div><div class="line-clamp-1"></div>`,
+            level: "info",
+          },
+          {
+            title: "Missing Width Constraint",
+            reason:
+              "Line clamp needs a constrained width to trigger. If the container grows infinitely, text will never wrap or clamp.",
+            example: `<div class="w-full line-clamp-2">...</div>`,
+            level: "warning",
+          },
+          {
+            title: "Padding Issues",
+            reason:
+              "Adding `pb-4` (padding-bottom) to a clamped element might reveal half-cut text lines depending on the font height.",
+            example: `<p class="line-clamp-3 pb-2">...</p>`,
+            level: "warning",
+          },
+          {
+            title: "Not undoing with 'none'",
+            reason:
+              "To remove a clamp at a specific breakpoint, you must explicitly use `line-clamp-none`. Just removing the class in your head doesn't work in code!",
+            example: `<p class="line-clamp-2 md:line-clamp-none">Correct</p>`,
+            level: "info",
+          },
+        ],
+      },
+    },
+    {
+      type: "tips",
+      props: {
+        tips: [
+          {
+            bold: "Combine with Tooltips:",
+            text: "If you clamp text, consider adding a `title` attribute or tooltip so users can still read the full content.",
+          },
+          {
+            bold: "Flexible Grids:",
+            text: "Line clamp is the secret to making CSS Grid cards with variable text content align perfectly in rows.",
+          },
+          {
+            bold: "Animation:",
+            text: "You cannot animate `line-clamp` directly with CSS transitions. Use `max-height` hacks or JavaScript for 'Read More' expansions.",
+          },
+          {
+            bold: "Accessibility:",
+            text: "Screen readers generally read clamped text fully, but visual users might miss context. Ensure critical info is visible.",
+          },
+        ],
+      },
+    },
+  ],
+},
+  {
+    slug: ["typography", "line-height"],
+
+    title: "Line Height",
+
+    description:
+      "Control the vertical spacing between lines of text. Adjusting line-height improves readability, establishes visual hierarchy, and ensures proper text alignment in layouts. Use carefully to maintain accessibility and prevent content overflow.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Line Height",
+
+          description:
+            "Control the vertical spacing between lines of text. Proper line-height ensures legibility and a comfortable reading experience across headings, paragraphs, and UI components.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Vertical Rhythm Guide",
+
+          description:
+            "Line-height utilities set the CSS `line-height` property, creating consistent spacing between lines. Think of it as adjusting the distance between rungs of a ladder: enough space allows easy readability without fragmenting the visual flow.",
+
+          features: [
+            "Controls spacing between text lines",
+
+            "Supports responsive typography",
+
+            "Helps maintain vertical rhythm",
+
+            "Prevents text overlap or crowding",
+
+            "Works with headings, paragraphs, and inline text",
+          ],
+
+          layerAssignment: "Typography / Content Layer",
+
+          browserBehavior:
+            "Sets the `line-height` CSS property. Values can be numeric, length-based, or keyword-based (e.g., normal).",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Line-Height Classes",
+
+          items: [
+            {
+              cls: "leading-none",
+              desc: "Minimal spacing, text tightly packed",
+            },
+
+            { cls: "leading-tight", desc: "Slightly tighter than normal" },
+
+            { cls: "leading-snug", desc: "Compact spacing for small text" },
+
+            { cls: "leading-normal", desc: "Default line spacing" },
+
+            {
+              cls: "leading-relaxed",
+              desc: "Slightly more spacing for readability",
+            },
+
+            { cls: "leading-loose", desc: "Generous spacing for airy layout" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Line Height Playground",
+
+          description:
+            "Experiment with different line heights to see how they affect readability and text layout.",
+
+          options: [
+            "leading-none",
+            "leading-tight",
+            "leading-snug",
+            "leading-normal",
+            "leading-relaxed",
+            "leading-loose",
+          ],
+
+          defaultValue: "leading-normal",
+
+          buildMarkup: (value: string) =>
+            `<p class="${value} text-lg">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vel dolor euismod, ultricies ligula a, cursus justo.</p>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 transition-all duration-300 ${value}`}
+            >
+              <p
+                className={`${value} text-lg text-slate-700 dark:text-slate-200`}
+              >
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
+                vel dolor euismod, ultricies ligula a, cursus justo.
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Crowded Text",
+
+          description:
+            "The paragraph appears cramped. Adjust the line-height to improve readability without breaking the layout.",
+
+          codeSnippet:
+            '<p class="text-base {input}">Lorem ipsum dolor sit amet...</p>',
+
+          options: [
+            "leading-none",
+            "leading-tight",
+            "leading-normal",
+            "leading-loose",
+          ],
+
+          correctOption: "leading-relaxed",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-start justify-center p-4">
+              <p
+                className={`text-base max-w-xs transition-all duration-500 ${userClass}`}
+              >
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
+                vel dolor euismod, ultricies ligula a, cursus justo.
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Body Text",
+
+              description:
+                "Default line-height ensures comfortable reading in paragraphs.",
+
+              code: `<p class="leading-normal text-base">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>`,
+
+              preview: (
+                <p className="leading-normal text-base">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </p>
+              ),
+            },
+
+            {
+              title: "Tight Heading",
+
+              description:
+                "Compact line-height for headings to reduce visual space.",
+
+              code: `<h2 class="leading-tight text-2xl font-bold">Dashboard Metrics</h2>`,
+
+              preview: (
+                <h2 className="leading-tight text-2xl font-bold">
+                  Dashboard Metrics
+                </h2>
+              ),
+            },
+
+            {
+              title: "Relaxed Paragraph",
+
+              description:
+                "Slightly increased line-height for long-form content improves readability.",
+
+              code: `<p class="leading-relaxed text-lg">Extended content paragraph for blog posts or articles.</p>`,
+
+              preview: (
+                <p className="leading-relaxed text-lg">
+                  Extended content paragraph for blog posts or articles.
+                </p>
+              ),
+            },
+
+            {
+              title: "Tight UI Label",
+
+              description:
+                "Compact labels in forms to conserve vertical space.",
+
+              code: `<label class="leading-snug text-sm">Username</label>`,
+
+              preview: <label className="leading-snug text-sm">Username</label>,
+            },
+
+            {
+              title: "Airy Quote",
+
+              description:
+                "Loose line-height for pull quotes or callouts creates a visual emphasis.",
+
+              code: `<blockquote class="leading-loose text-xl italic">“Design is not just what it looks like.”</blockquote>`,
+
+              preview: (
+                <blockquote className="leading-loose text-xl italic">
+                  “Design is not just what it looks like.”
+                </blockquote>
+              ),
+            },
+
+            {
+              title: "Multi-line Button Text",
+
+              description:
+                "Adjust line-height to center text vertically in multi-line buttons.",
+
+              code: `<button class="leading-snug text-center py-2 px-4">Submit Form</button>`,
+
+              preview: (
+                <button className="leading-snug text-center py-2 px-4">
+                  Submit Form
+                </button>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Too Tight Line Height",
+
+              reason:
+                "Using `leading-none` for body text reduces readability and can cause text overlap.",
+
+              example: `<p class="leading-none">Lorem ipsum dolor sit amet.</p>`,
+
+              level: "critical",
+            },
+
+            {
+              title: "Ignoring Responsive Needs",
+
+              reason:
+                "Different screen sizes may require adjusted line-heights for legibility.",
+
+              example: `<p class="leading-snug sm:leading-loose">Responsive text</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overly Loose for Small Text",
+
+              reason:
+                "Using `leading-loose` on small captions creates excessive white space.",
+
+              example: `<span class="leading-loose text-xs">Caption</span>`,
+
+              level: "info",
+            },
+
+            {
+              title: "Inconsistent Line Heights",
+
+              reason:
+                "Mixing arbitrary line-heights across components breaks vertical rhythm.",
+
+              example: `<p class="leading-snug">Text</p><p class="leading-loose">Text</p>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Relative Values:",
+              text: "Prefer unitless numbers for scaling with font-size.",
+            },
+
+            {
+              bold: "Maintain Vertical Rhythm:",
+              text: "Align line-heights across headings and paragraphs.",
+            },
+
+            {
+              bold: "Responsive Adjustments:",
+              text: "Change line-height at different breakpoints if needed.",
+            },
+
+            {
+              bold: "Component Consistency:",
+              text: "Keep line-heights consistent within design system components.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "list-style-image"],
+
+    title: "List Style Image",
+
+    description:
+      "Control the image used as a list item marker. Useful when customizing bullet points or numbering in lists to match design requirements.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "List Style Image",
+
+          description:
+            "Control the image used for list item markers. Apply custom icons or images instead of default bullets for unordered lists, or to enhance numbered lists visually.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Visual Marker Replacement",
+
+          description:
+            "List style image utilities allow replacing default list markers with custom images. This affects only list markers without altering the list item content layout.",
+
+          features: [
+            "Supports custom image markers",
+
+            "Affects unordered list bullets",
+
+            "Maintains list semantics",
+
+            "Can combine with padding/margin utilities",
+
+            "Responsive usage possible via variants",
+          ],
+
+          layerAssignment: "Content Layer - Visual Decoration",
+
+          browserBehavior:
+            "Sets the CSS `list-style-image` property. Default fallback is `none` if image is missing or invalid.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "list-none", desc: "Removes all list markers" },
+
+            { cls: "list-disc", desc: "Default disc bullet marker" },
+
+            { cls: "list-decimal", desc: "Numbered list marker" },
+
+            { cls: "list-inside", desc: "Marker inside the list item box" },
+
+            { cls: "list-outside", desc: "Marker outside the list item box" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "List Style Image Playground",
+
+          description:
+            "Experiment with different list styles and marker positions to see how the image or symbol affects list readability and alignment.",
+
+          options: ["list-none", "list-disc", "list-decimal", "list-inside"],
+
+          defaultValue: "list-disc",
+
+          buildMarkup: (value: string) =>
+            `<ul class="${value} space-y-2"><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg transition-all duration-300 ${value}`}
+            >
+              <ul className={`space-y-2 ${value}`}>
+                {" "}
+                <li className="font-medium text-slate-700 dark:text-slate-300">
+                  Item 1
+                </li>{" "}
+                <li className="font-medium text-slate-700 dark:text-slate-300">
+                  Item 2
+                </li>{" "}
+                <li className="font-medium text-slate-700 dark:text-slate-300">
+                  Item 3
+                </li>{" "}
+              </ul>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken List Markers",
+
+          description:
+            "A list should display bullets, but none appear. Apply the correct utility to restore visible list markers.",
+
+          codeSnippet:
+            '<ul class="... {input}"><li>Apple</li><li>Banana</li></ul>',
+
+          options: ["list-none", "list-disc", "list-decimal", "list-inside"],
+
+          correctOption: "list-disc",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg p-8">
+              <ul
+                className={`transition-all duration-500 ${userClass} space-y-2`}
+              >
+                {" "}
+                <li>Apple</li> <li>Banana</li> <li>Cherry</li>{" "}
+              </ul>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Simple Bulleted List",
+
+              description: "Using the default disc marker for unordered lists.",
+
+              code: `<ul class="list-disc space-y-2"><li>Task 1</li><li>Task 2</li></ul>`,
+
+              preview: (
+                <ul className="list-disc space-y-2">
+                  <li>Task 1</li>
+                  <li>Task 2</li>
+                </ul>
+              ),
+            },
+
+            {
+              title: "Numbered Steps",
+
+              description: "Numbered lists for instructions or sequences.",
+
+              code: `<ol class="list-decimal space-y-2"><li>Step 1</li><li>Step 2</li></ol>`,
+
+              preview: (
+                <ol className="list-decimal space-y-2">
+                  <li>Step 1</li>
+                  <li>Step 2</li>
+                </ol>
+              ),
+            },
+
+            {
+              title: "Marker Inside",
+
+              description: "Markers appear inside the list item box.",
+
+              code: `<ul class="list-disc list-inside space-y-2"><li>Point A</li><li>Point B</li></ul>`,
+
+              preview: (
+                <ul className="list-disc list-inside space-y-2">
+                  <li>Point A</li>
+                  <li>Point B</li>
+                </ul>
+              ),
+            },
+
+            {
+              title: "Marker Outside",
+
+              description:
+                "Markers appear outside the list item box, default behavior.",
+
+              code: `<ul class="list-disc list-outside space-y-2"><li>Item X</li><li>Item Y</li></ul>`,
+
+              preview: (
+                <ul className="list-disc list-outside space-y-2">
+                  <li>Item X</li>
+                  <li>Item Y</li>
+                </ul>
+              ),
+            },
+
+            {
+              title: "No Markers",
+
+              description: "Remove all list markers using `list-none`.",
+
+              code: `<ul class="list-none space-y-2"><li>Hidden 1</li><li>Hidden 2</li></ul>`,
+
+              preview: (
+                <ul className="list-none space-y-2">
+                  <li>Hidden 1</li>
+                  <li>Hidden 2</li>
+                </ul>
+              ),
+            },
+
+            {
+              title: "Custom Image Marker",
+
+              description:
+                "Use CSS `list-style-image` via custom class to replace bullets with an image.",
+
+              code: `<ul class="custom-list-image space-y-2"><li>Custom 1</li><li>Custom 2</li></ul>`,
+
+              preview: (
+                <ul className="custom-list-image space-y-2">
+                  <li>Custom 1</li>
+                  <li>Custom 2</li>
+                </ul>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Missing Markers",
+              reason: "Using `list-none` unintentionally removes bullets.",
+              example: `<ul class="list-none"><li>Item</li></ul>`,
+              level: "warning",
+            },
+
+            {
+              title: "Incorrect Marker Placement",
+              reason:
+                "Using `list-inside` when `list-outside` is desired affects alignment.",
+              example: `<ul class="list-inside"><li>Item</li></ul>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overriding Defaults Improperly",
+              reason: "Custom images may not display if `url()` is incorrect.",
+              example: `<ul class="custom-list-image"><li>Item</li></ul>`,
+              level: "warning",
+            },
+
+            {
+              title: "Accessibility Overlooked",
+              reason: "Custom images should have sufficient contrast and size.",
+              example: `<ul class="custom-list-image"><li>Item</li></ul>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with Spacing:",
+              text: "Use `space-y-*` to control vertical gaps between list items.",
+            },
+
+            {
+              bold: "Marker Position:",
+              text: "Choose `list-inside` or `list-outside` to adjust alignment.",
+            },
+
+            {
+              bold: "Custom Images:",
+              text: "Define `list-style-image` in your Tailwind config for reusable patterns.",
+            },
+
+            {
+              bold: "Maintain Semantics:",
+              text: "Always use `<ul>` or `<ol>` for accessibility even with custom markers.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "list-style-position"],
+
+    title: "List Style Position",
+
+    description:
+      "Control the placement of list markers relative to the content. Use these utilities to switch between outside and inside marker alignment for clarity and visual structure.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "List Style Position",
+
+          description:
+            "Control the placement of list markers relative to the content. `list-inside` aligns markers within the text block, while `list-outside` keeps them outside. Proper use improves readability and visual hierarchy of lists.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Marker Alignment Analogy",
+
+          description:
+            "List style position utilities determine where the bullet or number sits in relation to list content. `inside` embeds markers into the text flow, while `outside` reserves space for markers before the text block.",
+
+          features: [
+            "Switches marker placement between inside/outside",
+
+            "Improves text alignment and list readability",
+
+            "Supports ordered and unordered lists",
+
+            "Works with multi-line list items",
+
+            "Maintains consistent spacing across browsers",
+          ],
+
+          layerAssignment:
+            "Typography Layer - Affects text markers and layout flow",
+
+          browserBehavior:
+            "Maps directly to the CSS `list-style-position` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "list-inside",
+              desc: "Markers placed inside the content block",
+            },
+
+            {
+              cls: "list-outside",
+              desc: "Markers placed outside the content block",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "List Style Position Playground",
+
+          description:
+            "Experiment with `list-inside` and `list-outside` to see how marker alignment affects multi-line list readability.",
+
+          options: ["list-inside", "list-outside"],
+
+          defaultValue: "list-outside",
+
+          buildMarkup: (value: string) =>
+            `<ul class="${value} list-disc"><li>First item</li><li>Second item</li><li>Third item</li></ul>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg transition-all duration-300 ${value}`}
+            >
+              <ul className={`list-disc ${value} space-y-2`}>
+                {" "}
+                <li>First item</li>{" "}
+                <li>
+                  Second item spanning multiple lines to see alignment effect
+                  properly
+                </li>{" "}
+                <li>Third item</li>{" "}
+              </ul>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Misaligned List",
+
+          description:
+            "A list has bullets overlapping text because `list-inside` is missing. Choose the correct class to align markers properly.",
+
+          codeSnippet: `<ul class="{input} list-disc">  <li>Item one</li>  <li>Item two</li></ul>`,
+
+          options: [
+            "list-outside",
+            "list-inside",
+            "wrong-class-1",
+            "wrong-class-2",
+          ],
+
+          correctOption: "list-inside",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center p-6">
+              <ul className={`list-disc ${userClass} space-y-2`}>
+                {" "}
+                <li>Item one</li>{" "}
+                <li>Item two spanning multiple lines for alignment check</li>{" "}
+              </ul>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Default Outside Markers",
+
+              description:
+                "A standard unordered list with markers outside the content block.",
+
+              code: `<ul class="list-outside list-disc">  <li>Apple</li>  <li>Banana</li>  <li>Cherry</li></ul>`,
+
+              preview: (
+                <ul className="list-disc list-outside space-y-1">
+                  <li>Apple</li>
+                  <li>Banana</li>
+                  <li>Cherry</li>
+                </ul>
+              ),
+            },
+
+            {
+              title: "Inside Markers for Inline Text",
+
+              description:
+                "Using `list-inside` for compact list items within narrow containers.",
+
+              code: `<ul class="list-inside list-disc">  <li>Short text</li>  <li>Another short item</li></ul>`,
+
+              preview: (
+                <ul className="list-disc list-inside space-y-1">
+                  <li>Short text</li>
+                  <li>Another short item</li>
+                </ul>
+              ),
+            },
+
+            {
+              title: "Nested Lists",
+
+              description:
+                "Combining inside and outside markers for nested hierarchical lists.",
+
+              code: `<ul class="list-outside list-disc">  <li>Fruit<ul class="list-inside list-disc"><li>Apple</li><li>Banana</li></ul></li></ul>`,
+
+              preview: (
+                <ul className="list-disc list-outside">
+                  <li>
+                    Fruit
+                    <ul className="list-disc list-inside">
+                      <li>Apple</li>
+                      <li>Banana</li>
+                    </ul>
+                  </li>
+                </ul>
+              ),
+            },
+
+            {
+              title: "Ordered List Inside",
+
+              description: "Numbers placed inside for tight layout alignment.",
+
+              code: `<ol class="list-inside list-decimal">  <li>Step one</li>  <li>Step two</li></ol>`,
+
+              preview: (
+                <ol className="list-decimal list-inside space-y-1">
+                  <li>Step one</li>
+                  <li>Step two</li>
+                </ol>
+              ),
+            },
+
+            {
+              title: "Long Multi-Line Items",
+
+              description:
+                "Inside markers keep bullets aligned for multi-line list items.",
+
+              code: `<ul class="list-inside list-disc">  <li>This is a very long list item that wraps onto multiple lines to test alignment</li></ul>`,
+
+              preview: (
+                <ul className="list-disc list-inside">
+                  <li>
+                    This is a very long list item that wraps onto multiple lines
+                    to test alignment
+                  </li>
+                </ul>
+              ),
+            },
+
+            {
+              title: "Mixed Marker Positions",
+
+              description:
+                "Combining inside and outside markers in complex UI sections.",
+
+              code: `<ul class="list-outside list-disc"><li>Main item<ul class="list-inside list-disc"><li>Subitem</li></ul></li></ul>`,
+
+              preview: (
+                <ul className="list-disc list-outside">
+                  <li>
+                    Main item
+                    <ul className="list-disc list-inside">
+                      <li>Subitem</li>
+                    </ul>
+                  </li>
+                </ul>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Forgetting `list-disc` or `list-decimal`",
+
+              reason:
+                "Setting only `list-inside` or `list-outside` without a marker style shows no bullets.",
+
+              example: `<ul class="list-inside"><li>Item</li></ul>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Misaligned Multi-Line Items",
+
+              reason:
+                "Using `list-outside` with narrow containers can cause markers to visually misalign.",
+
+              example: `<ul class="list-outside list-disc w-24"><li>Long text wrapping</li></ul>`,
+
+              level: "info",
+            },
+
+            {
+              title: "Nested Lists Confusion",
+
+              reason:
+                "Failing to adjust inside/outside for nested lists leads to inconsistent marker placement.",
+
+              example: `<ul class="list-outside"><li>Item<ul class="list-outside"><li>Subitem</li></ul></li></ul>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overriding with Custom CSS",
+
+              reason:
+                "Directly setting `list-style-position` in CSS can conflict with Tailwind classes, reducing maintainability.",
+
+              example: `<ul style="list-style-position: inside;"><li>Item</li></ul>`,
+
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Consistency:",
+              text: "Maintain the same marker alignment across similar lists for visual coherence.",
+            },
+
+            {
+              bold: "Nested Lists:",
+              text: "Use `list-inside` for nested items to improve alignment with parent content.",
+            },
+
+            {
+              bold: "Responsive Consideration:",
+              text: "Inside markers work better on narrow containers; outside markers suit wide layouts.",
+            },
+
+            {
+              bold: "Combining with Spacing:",
+              text: "Pair with `space-y-*` utilities to add consistent vertical spacing between list items.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "list-style-type"],
+
+    title: "List Style Type",
+
+    description:
+      "Control the marker style of list items. Useful for differentiating content hierarchy, nested lists, or emphasizing points, while ensuring semantic structure remains intact.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "List Style Type",
+
+          description:
+            "Set the type of bullet or numbering for lists, including disc, circle, square, decimal, or none. This utility allows precise control over visual markers without affecting the list content itself.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Marker Control",
+
+          description:
+            "List style type utilities modify the CSS `list-style-type` property. Think of it as changing the shape or numbering style of bullets while leaving content intact, similar to changing font for emphasis.",
+
+          features: [
+            "Supports disc, circle, square, decimal, none",
+
+            "Works on ordered and unordered lists",
+
+            "Does not affect content text",
+
+            "Composes with padding and margin for layout",
+
+            "Responsive modifiers supported",
+          ],
+
+          layerAssignment: "Typography Layer",
+
+          browserBehavior:
+            "Maps directly to the CSS `list-style-type` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "list-disc", desc: "Standard filled circle bullet" },
+
+            { cls: "list-circle", desc: "Hollow circle bullet" },
+
+            { cls: "list-square", desc: "Square bullet" },
+
+            { cls: "list-decimal", desc: "Numeric ordered list" },
+
+            { cls: "list-none", desc: "No marker" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "List Style Playground",
+
+          description:
+            "Experiment with different marker types to see how lists change visually.",
+
+          options: [
+            "list-disc",
+            "list-circle",
+            "list-square",
+            "list-decimal",
+            "list-none",
+          ],
+
+          defaultValue: "list-disc",
+
+          buildMarkup: (value: string) =>
+            `<ul class="${value} space-y-1"><li>First item</li><li>Second item</li><li>Third item</li></ul>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg transition-all duration-300`}
+            >
+              <ul className={`${value} ml-6 space-y-1`}>
+                {" "}
+                <li className="text-slate-700 dark:text-slate-300">
+                  First item
+                </li>{" "}
+                <li className="text-slate-700 dark:text-slate-300">
+                  Second item
+                </li>{" "}
+                <li className="text-slate-700 dark:text-slate-300">
+                  Third item
+                </li>{" "}
+              </ul>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Correct the List Markers",
+
+          description:
+            "A design requires square bullets for emphasis, but the list currently uses circles. Update the class to apply the correct marker style.",
+
+          codeSnippet: `<ul class="list-circle {input}"><li>Item A</li><li>Item B</li></ul>`,
+
+          options: ["list-disc", "list-square", "list-decimal", "list-none"],
+
+          correctOption: "list-square",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg p-6">
+              <ul
+                className={`${userClass} ml-6 space-y-1 text-slate-700 dark:text-slate-300`}
+              >
+                {" "}
+                <li>Item A</li> <li>Item B</li>{" "}
+              </ul>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Default Bullets",
+
+              description:
+                "Standard unordered list with filled circle bullets.",
+
+              code: `<ul class="list-disc space-y-1"><li>Apple</li><li>Banana</li><li>Cherry</li></ul>`,
+
+              preview: (
+                <ul className="list-disc ml-6 space-y-1">
+                  <li>Apple</li>
+                  <li>Banana</li>
+                  <li>Cherry</li>
+                </ul>
+              ),
+            },
+
+            {
+              title: "Hollow Bullets",
+
+              description:
+                "Unordered list with hollow circles for subtler emphasis.",
+
+              code: `<ul class="list-circle space-y-1"><li>Red</li><li>Green</li><li>Blue</li></ul>`,
+
+              preview: (
+                <ul className="list-circle ml-6 space-y-1">
+                  <li>Red</li>
+                  <li>Green</li>
+                  <li>Blue</li>
+                </ul>
+              ),
+            },
+
+            {
+              title: "Square Bullets",
+
+              description: "Square bullets for distinct visual separation.",
+
+              code: `<ul class="list-square space-y-1"><li>Step 1</li><li>Step 2</li><li>Step 3</li></ul>`,
+
+              preview: (
+                <ul className="list-square ml-6 space-y-1">
+                  <li>Step 1</li>
+                  <li>Step 2</li>
+                  <li>Step 3</li>
+                </ul>
+              ),
+            },
+
+            {
+              title: "Ordered List",
+
+              description: "Numeric ordering using decimal style.",
+
+              code: `<ol class="list-decimal space-y-1"><li>Install</li><li>Configure</li><li>Run</li></ol>`,
+
+              preview: (
+                <ol className="list-decimal ml-6 space-y-1">
+                  <li>Install</li>
+                  <li>Configure</li>
+                  <li>Run</li>
+                </ol>
+              ),
+            },
+
+            {
+              title: "No Markers",
+
+              description:
+                "Remove bullets when custom icons or spacing is used.",
+
+              code: `<ul class="list-none space-y-1"><li>Option A</li><li>Option B</li></ul>`,
+
+              preview: (
+                <ul className="list-none ml-6 space-y-1">
+                  <li>Option A</li>
+                  <li>Option B</li>
+                </ul>
+              ),
+            },
+
+            {
+              title: "Nested Lists",
+
+              description:
+                "Combining list types for nested content differentiation.",
+
+              code: `<ul class="list-disc space-y-1"><li>Main Item<ul class="list-circle ml-4"><li>Sub Item 1</li><li>Sub Item 2</li></ul></li></ul>`,
+
+              preview: (
+                <ul className="list-disc ml-6 space-y-1">
+                  <li>
+                    Main Item
+                    <ul className="list-circle ml-4">
+                      <li>Sub Item 1</li>
+                      <li>Sub Item 2</li>
+                    </ul>
+                  </li>
+                </ul>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Incorrect Marker",
+              reason: "Using a circle when square is needed for design.",
+              example: `<ul class="list-circle">...</ul>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overriding List Style with Content",
+              reason:
+                "Replacing markers with text instead of proper `list-style-type` breaks semantics.",
+              example: `<ul><li>• Item</li></ul>`,
+              level: "warning",
+            },
+
+            {
+              title: "Neglecting Nested Lists",
+              reason:
+                "Not specifying styles for nested lists leads to inconsistent markers.",
+              example: `<ul class="list-disc"><li>Item<ul class="list-disc"><li>Sub</li></ul></li></ul>`,
+              level: "warning",
+            },
+
+            {
+              title: "Mixing Ordered and Unordered",
+              reason:
+                "Combining `list-decimal` and `list-disc` without clear structure confuses users.",
+              example: `<ol class="list-disc"><li>Step</li></ol>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Consistency:",
+              text: "Maintain consistent list styles across sections for predictable UI.",
+            },
+
+            {
+              bold: "Nested Lists:",
+              text: "Explicitly set `list-style-type` for nested lists to avoid inheritance issues.",
+            },
+
+            {
+              bold: "Spacing:",
+              text: "Combine with `ml-*` and `space-y-*` utilities for proper alignment and spacing.",
+            },
+
+            {
+              bold: "Accessibility:",
+              text: "Use `list-none` with custom markers cautiously to retain semantic meaning.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "overflow-wrap"],
+
+    title: "Overflow Wrap",
+
+    description:
+      "Control how words break and wrap within their containers to prevent overflow issues. Useful for responsive layouts and dynamic content where long words or URLs might exceed container boundaries.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Overflow Wrap",
+
+          description:
+            "Manage text wrapping behavior to ensure content fits within its container. Prevent layout breakage caused by long words, URLs, or unbroken text strings.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Breaking Text Safely",
+
+          description:
+            "Overflow wrap utilities control how the browser breaks words at boundaries. Think of it as telling the text to gracefully hyphenate or wrap instead of spilling out of its box.",
+
+          features: [
+            "Prevents horizontal overflow",
+
+            "Works with long words and URLs",
+
+            "Improves readability on small screens",
+
+            "Supports responsive adjustments",
+
+            "Integrates with other text utilities",
+          ],
+
+          layerAssignment: "Typography / Layout",
+
+          browserBehavior: "Maps directly to the CSS `overflow-wrap` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "break-normal", desc: "Default wrapping behavior" },
+
+            { cls: "break-words", desc: "Break words to prevent overflow" },
+
+            { cls: "break-all", desc: "Break words aggressively at any point" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Overflow Wrap Playground",
+
+          description:
+            "Experiment with different overflow wrap classes to see how long words or URLs behave within containers.",
+
+          options: ["break-normal", "break-words", "break-all", "truncate"],
+
+          defaultValue: "break-words",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-64 border p-2">LongUnbrokenWordExampleThatMightOverflow</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <div
+                className={`bg-white dark:bg-slate-800 p-4 rounded shadow text-center w-64 ${value}`}
+              >
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  LongUnbrokenWordExampleThatMightOverflow
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix Text Overflow",
+
+          description:
+            "A long URL breaks out of its container. Apply the correct overflow wrap utility to keep it contained.",
+
+          codeSnippet:
+            '<div class="w-64 border p-2 {input}">[https://verylongurlthatexceedsthecontainer.com](https://verylongurlthatexceedsthecontainer.com)</div>',
+
+          options: ["break-normal", "break-all", "break-words", "truncate"],
+
+          correctOption: "break-words",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-64 border p-2 transition-all duration-500 ${userClass}`}
+              >
+                [https://verylongurlthatexceedsthecontainer.com](https://verylongurlthatexceedsthecontainer.com){" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Prevent URL Overflow",
+
+              description:
+                "Use `break-words` to keep long URLs from breaking layout.",
+
+              code: `<p class="break-words w-64">https://averylongurlthatexceedsthecontainer.com</p>`,
+
+              preview: (
+                <div className="p-4 w-64 border">
+                  <p className="break-words">
+                    [https://averylongurlthatexceedsthecontainer.com](https://averylongurlthatexceedsthecontainer.com)
+                  </p>
+                </div>
+              ),
+            },
+
+            {
+              title: "Aggressive Word Break",
+
+              description:
+                "Use `break-all` when you need to forcefully break words to fit narrow containers.",
+
+              code: `<p class="break-all w-32">Supercalifragilisticexpialidocious</p>`,
+
+              preview: (
+                <div className="p-4 w-32 border">
+                  <p className="break-all">
+                    Supercalifragilisticexpialidocious
+                  </p>
+                </div>
+              ),
+            },
+
+            {
+              title: "Normal Wrap",
+
+              description:
+                "Default wrapping behavior preserves whole words when possible.",
+
+              code: `<p class="break-normal w-64">This text will wrap normally.</p>`,
+
+              preview: (
+                <div className="p-4 w-64 border">
+                  <p className="break-normal">This text will wrap normally.</p>
+                </div>
+              ),
+            },
+
+            {
+              title: "Inline Code Blocks",
+
+              description:
+                "Prevent inline code or commands from overflowing their containers.",
+
+              code: `<code class="break-words">npm install very-long-package-name-that-might-break</code>`,
+
+              preview: (
+                <div className="p-4 border">
+                  <code className="break-words">
+                    npm install very-long-package-name-that-might-break
+                  </code>
+                </div>
+              ),
+            },
+
+            {
+              title: "Chat Bubbles",
+
+              description:
+                "Keep chat messages contained within small bubbles by breaking long words.",
+
+              code: `<div class="break-words p-2 bg-slate-200 w-48">Averyveryverylongwordinthechatbubble</div>`,
+
+              preview: (
+                <div className="p-4">
+                  <div className="break-words p-2 bg-slate-200 w-48">
+                    Averyveryverylongwordinthechatbubble
+                  </div>
+                </div>
+              ),
+            },
+
+            {
+              title: "Responsive Layouts",
+
+              description:
+                "Ensure text wraps correctly on smaller screens by combining `break-words` with responsive widths.",
+
+              code: `<p class="break-words sm:w-64 w-32">LongResponsiveTextExampleThatAdapts</p>`,
+
+              preview: (
+                <div className="p-4">
+                  <p className="break-words sm:w-64 w-32">
+                    LongResponsiveTextExampleThatAdapts
+                  </p>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using break-normal on long words",
+              reason: "Long unbroken words will overflow the container.",
+              example: `<p class="break-normal w-32">Supercalifragilisticexpialidocious</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring container width",
+              reason:
+                "Without constrained width, text may not need wrapping, giving false sense of layout issues.",
+              example: `<p class="break-words">Some long text here</p>`,
+              level: "info",
+            },
+
+            {
+              title: "Overusing break-all",
+              reason: "Breaking every character can harm readability.",
+              example: `<p class="break-all w-64">ReadabilityTest</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Neglecting responsive needs",
+              reason:
+                "Text may overflow on small screens if widths aren't responsive.",
+              example: `<p class="break-words w-96">ResponsiveTextExample</p>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine with width constraints:",
+              text: "Always pair overflow wrap utilities with defined widths to see their effect.",
+            },
+
+            {
+              bold: "Use break-words for URLs:",
+              text: "Long URLs in content often need `break-words` to prevent layout issues.",
+            },
+
+            {
+              bold: "Avoid break-all for body text:",
+              text: "Aggressive breaking harms readability; reserve for narrow UI elements.",
+            },
+
+            {
+              bold: "Test on small screens:",
+              text: "Check how wrapping behaves on different viewport sizes for responsive layouts.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "text-align"],
+
+    title: "Text Align",
+
+    description:
+      "Control the horizontal alignment of text within its container. Use text alignment utilities to structure content, improve readability, and match layout requirements for different viewport sizes.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Text Align",
+
+          description:
+            "Control the horizontal alignment of text within its container. These utilities ensure content appears left, center, right, or justified as needed for layout consistency.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Alignment Ruler",
+
+          description:
+            "Text alignment utilities set the CSS `text-align` property, controlling where inline content sits horizontally inside a block container. They are fundamental for layout composition, reading flow, and responsive design.",
+
+          features: [
+            "Supports left, right, center, justify",
+
+            "Responsive modifiers for different screens",
+
+            "Cascades to inline-level elements",
+
+            "Maintains consistent reading flow",
+
+            "Works with flex and grid layouts indirectly",
+          ],
+
+          layerAssignment:
+            "Typography Layer - Positions text inline within containers",
+
+          browserBehavior:
+            "Sets the `text-align` CSS property; inline elements inherit alignment from their containing block.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "text-left", desc: "Align text to the left" },
+
+            { cls: "text-center", desc: "Align text to the center" },
+
+            { cls: "text-right", desc: "Align text to the right" },
+
+            { cls: "text-justify", desc: "Justify text across the container" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Text Align Playground",
+
+          description:
+            "Experiment with different text alignment utilities. Observe how alignment affects readability and layout flow.",
+
+          options: ["text-left", "text-center", "text-right", "text-justify"],
+
+          defaultValue: "text-left",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} border p-4">Sample text alignment</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow w-full text-lg">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300">
+                  The quick brown fox jumps over the lazy dog.
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix Misaligned Heading",
+
+          description:
+            "A heading should be centered in its container but currently aligns left. Apply the correct text alignment utility.",
+
+          codeSnippet: '<h1 class="text-2xl font-bold {input}">Welcome!</h1>',
+
+          options: ["text-left", "text-right", "text-center", "text-justify"],
+
+          correctOption: "text-center",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <h1
+                className={`text-2xl font-bold transition-all duration-500 ${userClass}`}
+              >
+                Welcome!
+              </h1>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Left-Aligned Paragraph",
+
+              description:
+                "Default left alignment for body content and paragraphs.",
+
+              code: `<p class="text-left">This is left-aligned text for easy reading.</p>`,
+
+              preview: (
+                <div className="p-4 text-left">
+                  This is left-aligned text for easy reading.
+                </div>
+              ),
+            },
+
+            {
+              title: "Center-Aligned Heading",
+
+              description: "Center headings for emphasis in layouts.",
+
+              code: `<h2 class="text-center font-bold text-xl">Welcome to the Dashboard</h2>`,
+
+              preview: (
+                <div className="p-4 text-center font-bold text-xl">
+                  Welcome to the Dashboard
+                </div>
+              ),
+            },
+
+            {
+              title: "Right-Aligned Quote",
+
+              description:
+                "Align quotations or captions to the right for stylistic effect.",
+
+              code: `<blockquote class="text-right italic">\"Design is intelligence made visible.\"</blockquote>`,
+
+              preview: (
+                <div className="p-4 text-right italic">
+                  "Design is intelligence made visible."
+                </div>
+              ),
+            },
+
+            {
+              title: "Justified Article Text",
+
+              description:
+                "Use justify to spread text evenly across container width.",
+
+              code: `<p class="text-justify">This paragraph is fully justified to align both left and right edges.</p>`,
+
+              preview: (
+                <div className="p-4 text-justify">
+                  This paragraph is fully justified to align both left and right
+                  edges.
+                </div>
+              ),
+            },
+
+            {
+              title: "Responsive Alignment",
+
+              description:
+                "Left-align on small screens, center-align on medium and above.",
+
+              code: `<p class="text-left md:text-center">Responsive text alignment example.</p>`,
+
+              preview: (
+                <div className="p-4 text-left md:text-center">
+                  Responsive text alignment example.
+                </div>
+              ),
+            },
+
+            {
+              title: "Heading with Mixed Alignment",
+
+              description:
+                "Different headings can have individual alignment utilities applied.",
+
+              code: `<h1 class="text-left">Section Title</h1><h2 class="text-center">Subheading</h2>`,
+
+              preview: (
+                <div className="p-4">
+                  <h1 className="text-left">Section Title</h1>
+                  <h2 className="text-center">Subheading</h2>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Misusing Justify",
+
+              reason:
+                "Justify can create uneven spacing in short lines or headings; use sparingly.",
+
+              example: `<h2 class="text-justify">Short heading</h2>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Responsiveness",
+
+              reason:
+                "Not using responsive modifiers can break layout on different screen sizes.",
+
+              example: `<p class="text-center">Paragraph may look odd on small screens</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overriding Alignment",
+
+              reason:
+                "Applying multiple conflicting alignment classes can cause unexpected results.",
+
+              example: `<p class="text-left text-center">Conflicting alignment</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Not Considering Parent Containers",
+
+              reason:
+                "Parent flex or grid alignment may override text alignment utilities.",
+
+              example: `<div class="flex justify-end"><p class="text-left">Misaligned</p></div>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine Responsively:",
+              text: "Use modifiers like `sm:text-left md:text-center` for better layouts.",
+            },
+
+            {
+              bold: "Headings vs Paragraphs:",
+              text: "Apply alignment utilities to headings and paragraphs separately for clarity.",
+            },
+
+            {
+              bold: "Override Carefully:",
+              text: "Avoid multiple alignment classes on the same element to prevent conflicts.",
+            },
+
+            {
+              bold: "Parent Context:",
+              text: "Check parent container's display type (flex/grid) as it can affect alignment.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "text-decoration-color"],
+
+    title: "Text Decoration Color",
+
+    description:
+      "Control the color of text decorations like underlines, overlines, and line-throughs. Use this utility to enhance readability and align text decoration with brand colors or themes. It maps directly to the CSS `text-decoration-color` property and respects opacity modifiers.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Text Decoration Color",
+
+          description:
+            "Control the color of text decorations independently of the text color. This is essential for creating visual emphasis, maintaining accessibility, and aligning decorations with brand design.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Highlight Line",
+
+          description:
+            "Text decoration color utilities allow you to style underlines, overlines, and line-throughs without affecting the text itself. Think of it as painting the line independently from the letters.",
+
+          features: [
+            "Customizes underline, overline, line-through color",
+
+            "Supports responsive and state variants",
+
+            "Works with opacity modifiers",
+
+            "Independent from text color",
+
+            "Enhances visual hierarchy and emphasis",
+          ],
+
+          layerAssignment: "Typography Layer - Visual decoration of text",
+
+          browserBehavior:
+            "Sets the `text-decoration-color` CSS property. Works only if a text decoration style is applied.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "decoration-slate-500", desc: "Gray underline" },
+
+            { cls: "decoration-blue-600", desc: "Brand blue underline" },
+
+            { cls: "decoration-red-600", desc: "Error red underline" },
+
+            { cls: "decoration-green-600", desc: "Success green underline" },
+
+            {
+              cls: "decoration-white",
+              desc: "White underline for dark backgrounds",
+            },
+
+            { cls: "decoration-transparent", desc: "Invisible underline" },
+
+            {
+              cls: "decoration-current",
+              desc: "Inherit current text color for underline",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Text Decoration Color Playground",
+
+          description:
+            "Experiment with different text decoration colors. Observe how they interact with text color and backgrounds.",
+
+          options: [
+            "decoration-slate-900",
+
+            "decoration-slate-500",
+
+            "decoration-blue-600",
+
+            "decoration-sky-400",
+          ],
+
+          defaultValue: "decoration-blue-600",
+
+          buildMarkup: (value: string) =>
+            `<p class="underline ${value}">Decorated text</p>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <p className={`underline ${value} font-medium text-lg`}>
+                Preview Text Decoration
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Decoration Contrast",
+
+          description:
+            "A text element has an underline that blends into the background. Choose a color class that makes the decoration visible and aligned with the design.",
+
+          codeSnippet: `<p class="underline {input}">Important notice</p>`,
+
+          options: [
+            "decoration-slate-100",
+            "decoration-transparent",
+            "decoration-blue-600",
+            "decoration-current",
+          ],
+
+          correctOption: "decoration-blue-600",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-32 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <p
+                className={`underline text-lg font-medium transition-all duration-500 ${userClass}`}
+              >
+                Important notice
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Brand Links",
+
+              description: "Underlines matching the brand color for links.",
+
+              code: `<a href="#" class="underline decoration-blue-600">Learn More</a>`,
+
+              preview: (
+                <a href="#" className="underline decoration-blue-600">
+                  Learn More
+                </a>
+              ),
+            },
+
+            {
+              title: "Error Messages",
+
+              description: "Highlight important text with red underlines.",
+
+              code: `<span class="underline decoration-red-600">Invalid input</span>`,
+
+              preview: (
+                <span className="underline decoration-red-600">
+                  Invalid input
+                </span>
+              ),
+            },
+
+            {
+              title: "Success Indicators",
+
+              description: "Green underlines indicate successful actions.",
+
+              code: `<span class="underline decoration-green-600">Saved successfully</span>`,
+
+              preview: (
+                <span className="underline decoration-green-600">
+                  Saved successfully
+                </span>
+              ),
+            },
+
+            {
+              title: "Subtle Decorations",
+
+              description: "Use gray underlines for secondary content.",
+
+              code: `<p class="underline decoration-slate-500">Additional info</p>`,
+
+              preview: (
+                <p className="underline decoration-slate-500">
+                  Additional info
+                </p>
+              ),
+            },
+
+            {
+              title: "Transparent Decorations",
+
+              description:
+                "Hide the underline while keeping text decoration style intact.",
+
+              code: `<p class="underline decoration-transparent">Hidden underline</p>`,
+
+              preview: (
+                <p className="underline decoration-transparent">
+                  Hidden underline
+                </p>
+              ),
+            },
+
+            {
+              title: "Current Color Decorations",
+
+              description:
+                "Make the underline match the text color dynamically.",
+
+              code: `<p class="text-blue-600 underline decoration-current">Dynamic underline</p>`,
+
+              preview: (
+                <p className="text-blue-600 underline decoration-current">
+                  Dynamic underline
+                </p>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Decoration Invisible",
+
+              reason:
+                "Using a transparent or same-as-background color makes the underline invisible.",
+
+              example: `<p class="underline decoration-white">Hidden underline</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Decoration Style",
+
+              reason:
+                "Setting color without applying a decoration style has no visual effect.",
+
+              example: `<p class="decoration-red-600">No underline applied</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overriding Text Color",
+
+              reason:
+                "Setting `decoration-current` without matching text color may confuse design intent.",
+
+              example: `<p class="text-red-500 underline decoration-current">Mismatch</p>`,
+
+              level: "info",
+            },
+
+            {
+              title: "Opacity Misuse",
+
+              reason:
+                "Using low opacity can make the decoration hard to see on light backgrounds.",
+
+              example: `<p class="underline decoration-blue-600/20">Faint underline</p>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Pair with Text Color:",
+              text: "Ensure decoration contrasts well with text for readability.",
+            },
+
+            {
+              bold: "Use Current Color:",
+              text: "`decoration-current` keeps underline aligned with dynamic text color.",
+            },
+
+            {
+              bold: "Apply Responsively:",
+              text: "Combine with responsive modifiers like `sm:decoration-red-500` for adaptive styling.",
+            },
+
+            {
+              bold: "Combine with Decoration Styles:",
+              text: "Always set `underline`, `overline`, or `line-through` for the color to take effect.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "text-decoration-line"],
+
+    title: "Text Decoration Line",
+
+    description:
+      "Control the presence and type of text decoration lines such as underline, overline, and line-through. Use these utilities to emphasize text, indicate links, or signify removed content in a semantic and accessible way. They map directly to the CSS `text-decoration-line` property.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Text Decoration Line",
+
+          description:
+            "Control the presence and type of text decoration lines such as underline, overline, and line-through. Use these utilities to emphasize text, indicate links, or signify removed content in a semantic and accessible way.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Annotator Layer",
+
+          description:
+            "Text decoration line utilities set the CSS `text-decoration-line` property. They visually annotate text without affecting layout, often used to indicate interactive elements or semantic meaning. Multiple decorations can be combined for layered effects.",
+
+          features: [
+            "Underline, Overline, Line-through",
+
+            "Supports multiple combined decorations",
+
+            "Cascades to child inline elements",
+
+            "Accessible semantic indication",
+
+            "Responsive styling possible",
+          ],
+
+          layerAssignment: "Typography Layer - Visual text annotation",
+
+          browserBehavior:
+            "Sets the `text-decoration-line` property; child inline elements inherit unless overridden.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "underline", desc: "Adds underline to text" },
+
+            { cls: "line-through", desc: "Adds line-through to text" },
+
+            { cls: "no-underline", desc: "Removes all text decorations" },
+
+            { cls: "overline", desc: "Adds overline to text" },
+
+            {
+              cls: "underline line-through",
+              desc: "Combined underline and line-through",
+            },
+
+            {
+              cls: "underline overline",
+              desc: "Combined underline and overline",
+            },
+
+            {
+              cls: "overline line-through",
+              desc: "Combined overline and line-through",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Text Decoration Playground",
+
+          description:
+            "Experiment with different text decorations to see how underline, overline, and line-through affect the text. Combine multiple classes for layered effects.",
+
+          options: ["underline", "line-through", "overline", "no-underline"],
+
+          defaultValue: "underline",
+
+          buildMarkup: (value: string) =>
+            `<p class="${value} text-lg font-medium">Sample text</p>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center">
+                <p
+                  className={`text-slate-600 dark:text-slate-300 font-medium ${value}`}
+                >
+                  Preview Text
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken Decoration",
+
+          description:
+            "A link appears without underline, making it hard to identify as interactive. Apply the correct text decoration utility.",
+
+          codeSnippet:
+            '<a href="#" class="{input} text-blue-600">Visit Page</a>',
+
+          options: ["no-underline", "line-through", "underline", "overline"],
+
+          correctOption: "underline",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-32 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <a
+                href="#"
+                className={`text-blue-600 font-medium transition-all duration-300 ${userClass}`}
+              >
+                Link Text
+              </a>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Hyperlink Underline",
+
+              description:
+                "Standard link styling with underline for accessibility.",
+
+              code: `<a href="#" class="underline text-blue-600">Learn More</a>`,
+
+              preview: (
+                <a href="#" className="underline text-blue-600">
+                  Learn More
+                </a>
+              ),
+            },
+
+            {
+              title: "Deleted Text",
+
+              description:
+                "Strike-through to indicate removed or obsolete content.",
+
+              code: `<p class="line-through text-slate-500">Old version</p>`,
+
+              preview: (
+                <p className="line-through text-slate-500">Old version</p>
+              ),
+            },
+
+            {
+              title: "Heading Emphasis",
+
+              description:
+                "Overline combined with underline to highlight important headings.",
+
+              code: `<h2 class="overline underline text-xl font-bold">Chapter 1</h2>`,
+
+              preview: (
+                <h2 className="overline underline text-xl font-bold">
+                  Chapter 1
+                </h2>
+              ),
+            },
+
+            {
+              title: "Button Decoration Reset",
+
+              description:
+                "Remove default underline from buttons and links in navigation.",
+
+              code: `<button class="no-underline text-white bg-blue-600 px-4 py-2 rounded">Click</button>`,
+
+              preview: (
+                <button className="no-underline text-white bg-blue-600 px-4 py-2 rounded">
+                  Click
+                </button>
+              ),
+            },
+
+            {
+              title: "Combined Decorations",
+
+              description: "Use multiple decorations for stylistic effects.",
+
+              code: `<p class="underline line-through text-red-600">Warning</p>`,
+
+              preview: (
+                <p className="underline line-through text-red-600">Warning</p>
+              ),
+            },
+
+            {
+              title: "Overline Text Label",
+
+              description: "Overline used for small labels or metadata.",
+
+              code: `<span class="overline text-sm text-gray-500">Archived</span>`,
+
+              preview: (
+                <span className="overline text-sm text-gray-500">Archived</span>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Missing Underlines on Links",
+
+              reason:
+                "Links without underline can be hard to identify as interactive, affecting accessibility.",
+
+              example: `<a href="#" class="text-blue-600">Click me</a>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overusing Decorations",
+
+              reason:
+                "Too many text decorations can confuse users and reduce readability.",
+
+              example: `<p class="underline overline line-through">Confusing text</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Incorrect Removal",
+
+              reason:
+                "Using `no-underline` on elements that require visual cues reduces usability.",
+
+              example: `<a href="#" class="no-underline text-blue-600">Link</a>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Inheritance",
+
+              reason:
+                "Child inline elements may inherit undesired decorations; override carefully.",
+
+              example: `<span class="underline"><em class="no-underline">Important</em></span>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Combine Strategically:",
+              text: "Layer multiple decorations for emphasis but maintain readability.",
+            },
+
+            {
+              bold: "Link Accessibility:",
+              text: "Always underline links unless context provides other cues.",
+            },
+
+            {
+              bold: "Reset for Buttons:",
+              text: "Use `no-underline` on buttons to prevent default link styling.",
+            },
+
+            {
+              bold: "Semantic Usage:",
+              text: "Use line-through for deletions, overline for metadata or labels.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "text-decoration-style"],
+
+    title: "Text Decoration Style",
+
+    description:
+      "Control the style of text decorations such as underlines, overlines, and line-throughs. Use these utilities to differentiate or emphasize content visually, maintaining semantic clarity. Useful for links, headings, or interactive elements where decoration style conveys meaning.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Text Decoration Style",
+
+          description:
+            "Control the style of text decorations such as underlines, overlines, and line-throughs. Use these utilities to emphasize content or convey semantic meaning while maintaining accessible and readable text.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Underline Brush",
+
+          description:
+            "Text decoration style utilities set how lines are drawn on text. You can switch between solid, double, dotted, dashed, and wavy styles, allowing subtle emphasis or stronger visual cues without changing content hierarchy.",
+
+          features: [
+            "Controls underline, overline, line-through style",
+
+            "Supports semantic emphasis on text",
+
+            "Works in combination with color utilities",
+
+            "Responsive to text size changes",
+
+            "Maintains accessibility with readable decorations",
+          ],
+
+          layerAssignment: "Typography Layer - Enhances content presentation",
+
+          browserBehavior: "Sets the `text-decoration-style` CSS property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "decoration-solid", desc: "Solid line for text decoration" },
+
+            {
+              cls: "decoration-double",
+              desc: "Double line for text decoration",
+            },
+
+            {
+              cls: "decoration-dotted",
+              desc: "Dotted line for text decoration",
+            },
+
+            {
+              cls: "decoration-dashed",
+              desc: "Dashed line for text decoration",
+            },
+
+            { cls: "decoration-wavy", desc: "Wavy line for text decoration" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Playground",
+
+          description:
+            "Experiment with different decoration styles to see how they affect readability and emphasis on text.",
+
+          options: [
+            "decoration-solid",
+
+            "decoration-double",
+
+            "decoration-dotted",
+
+            "decoration-dashed",
+
+            "decoration-wavy",
+          ],
+
+          defaultValue: "decoration-solid",
+
+          buildMarkup: (value: string) =>
+            `<p class="${value} underline text-lg">Sample Text</p>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <p
+                className={`${value} underline text-lg text-slate-700 dark:text-slate-200`}
+              >
+                Preview Text
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken UI",
+
+          description:
+            "A heading is underlined but the line style does not match the brand guidelines. Correct it using the appropriate decoration style utility.",
+
+          codeSnippet: '<h2 class="underline {input}">Important Heading</h2>',
+
+          options: [
+            "decoration-dotted",
+
+            "decoration-dashed",
+
+            "decoration-solid",
+
+            "decoration-wavy",
+          ],
+
+          correctOption: "decoration-solid",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-32 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <h2 className={`underline text-xl font-bold ${userClass}`}>
+                Important Heading
+              </h2>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Link Styles",
+              description:
+                "Differentiating links with dotted underline to indicate non-primary actions.",
+              code: `<a href="#" class="underline decoration-dotted text-blue-600">Learn More</a>`,
+              preview: (
+                <a
+                  href="#"
+                  className="underline decoration-dotted text-blue-600"
+                >
+                  Learn More
+                </a>
+              ),
+            },
+
+            {
+              title: "Emphasized Heading",
+              description:
+                "Using double underlines to emphasize headings or section titles.",
+              code: `<h2 class="underline decoration-double text-2xl">Chapter 1</h2>`,
+              preview: (
+                <h2 className="underline decoration-double text-2xl">
+                  Chapter 1
+                </h2>
+              ),
+            },
+
+            {
+              title: "Warning Text",
+              description: "Dashed underline for cautionary notes or warnings.",
+              code: `<p class="underline decoration-dashed text-red-600">Handle with care</p>`,
+              preview: (
+                <p className="underline decoration-dashed text-red-600">
+                  Handle with care
+                </p>
+              ),
+            },
+
+            {
+              title: "Creative Accent",
+              description:
+                "Wavy underline for decorative emphasis on creative or promotional text.",
+              code: `<span class="underline decoration-wavy text-purple-600">Limited Offer</span>`,
+              preview: (
+                <span className="underline decoration-wavy text-purple-600">
+                  Limited Offer
+                </span>
+              ),
+            },
+
+            {
+              title: "Inline Code Highlight",
+              description:
+                "Solid underline for highlighting inline code or key terms.",
+              code: `<code class="underline decoration-solid">const value = 10;</code>`,
+              preview: (
+                <code className="underline decoration-solid">
+                  const value = 10;
+                </code>
+              ),
+            },
+
+            {
+              title: "Secondary Link",
+              description:
+                "Dotted underline for secondary links in a navigation menu.",
+              code: `<a href="#" class="underline decoration-dotted text-gray-600">Docs</a>`,
+              preview: (
+                <a
+                  href="#"
+                  className="underline decoration-dotted text-gray-600"
+                >
+                  Docs
+                </a>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using Wavy on Body Text",
+              reason:
+                "Wavy decorations reduce readability for large text blocks.",
+              example: `<p class="underline decoration-wavy">Too much emphasis</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Mixing Styles Randomly",
+              reason:
+                "Inconsistent decoration styles can confuse users and break design consistency.",
+              example: `<h3 class="underline decoration-dashed">Title</h3>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Accessibility",
+              reason:
+                "Decorative lines should not be the only cue for emphasis. Combine with color or font weight.",
+              example: `<span class="underline decoration-wavy text-slate-300">Important</span>`,
+              level: "critical",
+            },
+
+            {
+              title: "Overriding Utilities",
+              reason:
+                "Manually overriding the `text-decoration-style` in CSS may conflict with Tailwind classes.",
+              example: `<p class="underline decoration-solid" style="text-decoration-style: dotted;">Conflict</p>`,
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Consistent Use:",
+              text: "Maintain a consistent decoration style for similar elements to reinforce visual hierarchy.",
+            },
+
+            {
+              bold: "Combine with Color:",
+              text: "Pair decoration styles with text color for clearer emphasis and accessible contrast.",
+            },
+
+            {
+              bold: "Use Sparingly:",
+              text: "Avoid applying wavy or double lines on large text blocks to prevent visual clutter.",
+            },
+
+            {
+              bold: "Semantic Emphasis:",
+              text: "Use underline and overline styles meaningfully, not just decoratively, to aid user comprehension.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "text-decoration-thickness"],
+
+    title: "Text Decoration Thickness",
+
+    description:
+      "Control the thickness of text decorations like underlines, overlines, and line-throughs. Useful for emphasizing or de-emphasizing text in headings, links, or call-to-action elements. Adjusting thickness can improve readability and visual hierarchy.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Text Decoration Thickness",
+
+          description:
+            "Control the thickness of text decorations such as underlines, overlines, and line-throughs. This utility is important for establishing visual hierarchy, emphasis, and readability in typography across different screen sizes and contexts.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Thickness Control Layer",
+
+          description:
+            "Text decoration thickness modifies the CSS `text-decoration-thickness` property, affecting the stroke width of underlines and other decorations. Think of it as adjusting the weight of an accessory on your text, separate from the font weight.",
+
+          features: [
+            "Supports responsive adjustments",
+
+            "Customizable via arbitrary values",
+
+            "Affects visual emphasis without changing font",
+
+            "Compatible with text decoration styles",
+
+            "Improves readability on high-resolution displays",
+          ],
+
+          layerAssignment: "Typography Layer - Decoration Styling",
+
+          browserBehavior:
+            "Maps directly to the CSS `text-decoration-thickness` property. Inherited by default but can be overridden on child elements.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "decoration-auto",
+              desc: "Automatic thickness based on font",
+            },
+
+            {
+              cls: "decoration-from-font",
+              desc: "Uses font-specified thickness",
+            },
+
+            { cls: "decoration-0", desc: "No decoration thickness" },
+
+            { cls: "decoration-1", desc: "Thin decoration line" },
+
+            { cls: "decoration-2", desc: "Moderate thickness line" },
+
+            { cls: "decoration-4", desc: "Thick decoration line" },
+
+            { cls: "decoration-8", desc: "Extra thick decoration line" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Text Decoration Thickness Playground",
+
+          description:
+            "Experiment with different decoration thickness values to see how emphasis and readability change. Useful for adjusting link underlines or headings without affecting font weight.",
+
+          options: [
+            "decoration-auto",
+            "decoration-1",
+            "decoration-2",
+            "decoration-4",
+          ],
+
+          defaultValue: "decoration-2",
+
+          buildMarkup: (value: string) =>
+            `<p class="${value} underline">Sample Underlined Text</p>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center ${value}`}
+            >
+              <p
+                className={`underline text-slate-700 dark:text-slate-200 text-lg font-medium ${value}`}
+              >
+                Preview Underline
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken UI",
+
+          description:
+            "A heading underline appears too thin and hard to read. Adjust the decoration thickness to make it visually prominent without altering the font size.",
+
+          codeSnippet: '<h2 class="underline {input}">Important Heading</h2>',
+
+          options: [
+            "decoration-0",
+            "decoration-1",
+            "decoration-4",
+            "decoration-auto",
+          ],
+
+          correctOption: "decoration-4",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <h2
+                className={`underline text-2xl font-semibold transition-all duration-500 ${userClass}`}
+              >
+                Important Heading
+              </h2>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Underlined Links",
+              description: "Use `decoration-2` for prominent link underlines.",
+              code: `<a href="#" class="underline decoration-2">Read More</a>`,
+              preview: (
+                <a href="#" className="underline decoration-2 text-blue-600">
+                  Read More
+                </a>
+              ),
+            },
+
+            {
+              title: "Subtle Emphasis",
+              description: "Thin decoration on secondary text.",
+              code: `<p class="underline decoration-1 text-gray-600">Optional info</p>`,
+              preview: (
+                <p className="underline decoration-1 text-gray-600">
+                  Optional info
+                </p>
+              ),
+            },
+
+            {
+              title: "Headings Highlight",
+              description: "Thicker underlines for headings.",
+              code: `<h1 class="underline decoration-4">Chapter One</h1>`,
+              preview: (
+                <h1 className="underline decoration-4 text-xl font-bold">
+                  Chapter One
+                </h1>
+              ),
+            },
+
+            {
+              title: "Strikethrough Notes",
+              description: "Use moderate thickness for line-through notes.",
+              code: `<p class="line-through decoration-2 text-red-600">Deprecated</p>`,
+              preview: (
+                <p className="line-through decoration-2 text-red-600">
+                  Deprecated
+                </p>
+              ),
+            },
+
+            {
+              title: "Call-to-Action Buttons",
+              description:
+                "Underline with custom thickness to emphasize buttons.",
+              code: `<button class="underline decoration-4 text-white bg-blue-600 px-4 py-2 rounded">Click Me</button>`,
+              preview: (
+                <button className="underline decoration-4 text-white bg-blue-600 px-4 py-2 rounded">
+                  Click Me
+                </button>
+              ),
+            },
+
+            {
+              title: "Inline Code Highlights",
+              description:
+                "Apply subtle underline thickness to inline code segments.",
+              code: `<code class="underline decoration-1 bg-slate-200 px-1 rounded">const x = 10;</code>`,
+              preview: (
+                <code className="underline decoration-1 bg-slate-200 px-1 rounded">
+                  const x = 10;
+                </code>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Too Thin for Readability",
+              reason:
+                "Using `decoration-0` or `decoration-1` for headings reduces emphasis.",
+              example: `<h2 class="underline decoration-0">Heading</h2>`,
+              level: "warning",
+            },
+
+            {
+              title: "Overly Thick",
+              reason:
+                "Using `decoration-8` on small text can look visually heavy.",
+              example: `<p class="underline decoration-8">Small Text</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Font Weight",
+              reason:
+                "Adjusting thickness without considering font weight can cause imbalance.",
+              example: `<h1 class="underline decoration-4 font-light">Title</h1>`,
+              level: "info",
+            },
+
+            {
+              title: "Mixing Styles Incorrectly",
+              reason:
+                "Combining `decoration-2` with conflicting styles can produce inconsistent lines.",
+              example: `<span class="underline line-through decoration-2 decoration-dotted">Text</span>`,
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Consistency:",
+              text: "Keep decoration thickness uniform across similar elements for visual coherence.",
+            },
+
+            {
+              bold: "Responsive Design:",
+              text: "Use responsive variants to adjust thickness on different screen sizes.",
+            },
+
+            {
+              bold: "Combine With Style:",
+              text: "Pair `decoration-{n}` with `decoration-style` for refined appearance.",
+            },
+
+            {
+              bold: "Accessibility:",
+              text: "Ensure underlines remain visible against background colors for readability.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "text-indent"],
+
+    title: "Text Indent",
+
+    description:
+      "Control the horizontal indentation of the first line of text in a block. Useful for enhancing readability in paragraphs, quotes, or structured content. Tailwind utilities provide consistent, responsive indentation without custom CSS.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Text Indent",
+
+          description:
+            "Control the horizontal indentation of the first line of text in a block. This utility is useful for creating readable paragraphs, pull quotes, or visually structured content without writing custom CSS.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Paragraph Spacer",
+
+          description:
+            "Text indent shifts the first line of a text block horizontally. Conceptually, it creates a visual cue that separates content, similar to a tab in a printed book or a margin in traditional typography.",
+
+          features: [
+            "Adjusts first-line horizontal spacing",
+
+            "Supports responsive modifiers",
+
+            "Works on block-level elements",
+
+            "Maintains line height consistency",
+
+            "Enhances readability in long text",
+          ],
+
+          layerAssignment: "Typography Layer - Visual text spacing",
+
+          browserBehavior: "Maps directly to the CSS `text-indent` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "indent-0", desc: "No indentation" },
+
+            { cls: "indent-1", desc: "Small indent (0.25rem)" },
+
+            { cls: "indent-2", desc: "Moderate indent (0.5rem)" },
+
+            { cls: "indent-3", desc: "Large indent (0.75rem)" },
+
+            { cls: "indent-4", desc: "Extra large indent (1rem)" },
+
+            { cls: "indent-8", desc: "Double extra indent (2rem)" },
+
+            { cls: "indent-px", desc: "1px indentation for fine control" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Text Indent Playground",
+
+          description:
+            "Experiment with different indentation levels to control the first-line spacing of paragraphs. Observe how responsive modifiers adjust indentation across breakpoints.",
+
+          options: ["indent-0", "indent-1", "indent-2", "indent-4"],
+
+          defaultValue: "indent-2",
+
+          buildMarkup: (value: string) =>
+            `<p class="${value} text-base leading-relaxed">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.</p>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg transition-all duration-300`}
+            >
+              <p
+                className={`${value} text-base leading-relaxed text-slate-700 dark:text-slate-200`}
+              >
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non
+                risus.{" "}
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Misaligned Paragraph",
+
+          description:
+            "A paragraph lacks a visual indent, making it hard to distinguish from previous content. Apply the correct Tailwind indent class.",
+
+          codeSnippet:
+            '<p class="... {input}">Lorem ipsum dolor sit amet...</p>',
+
+          options: ["indent-0", "indent-1", "indent-2", "indent-4"],
+
+          correctOption: "indent-4",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-48 bg-slate-100 dark:bg-slate-900 rounded-lg p-6">
+              <p
+                className={`${userClass} text-slate-700 dark:text-slate-200 leading-relaxed`}
+              >
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non
+                risus.{" "}
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Standard Paragraph",
+
+              description:
+                "A simple paragraph with moderate first-line indentation.",
+
+              code: `<p class="indent-2">Lorem ipsum dolor sit amet...</p>`,
+
+              preview: (
+                <div className="p-4">
+                  <p className="indent-2 text-base">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                    non risus.
+                  </p>
+                </div>
+              ),
+            },
+
+            {
+              title: "Blockquote Style",
+
+              description:
+                "Use indentation for blockquotes to separate visually from main content.",
+
+              code: `<blockquote class="indent-4 text-lg italic">This is a quote.</blockquote>`,
+
+              preview: (
+                <div className="p-4">
+                  <blockquote className="indent-4 text-lg italic text-slate-700 dark:text-slate-300">
+                    This is a quote.
+                  </blockquote>
+                </div>
+              ),
+            },
+
+            {
+              title: "Responsive Indentation",
+
+              description:
+                "Adjust indentation across breakpoints for responsive design.",
+
+              code: `<p class="indent-2 md:indent-8">Responsive paragraph text.</p>`,
+
+              preview: (
+                <div className="p-4">
+                  <p className="indent-2 md:indent-8 text-base">
+                    Responsive paragraph text demonstrating first-line
+                    indentation changes at medium breakpoints.
+                  </p>
+                </div>
+              ),
+            },
+
+            {
+              title: "Minimal Indent",
+
+              description: "Fine-tune text layout using minimal indentation.",
+
+              code: `<p class="indent-1">Slightly indented paragraph.</p>`,
+
+              preview: (
+                <div className="p-4">
+                  <p className="indent-1 text-base">
+                    Slightly indented paragraph.
+                  </p>
+                </div>
+              ),
+            },
+
+            {
+              title: "Zero Indent",
+
+              description:
+                "Explicitly remove indentation for flush paragraphs.",
+
+              code: `<p class="indent-0">No indentation here.</p>`,
+
+              preview: (
+                <div className="p-4">
+                  <p className="indent-0 text-base">No indentation here.</p>
+                </div>
+              ),
+            },
+
+            {
+              title: "Custom Fine Control",
+
+              description: "Use `indent-px` for very fine spacing adjustments.",
+
+              code: `<p class="indent-px">Tiny first-line indent.</p>`,
+
+              preview: (
+                <div className="p-4">
+                  <p className="indent-px text-base">
+                    Tiny first-line indent for precise layout.
+                  </p>
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Over Indentation",
+
+              reason:
+                "Excessive indent can make text feel disconnected and reduce readability.",
+
+              example: `<p class="indent-8">Too much space at the start of this paragraph.</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Responsiveness",
+
+              reason: "Static indentation may break layout on smaller screens.",
+
+              example: `<p class="indent-4">This may overflow on mobile.</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Using on Inline Elements",
+
+              reason: "Text indent only applies to block-level elements.",
+
+              example: `<span class="indent-2">No effect here</span>`,
+
+              level: "info",
+            },
+
+            {
+              title: "Mixing With Padding",
+
+              reason:
+                "Adding left padding may conflict with indentation expectations.",
+
+              example: `<p class="pl-4 indent-4">Double spacing at start.</p>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Consistent Indentation:",
+              text: "Use standardized spacing units (`indent-2`, `indent-4`) for visual consistency across paragraphs.",
+            },
+
+            {
+              bold: "Responsive Control:",
+              text: "Apply breakpoint modifiers (`sm:indent-2`, `md:indent-4`) to adapt indentation on different screen sizes.",
+            },
+
+            {
+              bold: "Combine with Line Height:",
+              text: "Adjust `leading-*` classes to maintain readability alongside indentation.",
+            },
+
+            {
+              bold: "Avoid Inline Elements:",
+              text: "Apply indent only to block-level elements for predictable results.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+  slug: ["typography", "text-overflow"],
+  title: "Text Overflow",
+  description:
+    "Control how content that exceeds its container is displayed. Use these utilities to handle long text gracefully, preventing layout breakage while providing visual cues like ellipsis.",
+  sections: [
+    {
+      type: "hero",
+      props: {
+        title: "Text Overflow",
+        description:
+          "Control how overflowing text is handled within its container. Essential for responsive layouts, tables, cards, and any constrained text area where truncation or ellipsis is desired.",
+      },
+    },
+    {
+      type: "mental-model",
+      props: {
+        title: "Clipping and Ellipsis",
+        description:
+          "Text overflow utilities map to CSS properties like `text-overflow`, `white-space`, and `overflow`. They determine whether excess text is clipped, displayed with an ellipsis, or wrapped to a new line, while preserving container dimensions.",
+        features: [
+          "Supports ellipsis, clip, and visible modes",
+          "Requires constrained container width",
+          "Works with nowrap white-space settings",
+          "Cascades visually without altering content",
+          "Maintains accessibility for screen readers",
+        ],
+        layerAssignment:
+          "Typography Layer - Affects text display within container bounds",
+        browserBehavior:
+          "Maps directly to the CSS `text-overflow`, `overflow`, and `white-space` properties.",
+      },
+    },
+    {
+      type: "utility-grid",
+      props: {
+        title: "Common Classes",
+        items: [
+          {
+            cls: "truncate",
+            desc: "Clips text and shows an ellipsis for overflow (overflow: hidden + text-overflow: ellipsis + white-space: nowrap)",
+          },
+          {
+            cls: "text-ellipsis",
+            desc: "Adds ellipsis for overflowing text (requires overflow: hidden)",
+          },
+          {
+            cls: "text-clip",
+            desc: "Clips overflowing text without ellipsis",
+          },
+        ],
+      },
+    },
+    {
+      type: "playground",
+      props: {
+        title: "Text Overflow Playground",
+        description:
+          "Experiment with different overflow behaviors to see how long text is truncated, clipped, or displayed fully within constrained containers.",
+        options: ["truncate", "text-ellipsis", "text-clip"],
+        defaultValue: "truncate",
+        buildMarkup: (value: string) =>
+          `<div class="w-48 border p-2 ${value}">This is a long text that might overflow its container</div>`,
+        renderPreview: (value: string) => (
+          <div className="p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300">
+            <div
+              className={`bg-white dark:bg-slate-800 p-4 rounded shadow text-center w-64 border border-slate-200 dark:border-slate-700`}
+            >
+              <p
+                className={`text-slate-600 dark:text-slate-300 font-medium whitespace-nowrap overflow-hidden ${value}`}
+              >
+                This is a long text that might overflow its container
+              </p>
+            </div>
+          </div>
+        ),
+      },
+    },
+    {
+      type: "interactive-challenge",
+      props: {
+        title: "Fix the Overflowed Card",
+        description:
+          "A card title is overflowing its container and breaking the layout. Apply the correct utility to truncate it with an ellipsis.",
+        codeSnippet:
+          '<h3 class="w-48 border p-2 {input}">This is a very long card title that exceeds the container width</h3>',
+        options: [
+          "text-clip",
+          "whitespace-nowrap",
+          "truncate",
+          "overflow-visible",
+        ],
+        correctOption: "truncate",
+        renderPreview: (userClass: string) => (
+          <div className="w-full h-32 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+            <h3
+              className={`border p-2 bg-white dark:bg-slate-800 transition-all duration-500 ${userClass}`}
+              style={{ width: "12rem" }}
+            >
+              This is a very long card title that exceeds the container width
+            </h3>
+          </div>
+        ),
+      },
+    },
+    {
+      type: "examples",
+      props: {
+        title: "Real-World Patterns",
+        examples: [
+          {
+            title: "Table Cell Truncation",
+            description:
+              "Prevent table columns from expanding by truncating long content with an ellipsis.",
+            code: `<td class="truncate max-w-[100px]">This is a very long table cell content</td>`,
+            preview: (
+              <table className="w-full table-fixed border-collapse">
+                <tbody>
+                  <tr>
+                    <td className="truncate border p-2 max-w-[150px] bg-white dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300">
+                      This is a very long table cell content that should be
+                      truncated
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            ),
+          },
+          {
+            title: "Card Titles",
+            description:
+              "Truncate card titles to maintain consistent card heights.",
+            code: `<h3 class="truncate font-bold w-48">Extremely Long Card Title That Exceeds Width</h3>`,
+            preview: (
+              <div className="p-4 border rounded bg-white dark:bg-slate-900 dark:border-slate-700">
+                <h3 className="truncate font-bold w-48 text-slate-900 dark:text-white">
+                  Extremely Long Card Title That Exceeds Width
+                </h3>
+              </div>
+            ),
+          },
+          {
+            title: "Navbar Items",
+            description:
+              "Prevent navigation items from wrapping on small screens.",
+            code: `<li class="truncate px-2 w-24">Navigation Item</li>`,
+            preview: (
+              <ul className="flex bg-slate-100 dark:bg-slate-800 p-2 rounded w-48">
+                <li className="truncate px-2 w-24 bg-white dark:bg-slate-700 rounded shadow-sm text-sm">
+                  Navigation Item With Long Name
+                </li>
+              </ul>
+            ),
+          },
+          {
+            title: "Tooltip Previews",
+            description:
+              "Clip text in tooltip previews while showing ellipsis to indicate more content.",
+            code: `<div class="truncate w-40">Some very long tooltip text that will be clipped</div>`,
+            preview: (
+              <div className="truncate w-40 border p-2 bg-black text-white text-xs rounded">
+                Some very long tooltip text that will be clipped
+              </div>
+            ),
+          },
+          {
+            title: "Badge Labels",
+            description:
+              "Ensure badge text does not overflow container boundaries.",
+            code: `<span class="truncate inline-block w-24 bg-blue-500 text-white px-2 rounded">Long Badge Label</span>`,
+            preview: (
+              <span className="truncate inline-block w-24 bg-blue-500 text-white px-2 rounded py-1 text-xs align-middle">
+                Long Badge Label
+              </span>
+            ),
+          },
+          {
+            title: "Input Placeholder Text",
+            description:
+              "Prevent long placeholder text from wrapping in input fields (browsers handle this natively, but this ensures explicit width behavior).",
+            code: `<input class="truncate w-64 border p-2" placeholder="Type something very long here"/>`,
+            preview: (
+              <input
+                className="truncate w-64 border p-2 rounded dark:bg-slate-800 dark:border-slate-700 dark:text-white"
+                placeholder="Type something very long here that overflows"
+              />
+            ),
+          },
+        ],
+      },
+    },
+    {
+      type: "common-mistakes",
+      props: {
+        mistakes: [
+          {
+            title: "No Container Constraint",
+            reason:
+              "Applying truncate without a fixed width (like `w-48` or `max-w-xs`) prevents the browser from knowing *when* to truncate, so it often does nothing.",
+            example: `<p class="truncate">Long text without width</p>`,
+            level: "warning",
+          },
+          {
+            title: "Conflicting Utilities",
+            reason:
+              "Using `whitespace-normal` or `break-words` with `truncate` overrides the nowrap behavior required for ellipsis.",
+            example: `<p class="truncate whitespace-normal">Conflicting rules</p>`,
+            level: "warning",
+          },
+          {
+            title: "Accessibility Assumptions",
+            reason:
+              "Screen readers generally read the full text even if truncated visually. Do not use truncation to 'hide' secret info; use it only for layout preservation.",
+            example: `<p class="truncate">Secret code 12345</p>`,
+            level: "info",
+          },
+        ],
+      },
+    },
+    {
+      type: "tips",
+      props: {
+        tips: [
+          {
+            bold: "The Truncate Class:",
+            text: "`truncate` is a shortcut that applies `overflow: hidden`, `text-overflow: ellipsis`, and `white-space: nowrap` all at once.",
+          },
+          {
+            bold: "Responsive Adjustments:",
+            text: "Use responsive prefixes like `md:truncate` to only truncate text on tablet/desktop sizes where columns might get crowded.",
+          },
+          {
+            bold: "Flexbox Parents:",
+            text: "If truncating inside a flex child, add `min-w-0` to the parent to prevent the flex item from forcing the container open.",
+          },
+          {
+            bold: "Accessibility Awareness:",
+            text: "Consider adding a `title` attribute with the full text so users can see it on hover.",
+          },
+        ],
+      },
+    },
+  ],
+},
+  {
+    slug: ["typography", "text-transform"],
+
+    title: "Text Transform",
+
+    description:
+      "Control the capitalization of text content. Use these utilities to enforce consistent uppercase, lowercase, or capitalization styles without altering the HTML content directly.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Text Transform",
+
+          description:
+            "Control the capitalization of text content. These utilities are essential for headings, labels, and UI elements where consistent casing is required for readability and design consistency.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Capitalization Controller",
+
+          description:
+            "Text transform utilities map to CSS text-transform properties, changing how text is displayed without modifying the underlying content. This is especially useful for design consistency across responsive breakpoints.",
+
+          features: [
+            "Supports uppercase, lowercase, and capitalize",
+
+            "Does not alter original HTML content",
+
+            "Cascades to child elements by default",
+
+            "Responsive modifiers supported",
+
+            "Maintains accessibility and screen reader integrity",
+          ],
+
+          layerAssignment:
+            "Typography Layer - Affects visual rendering of text",
+
+          browserBehavior:
+            "Maps directly to the CSS `text-transform` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "uppercase", desc: "Transforms all letters to uppercase" },
+
+            { cls: "lowercase", desc: "Transforms all letters to lowercase" },
+
+            {
+              cls: "capitalize",
+              desc: "Capitalizes the first letter of each word",
+            },
+
+            { cls: "normal-case", desc: "Resets text to default casing" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Text Transform Playground",
+
+          description:
+            "Experiment with different text transformations to see how headings, labels, and body text are affected.",
+
+          options: ["uppercase", "lowercase", "capitalize", "normal-case"],
+
+          defaultValue: "uppercase",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} font-bold text-xl">Sample Text</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  Preview Text
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Heading Style",
+
+          description:
+            "A section heading is inconsistently capitalized. Apply the correct utility to enforce uppercase styling.",
+
+          codeSnippet: '<h2 class="{input}">Section Title</h2>',
+
+          options: ["lowercase", "capitalize", "uppercase", "normal-case"],
+
+          correctOption: "uppercase",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-32 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <h2
+                className={`text-2xl font-bold transition-all duration-500 ${userClass}`}
+              >
+                Section Title
+              </h2>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Form Labels",
+
+              description:
+                "Uppercase labels improve readability and hierarchy in forms.",
+
+              code: `<label class="uppercase font-semibold">Username</label>`,
+
+              preview: (
+                <label className="uppercase font-semibold">Username</label>
+              ),
+            },
+
+            {
+              title: "Card Titles",
+
+              description: "Capitalize card titles for visual consistency.",
+
+              code: `<h3 class="capitalize text-lg font-bold">user profile</h3>`,
+
+              preview: (
+                <h3 className="capitalize text-lg font-bold">user profile</h3>
+              ),
+            },
+
+            {
+              title: "Button Text",
+
+              description: "Uppercase call-to-action buttons for emphasis.",
+
+              code: `<button class="uppercase px-4 py-2 bg-blue-600 text-white rounded">Submit</button>`,
+
+              preview: (
+                <button className="uppercase px-4 py-2 bg-blue-600 text-white rounded">
+                  Submit
+                </button>
+              ),
+            },
+
+            {
+              title: "Navigation Items",
+
+              description: "Lowercase navigation links for a subtle style.",
+
+              code: `<nav><a class="lowercase px-2">Home</a></nav>`,
+
+              preview: (
+                <nav>
+                  <a className="lowercase px-2">Home</a>
+                </nav>
+              ),
+            },
+
+            {
+              title: "Section Headings",
+
+              description:
+                "Normal-case resets headings to default capitalization.",
+
+              code: `<h2 class="normal-case text-2xl">About Us</h2>`,
+
+              preview: <h2 className="normal-case text-2xl">About Us</h2>,
+            },
+
+            {
+              title: "Blog Post Titles",
+
+              description:
+                "Capitalize each word in blog titles for readability.",
+
+              code: `<h1 class="capitalize text-3xl font-bold">new features in tailwind</h1>`,
+
+              preview: (
+                <h1 className="capitalize text-3xl font-bold">
+                  new features in tailwind
+                </h1>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using Multiple Conflicting Classes",
+              reason:
+                "Applying `uppercase` and `lowercase` simultaneously causes confusion; only one text-transform class should be used.",
+              example: `<p class="uppercase lowercase">Text</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Relying on HTML Content Casing",
+              reason:
+                "Manually capitalizing letters in HTML makes global changes harder; use utilities instead.",
+              example: `<h1>HELLO WORLD</h1>`,
+              level: "info",
+            },
+
+            {
+              title: "Ignoring Responsive Needs",
+              reason:
+                "Different casing might be needed on different screen sizes; use responsive modifiers.",
+              example: `<p class="uppercase sm:lowercase">Text</p>`,
+              level: "warning",
+            },
+
+            {
+              title: "Assuming Accessibility Changes",
+              reason:
+                "Text-transform affects visual rendering only; screen readers read the original content.",
+              example: `<p class="uppercase">Accessible text</p>`,
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Consistent Hierarchy:",
+              text: "Use text-transform to enforce visual hierarchy in headings and labels.",
+            },
+
+            {
+              bold: "Responsive Adjustments:",
+              text: "Combine with responsive prefixes to adjust casing on different screen sizes.",
+            },
+
+            {
+              bold: "Avoid Inline Casing:",
+              text: "Do not manually type uppercase/lowercase letters; rely on utilities for maintainability.",
+            },
+
+            {
+              bold: "Accessibility Awareness:",
+              text: "Remember that screen readers ignore text-transform; write content in natural casing.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "text-underline-offset"],
+
+    title: "Text Underline Offset",
+
+    description:
+      "Adjust the vertical position of underlines beneath text. Use these utilities to improve readability, fine-tune design, or resolve visual collisions with descenders in fonts. They map directly to the CSS `text-underline-offset` property.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Text Underline Offset",
+
+          description:
+            "Adjust the vertical positioning of underlines for text elements. This ensures that underlines maintain visual clarity, avoid interfering with font descenders, and can be customized for design consistency.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Underline Lever",
+
+          description:
+            "Think of text underline offset as a lever that moves the underline up or down relative to the text baseline. This is particularly useful for decorative or functional underlines where legibility and spacing matter.",
+
+          features: [
+            "Controls vertical position of text underlines",
+
+            "Supports precise pixel or unit adjustments",
+
+            "Improves text readability and legibility",
+
+            "Works with responsive font sizes",
+
+            "CSS-based, lightweight styling",
+          ],
+
+          layerAssignment:
+            "Typography Layer - Decorative and functional text styling",
+
+          browserBehavior:
+            "Maps directly to the CSS `text-underline-offset` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "underline-offset-0",
+              desc: "Underline aligned at the text baseline",
+            },
+
+            {
+              cls: "underline-offset-1",
+              desc: "Small downward offset from baseline",
+            },
+
+            { cls: "underline-offset-2", desc: "Moderate downward offset" },
+
+            {
+              cls: "underline-offset-4",
+              desc: "Larger offset for clearer separation",
+            },
+
+            {
+              cls: "underline-offset-8",
+              desc: "Significant offset for decorative underlines",
+            },
+
+            {
+              cls: "underline-offset-auto",
+              desc: "Let browser choose the default offset",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Text Underline Offset Playground",
+
+          description:
+            "Experiment with different underline offsets to see how spacing affects readability and aesthetics.",
+
+          options: [
+            "underline-offset-0",
+            "underline-offset-1",
+            "underline-offset-2",
+            "underline-offset-4",
+            "underline-offset-8",
+            "underline-offset-auto",
+          ],
+
+          defaultValue: "underline-offset-2",
+
+          buildMarkup: (value: string) =>
+            `<p class="underline ${value}">Sample underlined text</p>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <p
+                className={`underline ${value} text-lg font-medium text-slate-700 dark:text-slate-200`}
+              >
+                Preview Text
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Misaligned Underline",
+
+          description:
+            "The underline is too close to the descender of the letter 'g', making the text look cramped. Adjust the offset to fix readability.",
+
+          codeSnippet: `<p class="underline {input}">Typography Example</p>`,
+
+          options: [
+            "underline-offset-0",
+            "underline-offset-1",
+            "underline-offset-4",
+            "underline-offset-8",
+          ],
+
+          correctOption: "underline-offset-4",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <p
+                className={`underline text-lg text-slate-700 dark:text-slate-200 transition-all duration-500 ${userClass}`}
+              >
+                Typography Example
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Body Text Readability",
+
+              description:
+                "Use subtle underline offsets for paragraph links to avoid collisions with descenders.",
+
+              code: `<p class="underline underline-offset-2">Read more about Tailwind CSS</p>`,
+
+              preview: (
+                <p className="underline underline-offset-2 text-slate-700 dark:text-slate-200">
+                  Read more about Tailwind CSS
+                </p>
+              ),
+            },
+
+            {
+              title: "Navigation Links",
+
+              description:
+                "Decorative underlines in nav links with moderate offset for clear separation.",
+
+              code: `<a href="#" class="underline underline-offset-4 text-blue-600">Home</a>`,
+
+              preview: (
+                <a
+                  href="#"
+                  className="underline underline-offset-4 text-blue-600"
+                >
+                  Home
+                </a>
+              ),
+            },
+
+            {
+              title: "CTA Buttons",
+
+              description:
+                "Buttons with underlined text use auto offset to maintain default legibility.",
+
+              code: `<button class="underline underline-offset-auto text-white bg-blue-600 px-4 py-2 rounded">Click Me</button>`,
+
+              preview: (
+                <button className="underline underline-offset-auto text-white bg-blue-600 px-4 py-2 rounded">
+                  Click Me
+                </button>
+              ),
+            },
+
+            {
+              title: "Decorative Headings",
+
+              description:
+                "Large headings with increased underline offset for stylistic effect.",
+
+              code: `<h2 class="underline underline-offset-8 text-3xl font-bold">Welcome</h2>`,
+
+              preview: (
+                <h2 className="underline underline-offset-8 text-3xl font-bold">
+                  Welcome
+                </h2>
+              ),
+            },
+
+            {
+              title: "Inline Links",
+
+              description:
+                "Inline anchor tags with minimal offset for subtle emphasis.",
+
+              code: `<span>Learn more at <a href="#" class="underline underline-offset-1 text-blue-500">Tailwind Docs</a></span>`,
+
+              preview: (
+                <span>
+                  Learn more at{" "}
+                  <a
+                    href="#"
+                    className="underline underline-offset-1 text-blue-500"
+                  >
+                    Tailwind Docs
+                  </a>
+                </span>
+              ),
+            },
+
+            {
+              title: "Dark Mode Adjustments",
+
+              description:
+                "Ensure underlines remain visible in dark mode with proper offset.",
+
+              code: `<p class="underline underline-offset-2 dark:text-white">Dark mode text example</p>`,
+
+              preview: (
+                <p className="underline underline-offset-2 dark:text-white">
+                  Dark mode text example
+                </p>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "No Offset for Descenders",
+
+              reason:
+                "Leaving underline at baseline may collide with letters like 'g', 'j', or 'y'.",
+
+              example: `<p class="underline underline-offset-0">Typographic error</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Excessive Offset",
+
+              reason:
+                "Too large offset breaks visual cohesion and looks disconnected.",
+
+              example: `<p class="underline underline-offset-8">Floating underline</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Dark Mode",
+
+              reason:
+                "Underline may become invisible on dark backgrounds if text color isn't adjusted.",
+
+              example: `<p class="underline underline-offset-2 text-slate-200">Unreadable text</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Mixing with Border Tricks",
+
+              reason:
+                "Using borders instead of underline offset can complicate responsive layouts.",
+
+              example: `<p class="border-b-2">Avoid this</p>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Consistency:",
+              text: "Use consistent offset values across similar text elements for uniformity.",
+            },
+
+            {
+              bold: "Responsive Design:",
+              text: "Adjust underline offsets with responsive variants for varying font sizes.",
+            },
+
+            {
+              bold: "Decorative Text:",
+              text: "Increase offsets on large display headings for visual separation.",
+            },
+
+            {
+              bold: "Accessibility:",
+              text: "Ensure underlines remain readable and do not collide with descenders.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "text-wrap"],
+
+    title: "Text Wrap",
+
+    description:
+      "Control how text wraps within an element. Use these utilities to prevent overflow or enforce wrapping behavior for readability and layout stability.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Text Wrap",
+
+          description:
+            "Text wrap utilities determine whether and how inline text breaks onto multiple lines. They are essential for maintaining readable content and preventing layout overflow in responsive designs.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Line Break Manager",
+
+          description:
+            "Text wrap utilities affect the CSS `white-space` property, controlling line breaking and wrapping behavior within an element. Think of it as instructing the browser when to allow lines to continue or break.",
+
+          features: [
+            "Controls line breaking and wrapping",
+
+            "Prevents horizontal overflow",
+
+            "Supports responsive layouts",
+
+            "Affects readability and UX",
+
+            "Works with long words and inline elements",
+          ],
+
+          layerAssignment: "Typography Layer - Governs inline text layout",
+
+          browserBehavior:
+            "Maps directly to the CSS `white-space` property, affecting how text wraps and respects whitespace.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "break-normal", desc: "Default wrapping behavior" },
+
+            {
+              cls: "break-words",
+              desc: "Break long words to prevent overflow",
+            },
+
+            {
+              cls: "break-all",
+              desc: "Break text at any character to avoid overflow",
+            },
+
+            { cls: "truncate", desc: "Truncate text with an ellipsis" },
+
+            {
+              cls: "whitespace-normal",
+              desc: "Collapses whitespace and allows wrapping",
+            },
+
+            { cls: "whitespace-nowrap", desc: "Prevents text from wrapping" },
+
+            {
+              cls: "whitespace-pre",
+              desc: "Preserves whitespace, no wrapping",
+            },
+
+            {
+              cls: "whitespace-pre-line",
+              desc: "Preserves newlines but wraps text",
+            },
+
+            {
+              cls: "whitespace-pre-wrap",
+              desc: "Preserves whitespace and wraps text",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Text Wrap Playground",
+
+          description:
+            "Experiment with different text wrapping behaviors to see how they handle long strings and whitespace.",
+
+          options: ["break-normal", "break-words", "break-all", "truncate"],
+
+          defaultValue: "break-normal",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-64 border border-slate-200 p-2">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center w-64">
+                <p className={`${value} text-slate-700 dark:text-slate-200`}>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                  Curabitur suscipit.
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Broken Text",
+
+          description:
+            "A card has a long username that overflows its container. Apply the correct text wrap utility to contain the text properly.",
+
+          codeSnippet:
+            '<div class="w-32 border p-2 {input}">VeryLongUsernameWithoutSpaces</div>',
+
+          options: [
+            "whitespace-nowrap",
+
+            "break-words",
+
+            "truncate",
+
+            "whitespace-pre",
+          ],
+
+          correctOption: "break-words",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-40 h-24 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center p-2">
+              <div className={`border p-2 w-32 ${userClass}`}>
+                VeryLongUsernameWithoutSpaces
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Breaking Long Words",
+
+              description:
+                "Use `break-words` to prevent horizontal overflow on long URLs or unbroken strings.",
+
+              code: `<p class="break-words w-48">https://www.example.com/verylongpathwithoutbreaks</p>`,
+
+              preview: (
+                <div className="w-48 border p-2 break-words">
+                  [https://www.example.com/verylongpathwithoutbreaks](https://www.example.com/verylongpathwithoutbreaks)
+                </div>
+              ),
+            },
+
+            {
+              title: "Truncating Text",
+
+              description:
+                "Use `truncate` for single-line text that should not overflow its container.",
+
+              code: `<p class="truncate w-32">This is some very long text</p>`,
+
+              preview: (
+                <div className="w-32 border p-2 truncate">
+                  This is some very long text
+                </div>
+              ),
+            },
+
+            {
+              title: "Preserve Whitespace",
+
+              description:
+                "Use `whitespace-pre` to keep spaces and line breaks intact.",
+
+              code: `<pre class="whitespace-pre">Line 1\nLine 2\n  Indented Line 3</pre>`,
+
+              preview: (
+                <pre className="whitespace-pre border p-2">
+                  Line 1{"\n"}Line 2{"\n"} Indented Line 3
+                </pre>
+              ),
+            },
+
+            {
+              title: "No Wrapping",
+
+              description:
+                "Use `whitespace-nowrap` to keep text on a single line.",
+
+              code: `<p class="whitespace-nowrap w-40">This text will not wrap</p>`,
+
+              preview: (
+                <div className="w-40 border p-2 whitespace-nowrap">
+                  This text will not wrap
+                </div>
+              ),
+            },
+
+            {
+              title: "Wrap With Newlines",
+
+              description:
+                "Use `whitespace-pre-line` to wrap text but respect newlines.",
+
+              code: `<p class="whitespace-pre-line w-48">Line1\nLine2 Line3</p>`,
+
+              preview: (
+                <div className="w-48 border p-2 whitespace-pre-line">
+                  Line1{"\n"}Line2 Line3
+                </div>
+              ),
+            },
+
+            {
+              title: "Wrap and Preserve Spaces",
+
+              description:
+                "Use `whitespace-pre-wrap` to preserve spaces and wrap text automatically.",
+
+              code: `<p class="whitespace-pre-wrap w-48">  Text with  spaces and multiple lines should wrap properly.</p>`,
+
+              preview: (
+                <div className="w-48 border p-2 whitespace-pre-wrap">
+                  {" "}
+                  Text with spaces and multiple lines should wrap properly.
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Forcing nowrap unnecessarily",
+
+              reason:
+                "Using `whitespace-nowrap` can cause overflow when wrapping would improve readability.",
+
+              example: `<p class="whitespace-nowrap w-32">Very long text that overflows</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring long words",
+
+              reason:
+                "Not using `break-words` can cause horizontal scrolling for unbroken strings.",
+
+              example: `<p class="w-32">VeryLongWordWithoutSpaces</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Truncating multi-line text",
+
+              reason:
+                "`truncate` only works for single-line text, not multi-line paragraphs.",
+
+              example: `<p class="truncate w-32">Line 1\nLine 2</p>`,
+
+              level: "info",
+            },
+
+            {
+              title: "Using pre incorrectly",
+
+              reason:
+                "Applying `whitespace-pre` without intention can preserve unwanted spaces and break layout.",
+
+              example: `<p class="whitespace-pre">   Misaligned text</p>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Break-words for URLs:",
+              text: "Always apply `break-words` to dynamic content like URLs to avoid layout overflow.",
+            },
+
+            {
+              bold: "Truncate Sparingly:",
+              text: "Use `truncate` only when content can be safely shortened with an ellipsis.",
+            },
+
+            {
+              bold: "Whitespace Pre-line:",
+              text: "Combine `whitespace-pre-line` with responsive containers for formatted text blocks.",
+            },
+
+            {
+              bold: "Combine with Max Width:",
+              text: "Set `max-w` classes along with text wrap utilities for predictable text layout.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "vertical-align"],
+
+    title: "Vertical Align",
+
+    description:
+      "Control the vertical positioning of inline-level elements relative to the baseline. Useful for aligning text, icons, and images within a line of content. Keep in mind that it only affects inline, inline-block, and table-cell elements.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Vertical Align",
+
+          description:
+            "Vertical align utilities adjust the vertical position of inline-level or table-cell elements relative to the baseline or container. This is essential for precise alignment of icons, text, and images in line layouts.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "The Baseline Slider",
+
+          description:
+            "Think of each inline element as sitting on an invisible baseline. Vertical align utilities shift elements up or down relative to this line or relative to the container's height, similar to sliding blocks along a reference line.",
+
+          features: [
+            "Affects inline, inline-block, and table-cell elements",
+
+            "Supports baseline, top, middle, bottom alignment",
+
+            "Responsive and composable with spacing utilities",
+
+            "Critical for icon/text alignment in UI components",
+          ],
+
+          layerAssignment: "Typography Layer - Inline element positioning",
+
+          browserBehavior:
+            "Maps directly to the CSS `vertical-align` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "align-baseline",
+              desc: "Align element to baseline of parent",
+            },
+
+            {
+              cls: "align-top",
+              desc: "Align element to the top of the line box",
+            },
+
+            {
+              cls: "align-middle",
+              desc: "Align element to the middle of parent",
+            },
+
+            {
+              cls: "align-bottom",
+              desc: "Align element to the bottom of the line box",
+            },
+
+            {
+              cls: "align-text-top",
+              desc: "Align element to the top of the parent text",
+            },
+
+            {
+              cls: "align-text-bottom",
+              desc: "Align element to the bottom of the parent text",
+            },
+
+            { cls: "align-sub", desc: "Align element as subscript" },
+
+            { cls: "align-super", desc: "Align element as superscript" },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Vertical Align Playground",
+
+          description:
+            "Experiment with different vertical alignment classes on inline elements to see how they interact with text and icons.",
+
+          options: [
+            "align-baseline",
+            "align-top",
+            "align-middle",
+            "align-bottom",
+          ],
+
+          defaultValue: "align-middle",
+
+          buildMarkup: (value: string) =>
+            `<span class="${value} inline-block text-xl">★</span> Inline text`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center gap-2 transition-all duration-300`}
+            >
+              <span className={`${value} inline-block text-3xl`}>★</span>{" "}
+              <p className="text-slate-600 dark:text-slate-300 font-medium">
+                Aligned Text
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Icon Alignment",
+
+          description:
+            "The star icon appears misaligned with the surrounding text. Use the appropriate vertical align class to fix it.",
+
+          codeSnippet: `<p class="text-xl">Your rating: <span class="{input}">★</span></p>`,
+
+          options: [
+            "align-top",
+            "align-bottom",
+            "align-middle",
+            "align-baseline",
+          ],
+
+          correctOption: "align-middle",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-32 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              {" "}
+              <p className="text-xl">
+                Your rating:{" "}
+                <span className={`${userClass} inline-block`}>★</span>
+              </p>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Inline Icons",
+
+              description:
+                "Aligning emoji or icon with text baseline for clean typography.",
+
+              code: `<p class="text-lg">Check this <span class="align-baseline inline-block">✅</span> item</p>`,
+
+              preview: (
+                <p className="text-lg">
+                  Check this{" "}
+                  <span className="align-baseline inline-block">✅</span> item
+                </p>
+              ),
+            },
+
+            {
+              title: "Superscript Footnote",
+
+              description:
+                "Using `align-super` for superscript footnote numbers.",
+
+              code: `<p>Footnote<span class="align-super">1</span></p>`,
+
+              preview: (
+                <p>
+                  Footnote<span className="align-super">1</span>
+                </p>
+              ),
+            },
+
+            {
+              title: "Subscript Formula",
+
+              description: "Using `align-sub` for subscript chemical notation.",
+
+              code: `<p>H<span class="align-sub">2</span>O</p>`,
+
+              preview: (
+                <p>
+                  H<span className="align-sub">2</span>O
+                </p>
+              ),
+            },
+
+            {
+              title: "Middle-aligned Avatar",
+
+              description:
+                "Vertically centering a small avatar icon with text.",
+
+              code: `<p>Username <img src="avatar.png" class="align-middle inline-block w-6 h-6" /></p>`,
+
+              preview: (
+                <p>
+                  Username{" "}
+                  <img
+                    src="avatar.png"
+                    className="align-middle inline-block w-6 h-6"
+                  />
+                </p>
+              ),
+            },
+
+            {
+              title: "Text-Top Alignment",
+
+              description: "Aligning an element to the top of the parent text.",
+
+              code: `<span class="align-text-top">Top-aligned</span> text example`,
+
+              preview: <span className="align-text-top">Top-aligned</span>,
+            },
+
+            {
+              title: "Text-Bottom Alignment",
+
+              description:
+                "Aligning an element to the bottom of the parent text.",
+
+              code: `<span class="align-text-bottom">Bottom-aligned</span> text example`,
+
+              preview: (
+                <span className="align-text-bottom">Bottom-aligned</span>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using on Block Elements",
+
+              reason:
+                "Vertical align has no effect on block-level elements. Use inline or inline-block.",
+
+              example: `<div class="align-middle">Block element</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring Baseline Context",
+
+              reason:
+                "Misaligned inline elements occur if baseline context is not considered.",
+
+              example: `<span class="align-top inline-block">★</span> Text misaligned`,
+
+              level: "info",
+            },
+
+            {
+              title: "Overlapping with Line Height",
+
+              reason:
+                "Too small line-height can cause visual clipping even with correct vertical align.",
+
+              example: `<span class="align-middle inline-block">★</span>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Incorrect Icon Size",
+
+              reason:
+                "Large icons may appear misaligned; adjust `text-size` or container height.",
+
+              example: `<img class="align-middle w-12 h-12" />`,
+
+              level: "info",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use Inline-Block:",
+              text: "Ensure the element is inline or inline-block to apply vertical alignment.",
+            },
+
+            {
+              bold: "Combine with Line Height:",
+              text: "Adjust line-height for better visual centering of icons or text.",
+            },
+
+            {
+              bold: "Icons & Text:",
+              text: "Middle alignment works best for icon and text pairs in UI components.",
+            },
+
+            {
+              bold: "Superscript/Subscript:",
+              text: "Use `align-super` and `align-sub` for semantic notation instead of manual margin adjustments.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "white-space"],
+
+    title: "White Space",
+
+    description:
+      "Control how text wraps and handles whitespace within an element. This utility is essential for managing text layout, preventing overflow, and preserving formatting in preformatted content.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "White Space",
+
+          description:
+            "Control how whitespace inside an element is handled, including wrapping, collapsing, and preserving line breaks. Useful for formatting code blocks, preventing text overflow, and maintaining consistent layout.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Text Flow Manager",
+
+          description:
+            "White space utilities adjust the CSS `white-space` property, determining how sequences of spaces, tabs, and line breaks are interpreted. Think of it as setting the 'rules of the text container' for line breaks and spacing.",
+
+          features: [
+            "Controls text wrapping and line breaks",
+
+            "Preserves preformatted content",
+
+            "Supports responsive adjustments",
+
+            "Prevents overflow in tight layouts",
+
+            "Critical for code and poetry formatting",
+          ],
+
+          layerAssignment:
+            "Typography Layer - Affects inline content rendering",
+
+          browserBehavior: "Maps directly to the CSS `white-space` property.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            {
+              cls: "whitespace-normal",
+              desc: "Collapses whitespace, allows wrapping",
+            },
+
+            {
+              cls: "whitespace-nowrap",
+              desc: "Collapses whitespace, prevents wrapping",
+            },
+
+            {
+              cls: "whitespace-pre",
+              desc: "Preserves whitespace, no wrapping",
+            },
+
+            {
+              cls: "whitespace-pre-line",
+              desc: "Preserves line breaks, collapses spaces",
+            },
+
+            {
+              cls: "whitespace-pre-wrap",
+              desc: "Preserves all whitespace, allows wrapping",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "White Space Playground",
+
+          description:
+            "Experiment with different `white-space` classes to see how text wrapping and spacing changes.",
+
+          options: [
+            "whitespace-normal",
+            "whitespace-nowrap",
+            "whitespace-pre",
+            "whitespace-pre-line",
+            "whitespace-pre-wrap",
+          ],
+
+          defaultValue: "whitespace-normal",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} border p-2 w-64">This is   an example   of whitespace handling.</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg transition-all duration-300 ${value}`}
+            >
+              {" "}
+              <div className="bg-white dark:bg-slate-800 p-4 rounded shadow text-center">
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  This is an example of whitespace handling.
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Text Overflow",
+
+          description:
+            "A code snippet is overflowing because wrapping is disabled. Apply the correct white-space utility to allow normal wrapping.",
+
+          codeSnippet:
+            '<div class="w-40 border p-2 {input}">Overflowing text example that should wrap properly.</div>',
+
+          options: [
+            "whitespace-nowrap",
+            "whitespace-pre",
+            "whitespace-normal",
+            "whitespace-pre-line",
+          ],
+
+          correctOption: "whitespace-normal",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-64 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`border p-2 w-40 transition-all duration-500 ${userClass}`}
+              >
+                Overflowing text example that should wrap properly.{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Normal Wrapping",
+
+              description: "Default wrapping for paragraphs in content blocks.",
+
+              code: `<p class="whitespace-normal">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>`,
+
+              preview: (
+                <div className="p-4 whitespace-normal">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </div>
+              ),
+            },
+
+            {
+              title: "No Wrapping",
+
+              description: "Prevent text from wrapping in buttons or labels.",
+
+              code: `<span class="whitespace-nowrap">No wrap text example</span>`,
+
+              preview: (
+                <div className="p-4 whitespace-nowrap bg-slate-100 dark:bg-slate-800">
+                  No wrap text example
+                </div>
+              ),
+            },
+
+            {
+              title: "Preformatted Text",
+
+              description:
+                "Preserve all whitespace for code blocks or ASCII art.",
+
+              code: `<pre class="whitespace-pre">  Preformatted text  
+
+with spaces preserved</pre>`,
+
+              preview: (
+                <pre className="whitespace-pre p-2 bg-slate-50 dark:bg-slate-950 rounded">
+                  {" "}
+                  Preformatted text with spaces preserved
+                </pre>
+              ),
+            },
+
+            {
+              title: "Preserve Line Breaks",
+
+              description:
+                "Collapse spaces but keep line breaks for poetry or text.",
+
+              code: `<div class="whitespace-pre-line">Line one
+
+Line two
+
+Line three</div>`,
+
+              preview: (
+                <div className="whitespace-pre-line p-2 bg-white dark:bg-slate-800 rounded">
+                  Line one Line two Line three
+                </div>
+              ),
+            },
+
+            {
+              title: "Wrap with Preserved Spaces",
+
+              description: "Allows wrapping while keeping spaces intact.",
+
+              code: `<div class="whitespace-pre-wrap">Text    with multiple spaces preserved and wrapped properly.</div>`,
+
+              preview: (
+                <div className="whitespace-pre-wrap p-2 bg-slate-50 dark:bg-slate-950 rounded">
+                  Text with multiple spaces preserved and wrapped properly.
+                </div>
+              ),
+            },
+
+            {
+              title: "Mixed Content Formatting",
+
+              description:
+                "Combining white-space utilities with responsive layouts.",
+
+              code: `<div class="whitespace-pre-line md:whitespace-normal">Line one
+
+Line two with more content that wraps on larger screens</div>`,
+
+              preview: (
+                <div className="whitespace-pre-line md:whitespace-normal p-2 bg-white dark:bg-slate-900 rounded">
+                  Line one Line two with more content that wraps on larger
+                  screens
+                </div>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Using nowrap on paragraphs",
+
+              reason: "Prevents wrapping and causes horizontal overflow.",
+
+              example: `<p class="whitespace-nowrap">Long paragraph text that will overflow</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Forgetting pre for code",
+
+              reason: "Code formatting is lost if `whitespace-pre` is omitted.",
+
+              example: `<code class="whitespace-normal">function test() { return 1; }</code>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Using pre-line with multiple spaces",
+
+              reason:
+                "Multiple spaces are collapsed; not suitable for ASCII art.",
+
+              example: `<div class="whitespace-pre-line">    Indented text</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring responsiveness",
+
+              reason:
+                "Text may wrap incorrectly on smaller screens if white-space is fixed.",
+
+              example: `<p class="whitespace-nowrap md:whitespace-normal">Responsive text</p>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Code Blocks:",
+              text: "Use `whitespace-pre` or `pre-wrap` for accurate formatting.",
+            },
+
+            {
+              bold: "Poetry & Line Breaks:",
+              text: "Use `whitespace-pre-line` to preserve line breaks but collapse spaces.",
+            },
+
+            {
+              bold: "Prevent Overflow:",
+              text: "Combine `whitespace-normal` with `break-words` to avoid horizontal scrolling.",
+            },
+
+            {
+              bold: "Responsive Layouts:",
+              text: "Adjust white-space utilities per breakpoint to optimize readability.",
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: ["typography", "word-break"],
+
+    title: "Word Break",
+
+    description:
+      "Control how text wraps within its container. Word break utilities prevent overflow issues and ensure content remains readable in tight layouts or dynamic content areas.",
+
+    sections: [
+      {
+        type: "hero",
+
+        props: {
+          title: "Word Break",
+
+          description:
+            "Control how long words or URLs wrap onto multiple lines. Use these utilities to prevent layout breaking when handling unbroken text strings in responsive designs.",
+        },
+      },
+
+      {
+        type: "mental-model",
+
+        props: {
+          title: "Breaking Words Intelligently",
+
+          description:
+            "Word break utilities dictate whether text breaks at normal word boundaries, anywhere within a word, or avoids breaking entirely. This ensures readable, consistent text layout even with long strings or dynamic content.",
+
+          features: [
+            "Prevents text overflow in containers",
+
+            "Supports responsive wrapping behavior",
+
+            "Improves readability for long words or URLs",
+
+            "Combines with overflow utilities",
+
+            "Essential for flexible layouts",
+          ],
+
+          layerAssignment: "Typography Layer - Affects text flow within layout",
+
+          browserBehavior:
+            "Maps directly to the CSS `overflow-wrap` and `word-break` properties.",
+        },
+      },
+
+      {
+        type: "utility-grid",
+
+        props: {
+          title: "Common Classes",
+
+          items: [
+            { cls: "break-normal", desc: "Default word breaking behavior" },
+
+            {
+              cls: "break-words",
+              desc: "Break words at arbitrary points to prevent overflow",
+            },
+
+            {
+              cls: "break-all",
+              desc: "Break all words aggressively, regardless of language rules",
+            },
+
+            {
+              cls: "truncate",
+              desc: "Truncate text with ellipsis for single-line overflow",
+            },
+
+            {
+              cls: "overflow-ellipsis",
+              desc: "Apply ellipsis to overflowing text",
+            },
+
+            { cls: "whitespace-nowrap", desc: "Prevent line breaks entirely" },
+
+            {
+              cls: "whitespace-pre",
+              desc: "Respect whitespace and line breaks",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "playground",
+
+        props: {
+          title: "Word Break Playground",
+
+          description:
+            "Experiment with different word break and whitespace strategies to see how text flows in constrained containers.",
+
+          options: ["break-normal", "break-words", "break-all", "truncate"],
+
+          defaultValue: "break-words",
+
+          buildMarkup: (value: string) =>
+            `<div class="${value} w-48 border p-2">ThisIsAReallyLongWordThatMightOverflowWithoutProperWordBreak</div>`,
+
+          renderPreview: (value: string) => (
+            <div
+              className={`p-8 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center transition-all duration-300`}
+            >
+              <div
+                className={`bg-white dark:bg-slate-800 p-4 rounded shadow text-center w-64 ${value}`}
+              >
+                {" "}
+                <p className="text-slate-600 dark:text-slate-300 font-medium">
+                  ThisIsAReallyLongWordThatMightOverflowWithoutProperWordBreak
+                </p>{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "interactive-challenge",
+
+        props: {
+          title: "Fix the Overflowing Text",
+
+          description:
+            "A container has long, unbroken text that overflows its boundaries. Apply the correct word break utility to fix it.",
+
+          codeSnippet:
+            '<div class="w-32 border p-2 {input}">Supercalifragilisticexpialidocious</div>',
+
+          options: [
+            "break-normal",
+            "break-words",
+            "truncate",
+            "whitespace-nowrap",
+          ],
+
+          correctOption: "break-words",
+
+          renderPreview: (userClass: string) => (
+            <div className="w-full h-32 bg-slate-100 dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div
+                className={`w-32 border p-2 transition-all duration-500 ${userClass}`}
+              >
+                Supercalifragilisticexpialidocious{" "}
+              </div>{" "}
+            </div>
+          ),
+        },
+      },
+
+      {
+        type: "examples",
+
+        props: {
+          title: "Real-World Patterns",
+
+          examples: [
+            {
+              title: "Responsive Layout Text Wrapping",
+
+              description:
+                "Break long URLs or code snippets in small containers to prevent horizontal scroll.",
+
+              code: `<div class="w-40 break-words border p-2">https://www.example.com/very/long/path/to/resource</div>`,
+
+              preview: (
+                <div className="w-40 break-words border p-2">
+                  [https://www.example.com/very/long/path/to/resource](https://www.example.com/very/long/path/to/resource)
+                </div>
+              ),
+            },
+
+            {
+              title: "Truncate Titles",
+
+              description:
+                "Ensure headings do not overflow card boundaries by truncating them with ellipsis.",
+
+              code: `<h2 class="truncate w-48 font-bold">This is a very long heading that should be truncated</h2>`,
+
+              preview: (
+                <h2 className="truncate w-48 font-bold">
+                  This is a very long heading that should be truncated
+                </h2>
+              ),
+            },
+
+            {
+              title: "Prevent Wrapping",
+
+              description:
+                "Keep text on a single line using whitespace utilities.",
+
+              code: `<p class="whitespace-nowrap">This text will never wrap and might overflow</p>`,
+
+              preview: (
+                <p className="whitespace-nowrap">
+                  This text will never wrap and might overflow
+                </p>
+              ),
+            },
+
+            {
+              title: "Preformatted Text",
+
+              description:
+                "Preserve whitespace and line breaks for code blocks or poetry.",
+
+              code: `<pre class="whitespace-pre border p-2">Line 1\nLine 2\n    Indented line</pre>`,
+
+              preview: (
+                <pre className="whitespace-pre border p-2">
+                  Line 1{`\n`}Line 2{`\n`} Indented line
+                </pre>
+              ),
+            },
+
+            {
+              title: "Aggressive Word Breaking",
+
+              description:
+                "Force all words to break in tight containers for maximum safety.",
+
+              code: `<div class="break-all w-32 border p-2">Supercalifragilisticexpialidocious</div>`,
+
+              preview: (
+                <div className="break-all w-32 border p-2">
+                  Supercalifragilisticexpialidocious
+                </div>
+              ),
+            },
+
+            {
+              title: "Inline Code Wrapping",
+
+              description:
+                "Ensure inline code wraps naturally within paragraphs.",
+
+              code: `<span class="break-words inline-block">const veryLongVariableNameThatMightOverflow = 42;</span>`,
+
+              preview: (
+                <span className="break-words inline-block">
+                  const veryLongVariableNameThatMightOverflow = 42;
+                </span>
+              ),
+            },
+          ],
+        },
+      },
+
+      {
+        type: "common-mistakes",
+
+        props: {
+          mistakes: [
+            {
+              title: "Ignoring Overflow",
+
+              reason:
+                "Not applying a break utility can cause horizontal scroll or cut-off content.",
+
+              example: `<div class="w-32">Supercalifragilisticexpialidocious</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Overusing break-all",
+
+              reason: "Aggressively breaking words can reduce readability.",
+
+              example: `<div class="break-all">Readable content gets fragmented</div>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Truncating Multiline Text",
+
+              reason:
+                "truncate only works on single-line text. Use line-clamp for multiline truncation.",
+
+              example: `<p class="truncate w-48">This is multiple lines of text that will overflow</p>`,
+
+              level: "warning",
+            },
+
+            {
+              title: "Ignoring White-Space",
+
+              reason:
+                "For preformatted content, not using whitespace utilities can collapse spaces and newlines.",
+
+              example: `<pre>    Indented line</pre>`,
+
+              level: "warning",
+            },
+          ],
+        },
+      },
+
+      {
+        type: "tips",
+
+        props: {
+          tips: [
+            {
+              bold: "Use break-words for responsive content:",
+              text: "Ideal for dynamic layouts where text length is unpredictable.",
+            },
+
+            {
+              bold: "Combine truncate with tooltips:",
+              text: "Show full text on hover when truncating long strings.",
+            },
+
+            {
+              bold: "Prefer break-normal for readability:",
+              text: "Only use break-all when overflow is unavoidable.",
+            },
+
+            {
+              bold: "Preserve code formatting:",
+              text: "Use whitespace-pre for code blocks or preformatted text.",
             },
           ],
         },
